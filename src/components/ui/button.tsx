@@ -1,5 +1,5 @@
 import React from 'react'
-import { ActivityIndicator, TouchableOpacity } from 'react-native'
+import { ActivityIndicator, Pressable } from 'react-native'
 import { Box } from './box'
 import { Text } from './text'
 
@@ -23,7 +23,7 @@ const Button = ({
   onPress,
 }: Props) => {
   return (
-    <TouchableOpacity onPress={onPress} disabled={loading}>
+    <Pressable onPress={onPress} disabled={loading}>
       <Box
         backgroundColor={variant === 'primary' ? 'accent' : 'surfaceAlt'}
         padding={size === 'sm' ? 'sm' : 'md'}
@@ -50,7 +50,7 @@ const Button = ({
           </>
         )}
       </Box>
-    </TouchableOpacity>
+    </Pressable>
   )
 }
 

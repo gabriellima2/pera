@@ -5,17 +5,18 @@ const eslintConfigPrettier = require('eslint-config-prettier')
 const eslintPluginPrettier = require('eslint-plugin-prettier')
 
 module.exports = defineConfig([
-	expoConfig,
-	{
-		plugins: {
-			prettier: eslintPluginPrettier,
-		},
-		rules: {
-			'prettier/prettier': 'error',
-		},
-	},
-	eslintConfigPrettier, // Deve vir por último para desabilitar regras conflitantes
-	{
-		ignores: ['dist/*'],
-	},
+  expoConfig,
+  {
+    plugins: {
+      prettier: eslintPluginPrettier,
+    },
+    rules: {
+      'prettier/prettier': 'error',
+      'react/no-children-prop': 'off',
+    },
+  },
+  eslintConfigPrettier, // Deve vir por último para desabilitar regras conflitantes
+  {
+    ignores: ['dist/*'],
+  },
 ])

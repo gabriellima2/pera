@@ -153,7 +153,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_daily_entry: {
+        Args: { p_date: string; p_emotion: string; p_notes: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

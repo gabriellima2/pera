@@ -1,3 +1,4 @@
+import { LoadingIndicator } from '@/components/ui/loading'
 import { queryClient } from '@/lib/react-query/client'
 import {
   Poppins_400Regular,
@@ -10,12 +11,18 @@ import { useFonts } from 'expo-font'
 import { Stack } from 'expo-router'
 import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
+import {
+  AlertTriangleIcon,
+  CheckCircle2Icon,
+  InfoIcon,
+  XCircleIcon,
+} from 'lucide-react-native'
 import { useEffect } from 'react'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import 'react-native-reanimated'
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
+import { Toaster } from 'sonner-native'
 import { theme } from '../theme'
-
 export { ErrorBoundary } from 'expo-router'
 
 export const unstable_settings = {
@@ -67,10 +74,44 @@ export default function RootLayout() {
                 <Stack.Screen name="index" />
                 <Stack.Screen name="(tabs)" />
               </Stack>
+              <Toaster
+                theme="light"
+                icons={toastIcons}
+                toastOptions={toastOptions}
+              />
             </SafeAreaView>
           </QueryClientProvider>
         </ThemeProvider>
       </GestureHandlerRootView>
     </SafeAreaProvider>
   )
+}
+
+type ToasterProps = Parameters<typeof Toaster>[number]
+
+const toastIcons: ToasterProps['icons'] = {
+  success: <CheckCircle2Icon size={20} color={theme.colors.success} />,
+  error: <XCircleIcon size={20} color={theme.colors.error} />,
+  loading: <LoadingIndicator />,
+  info: <InfoIcon size={20} color={theme.colors.foreground} />,
+  warning: <AlertTriangleIcon size={20} color={theme.colors.warning} />,
+}
+
+const toastOptions: ToasterProps['toastOptions'] = {
+  style: {
+    backgroundColor: theme.colors.surface,
+  },
+  toastContentStyle: {
+    alignItems: 'center',
+  },
+  titleStyle: {
+    color: theme.colors.surfaceForeground,
+    fontFamily: 'Poppins_500Medium',
+    fontSize: 14,
+  },
+  descriptionStyle: {
+    color: theme.colors.surfaceForeground,
+    fontFamily: 'Poppins_400Regular',
+    fontSize: 14,
+  },
 }
