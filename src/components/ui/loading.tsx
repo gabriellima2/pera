@@ -1,11 +1,12 @@
 import { theme } from '@/theme'
-import { ActivityIndicator, View } from 'react-native'
+import { ActivityIndicator } from 'react-native'
+import { Box } from './box'
 
 export function LoadingScreen() {
   return (
-    <View className="flex-1 items-center justify-center">
+    <Box flex={1} alignItems="center" justifyContent="center">
       <ActivityIndicator size="large" color={theme.colors.foreground} />
-    </View>
+    </Box>
   )
 }
 

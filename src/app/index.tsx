@@ -1,10 +1,10 @@
+import { Box } from '@/components/ui/box'
+import { Text } from '@/components/ui/text'
 import { supabaseClient } from '@/lib/supabase/client'
-import { Link, useRouter } from 'expo-router'
+import { Link } from 'expo-router'
 import { useEffect } from 'react'
 
 export default function Screen() {
-  const router = useRouter()
-
   useEffect(() => {
     ;(async () => {
       try {
@@ -16,7 +16,6 @@ export default function Screen() {
         }
 
         if (session.data.session) {
-          router.replace('/create-daily-entry')
           return
         }
 
@@ -31,14 +30,20 @@ export default function Screen() {
             success: false,
           }
         }
-
-        router.replace('/create-daily-entry')
       } catch (error) {
         console.error(error)
       }
     })()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  return <Link href="/create-daily-entry">Create Daily Entry</Link>
+  return (
+    <Box flex={1} alignItems="center" justifyContent="center">
+      <Link href="/create-daily-entry">
+        <Text>Create Daily Entry</Text>
+      </Link>
+      <Link href="/create-moment-entry">
+        <Text>Create Moment Entry</Text>
+      </Link>
+    </Box>
+  )
 }

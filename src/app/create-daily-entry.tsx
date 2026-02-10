@@ -47,7 +47,6 @@ export default function CreateDailyEntry() {
     },
     onError: (error) => {
       toast.error(error.message)
-      router.replace('/')
     },
   })
 
@@ -64,7 +63,7 @@ export default function CreateDailyEntry() {
 
   return (
     <Box>
-      <Box>
+      <Box gap="lg">
         <form.Field
           name="emotion"
           children={(field) => {
