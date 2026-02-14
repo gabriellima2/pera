@@ -1,6 +1,7 @@
 import { Box } from '@/components/ui/box'
 import { LoadingScreen } from '@/components/ui/loading'
 import { Text } from '@/components/ui/text'
+import { QUERY_KEYS } from '@/constants/keys'
 import { supabaseClient } from '@/lib/supabase/client'
 import { theme } from '@/theme'
 import { getCurrentDateString } from '@/utils/date'
@@ -35,7 +36,7 @@ export default function Screen() {
 
         return dailyEntry.data?.[0] || null
       },
-      queryKey: ['today-daily-entry'],
+      queryKey: QUERY_KEYS.DAILY_ENTRIES.TODAY,
       throwOnError: (error) => {
         toast.error(error.message)
         if (error.message.includes('Você precisa estar autenticado')) {
@@ -69,7 +70,7 @@ export default function Screen() {
 
         return dailyEntries.data
       },
-      queryKey: ['daily-entries-preview'],
+      queryKey: QUERY_KEYS.DAILY_ENTRIES.PREVIEW,
       throwOnError: (error) => {
         toast.error(error.message)
         if (error.message.includes('Você precisa estar autenticado')) {

@@ -1,6 +1,7 @@
 import { Box } from '@/components/ui/box'
 import { LoadingScreen } from '@/components/ui/loading'
 import { Text } from '@/components/ui/text'
+import { QUERY_KEYS } from '@/constants/keys'
 import { supabaseClient } from '@/lib/supabase/client'
 import { theme } from '@/theme'
 import { useQuery } from '@tanstack/react-query'
@@ -32,7 +33,7 @@ export default function Screen() {
 
       return dailyEntries.data
     },
-    queryKey: ['daily-entries'],
+    queryKey: QUERY_KEYS.DAILY_ENTRIES.ALL,
     throwOnError: (error) => {
       toast.error(error.message)
       if (error.message.includes('Você precisa estar autenticado')) {

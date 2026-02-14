@@ -2,6 +2,7 @@ import { Box } from '@/components/ui/box'
 import Button from '@/components/ui/button'
 import { LoadingScreen } from '@/components/ui/loading'
 import { Text } from '@/components/ui/text'
+import { QUERY_KEYS } from '@/constants/keys'
 import { supabaseClient } from '@/lib/supabase/client'
 import { theme } from '@/theme'
 import { useQuery } from '@tanstack/react-query'
@@ -36,7 +37,7 @@ export default function Screen() {
 
       return momentEntries.data
     },
-    queryKey: ['moment-entries'],
+    queryKey: QUERY_KEYS.MOMENT_ENTRIES.ALL,
     throwOnError: (error) => {
       toast.error(error.message)
       if (error.message.includes('Você precisa estar autenticado')) {

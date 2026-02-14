@@ -2,6 +2,7 @@ import { Box } from '@/components/ui/box'
 import Button from '@/components/ui/button'
 import { LoadingScreen } from '@/components/ui/loading'
 import { Text } from '@/components/ui/text'
+import { QUERY_KEYS } from '@/constants/keys'
 import { supabaseClient } from '@/lib/supabase/client'
 import { theme } from '@/theme'
 import { getCurrentDateString } from '@/utils/date'
@@ -41,7 +42,7 @@ export default function CreateDailyEntry() {
 
         return !!dailyEntry.data?.[0]
       },
-      queryKey: ['has-today-daily-entry'],
+      queryKey: QUERY_KEYS.DAILY_ENTRIES.HAS_TODAY,
       throwOnError: (error) => {
         toast.error(error.message)
         if (error.message.includes('Você precisa estar autenticado')) {
@@ -82,10 +83,18 @@ export default function CreateDailyEntry() {
     onSuccess: () => {
       toast.success('Registro salvo com sucesso')
       form.reset()
-      queryClient.invalidateQueries({ queryKey: ['daily-entries'] })
-      queryClient.invalidateQueries({ queryKey: ['today-daily-entry'] })
-      queryClient.invalidateQueries({ queryKey: ['has-today-daily-entry'] })
-      queryClient.invalidateQueries({ queryKey: ['daily-entries-preview'] })
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.DAILY_ENTRIES.ALL,
+      })
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.DAILY_ENTRIES.TODAY,
+      })
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.DAILY_ENTRIES.HAS_TODAY,
+      })
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.DAILY_ENTRIES.PREVIEW,
+      })
       router.replace('/(tabs)')
     },
     onError: (error) => {

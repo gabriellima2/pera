@@ -2,6 +2,7 @@ import { Box } from '@/components/ui/box'
 import Button from '@/components/ui/button'
 import { LoadingScreen } from '@/components/ui/loading'
 import { Text } from '@/components/ui/text'
+import { QUERY_KEYS } from '@/constants/keys'
 import { supabaseClient } from '@/lib/supabase/client'
 import { theme } from '@/theme'
 import { getCurrentDateString } from '@/utils/date'
@@ -37,7 +38,7 @@ export default function CreateMomentEntry() {
 
       return situations.data
     },
-    queryKey: ['situations'],
+    queryKey: QUERY_KEYS.SITUATIONS.OPTIONS,
     throwOnError: (error) => {
       toast.error(error.message)
       if (error.message.includes('Você precisa estar autenticado')) {
@@ -84,7 +85,9 @@ export default function CreateMomentEntry() {
     onSuccess: () => {
       toast.success('Registro salvo com sucesso')
       form.reset()
-      queryClient.invalidateQueries({ queryKey: ['moment-entries'] })
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.MOMENT_ENTRIES.ALL,
+      })
       router.replace('/(tabs)/moment-entries')
     },
     onError: (error) => {
