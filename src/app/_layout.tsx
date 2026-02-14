@@ -73,6 +73,9 @@ export default function RootLayout() {
               >
                 <Stack.Screen name="index" />
                 <Stack.Screen name="(tabs)" />
+                <Stack.Screen name="daily-entries" />
+                <Stack.Screen name="create-daily-entry" />
+                <Stack.Screen name="create-moment-entry" />
               </Stack>
               <Toaster
                 theme="light"

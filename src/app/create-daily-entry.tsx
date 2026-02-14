@@ -5,14 +5,16 @@ import { supabaseClient } from '@/lib/supabase/client'
 import { theme } from '@/theme'
 import { useForm } from '@tanstack/react-form'
 import { useMutation } from '@tanstack/react-query'
-import { useRouter } from 'expo-router'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import { CircleCheck } from 'lucide-react-native'
+import { useMemo } from 'react'
 import { Pressable, TextInput } from 'react-native'
 import { toast } from 'sonner-native'
 import { z } from 'zod'
 
 export default function CreateDailyEntry() {
   const router = useRouter()
+  const { emotion } = useLocalSearchParams<{ emotion: string }>()
 
   const { mutateAsync: createDailyEntry } = useMutation({
     mutationFn: async (data: CreateDailyEntrySchema) => {
@@ -50,9 +52,20 @@ export default function CreateDailyEntry() {
     },
   })
 
+  const isValidEmotion = useMemo(() => {
+    return [
+      'calm',
+      'happy',
+      'neutral',
+      'anxious',
+      'sad',
+      'frustrated',
+    ].includes(emotion)
+  }, [emotion])
+
   const form = useForm({
     defaultValues: {
-      emotion: '',
+      emotion: isValidEmotion ? emotion : '',
       notes: '',
     },
     validators: {

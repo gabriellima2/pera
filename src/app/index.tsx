@@ -38,8 +38,8 @@ export default function Screen() {
 
   return (
     <Box flex={1} alignItems="center" justifyContent="center">
-      <Link href="/create-daily-entry">
-        <Text>Create Daily Entry</Text>
+      <Link href="/(tabs)">
+        <Text>Go to Home</Text>
       </Link>
       <Link href="/create-moment-entry">
         <Text>Create Moment Entry</Text>
