@@ -4,6 +4,7 @@ import { LoadingScreen } from '@/components/ui/loading'
 import { Text } from '@/components/ui/text'
 import { supabaseClient } from '@/lib/supabase/client'
 import { theme } from '@/theme'
+import { getCurrentDateString } from '@/utils/date'
 import { useForm } from '@tanstack/react-form'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'expo-router'
@@ -345,11 +346,6 @@ const createMomentEntrySchema = z.object({
 })
 
 type CreateMomentEntrySchema = z.infer<typeof createMomentEntrySchema>
-
-function getCurrentDateString() {
-  const date = new Date()
-  return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`
-}
 
 const CREATE_MOMENT_ENTRY_ERROR_MESSAGES_MAP: Record<string, string> = {
   DEFAULT: 'Erro ao criar registro',

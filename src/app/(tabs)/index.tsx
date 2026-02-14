@@ -3,6 +3,7 @@ import { LoadingScreen } from '@/components/ui/loading'
 import { Text } from '@/components/ui/text'
 import { supabaseClient } from '@/lib/supabase/client'
 import { theme } from '@/theme'
+import { getCurrentDateString } from '@/utils/date'
 import { useQuery } from '@tanstack/react-query'
 import { Link, useRouter } from 'expo-router'
 import { useMemo } from 'react'
@@ -193,8 +194,3 @@ export default function Screen() {
 }
 
 const LAST_DAILY_ENTRIES_PREVIEW_COUNT = 7
-
-function getCurrentDateString() {
-  const date = new Date()
-  return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`
-}
