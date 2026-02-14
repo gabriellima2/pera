@@ -12,6 +12,39 @@ import { toast } from 'sonner-native'
 export default function Screen() {
   const router = useRouter()
 
+  const { data: todayDailyEntry, isPending: isLoadingTodayDailyEntry } =
+    useQuery({
+      queryFn: async () => {
+        const user = await supabaseClient.auth.getUser()
+        if (user.error) {
+          throw new Error(
+            'Você precisa estar autenticado para buscar registros diários',
+          )
+        }
+
+        const dailyEntry = await supabaseClient
+          .from('daily_entries')
+          .select('id, emotion')
+          .eq('date', getCurrentDateString())
+
+        if (dailyEntry.error) {
+          console.error(dailyEntry.error)
+          throw new Error('Erro ao buscar registro diário do dia atual')
+        }
+
+        return dailyEntry.data?.[0] || null
+      },
+      queryKey: ['today-daily-entry'],
+      throwOnError: (error) => {
+        toast.error(error.message)
+        if (error.message.includes('Você precisa estar autenticado')) {
+          router.replace('/')
+        }
+        return false
+      },
+      staleTime: 1000 * 60 * 5, // 5 minutes
+    })
+
   const { data: lastDailyEntries, isPending: isLoadingLastDailyEntries } =
     useQuery({
       queryFn: async () => {
@@ -51,80 +84,87 @@ export default function Screen() {
     return lastDailyEntries.slice(0, LAST_DAILY_ENTRIES_PREVIEW_COUNT)
   }, [lastDailyEntries])
 
-  if (isLoadingLastDailyEntries) {
+  if (isLoadingTodayDailyEntry || isLoadingLastDailyEntries) {
     return <LoadingScreen />
   }
 
   return (
     <Box gap="lg">
-      <Box>
-        <Link
-          href={{
-            pathname: '/create-daily-entry',
-            params: {
-              emotion: 'calm',
-            },
-          }}
-          prefetch={false}
-        >
-          <Text>Calmo </Text>
-        </Link>
-        <Link
-          href={{
-            pathname: '/create-daily-entry',
-            params: {
-              emotion: 'happy',
-            },
-          }}
-          prefetch={false}
-        >
-          <Text>Feliz </Text>
-        </Link>
-        <Link
-          href={{
-            pathname: '/create-daily-entry',
-            params: {
-              emotion: 'neutral',
-            },
-          }}
-          prefetch={false}
-        >
-          <Text>Neutro</Text>
-        </Link>
-        <Link
-          href={{
-            pathname: '/create-daily-entry',
-            params: {
-              emotion: 'anxious',
-            },
-          }}
-          prefetch={false}
-        >
-          <Text>Ansioso</Text>
-        </Link>
-        <Link
-          href={{
-            pathname: '/create-daily-entry',
-            params: {
-              emotion: 'sad',
-            },
-          }}
-          prefetch={false}
-        >
-          <Text>Triste </Text>
-        </Link>
-        <Link
-          href={{
-            pathname: '/create-daily-entry',
-            params: {
-              emotion: 'frustrated',
-            },
-          }}
-          prefetch={false}
-        >
-          <Text>Frustrado</Text>
-        </Link>
-      </Box>
+      {todayDailyEntry ? (
+        <Box>
+          <Text>Você já criou um registro diário para hoje</Text>
+          <Text>{todayDailyEntry.emotion}</Text>
+        </Box>
+      ) : (
+        <Box>
+          <Link
+            href={{
+              pathname: '/create-daily-entry',
+              params: {
+                emotion: 'calm',
+              },
+            }}
+            prefetch={false}
+          >
+            <Text>Calmo </Text>
+          </Link>
+          <Link
+            href={{
+              pathname: '/create-daily-entry',
+              params: {
+                emotion: 'happy',
+              },
+            }}
+            prefetch={false}
+          >
+            <Text>Feliz </Text>
+          </Link>
+          <Link
+            href={{
+              pathname: '/create-daily-entry',
+              params: {
+                emotion: 'neutral',
+              },
+            }}
+            prefetch={false}
+          >
+            <Text>Neutro</Text>
+          </Link>
+          <Link
+            href={{
+              pathname: '/create-daily-entry',
+              params: {
+                emotion: 'anxious',
+              },
+            }}
+            prefetch={false}
+          >
+            <Text>Ansioso</Text>
+          </Link>
+          <Link
+            href={{
+              pathname: '/create-daily-entry',
+              params: {
+                emotion: 'sad',
+              },
+            }}
+            prefetch={false}
+          >
+            <Text>Triste </Text>
+          </Link>
+          <Link
+            href={{
+              pathname: '/create-daily-entry',
+              params: {
+                emotion: 'frustrated',
+              },
+            }}
+            prefetch={false}
+          >
+            <Text>Frustrado</Text>
+          </Link>
+        </Box>
+      )}
       <Box>
         <Box>
           <Text>Seus últimos registros diários</Text>
@@ -153,3 +193,8 @@ export default function Screen() {
 }
 
 const LAST_DAILY_ENTRIES_PREVIEW_COUNT = 7
+
+function getCurrentDateString() {
+  const date = new Date()
+  return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`
+}
