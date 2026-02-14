@@ -3,7 +3,7 @@ import { ActivityIndicator, Pressable } from 'react-native'
 import { Box } from './box'
 import { Text } from './text'
 
-type Props = React.PropsWithChildren<{
+type ButtonProps = React.PropsWithChildren<{
   label?: string
   loading?: boolean
   variant?: 'primary' | 'secondary'
@@ -13,7 +13,7 @@ type Props = React.PropsWithChildren<{
   onPress?: () => void
 }>
 
-const Button = ({
+export function Button({
   variant = 'primary',
   size = 'md',
   label,
@@ -22,7 +22,7 @@ const Button = ({
   iconLeft,
   children,
   onPress,
-}: Props) => {
+}: ButtonProps) {
   return (
     <Pressable onPress={onPress} disabled={loading}>
       <Box
@@ -56,5 +56,3 @@ const Button = ({
     </Pressable>
   )
 }
-
-export default Button

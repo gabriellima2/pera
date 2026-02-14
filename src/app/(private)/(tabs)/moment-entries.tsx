@@ -1,28 +1,18 @@
 import { Box } from '@/components/ui/box'
-import Button from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
 import { LoadingScreen } from '@/components/ui/loading'
 import { Text } from '@/components/ui/text'
 import { QUERY_KEYS } from '@/constants/keys'
 import { supabaseClient } from '@/lib/supabase/client'
 import { theme } from '@/theme'
 import { useQuery } from '@tanstack/react-query'
-import { Link, useRouter } from 'expo-router'
+import { Link } from 'expo-router'
 import { PlusIcon } from 'lucide-react-native'
 import { FlatList } from 'react-native'
-import { toast } from 'sonner-native'
 
 export default function Screen() {
-  const router = useRouter()
-
   const { data: momentEntries, isPending: isLoadingMomentEntries } = useQuery({
     queryFn: async () => {
-      const user = await supabaseClient.auth.getUser()
-      if (user.error) {
-        throw new Error(
-          'Você precisa estar autenticado para buscar registros diários',
-        )
-      }
-
       const momentEntries = await supabaseClient
         .from('moment_entries')
         .select(
@@ -31,20 +21,13 @@ export default function Screen() {
         .order('created_at', { ascending: false })
 
       if (momentEntries.error) {
-        console.error(momentEntries.error)
         throw new Error('Erro ao buscar registros de momentos')
       }
 
       return momentEntries.data
     },
     queryKey: QUERY_KEYS.MOMENT_ENTRIES.ALL,
-    throwOnError: (error) => {
-      toast.error(error.message)
-      if (error.message.includes('Você precisa estar autenticado')) {
-        router.replace('/')
-      }
-      return false
-    },
+    throwOnError: true,
   })
 
   if (isLoadingMomentEntries) {
@@ -55,7 +38,7 @@ export default function Screen() {
     <Box gap="lg">
       <Box>
         <Text>Momentos</Text>
-        <Link href="/create-moment-entry" asChild>
+        <Link href="/(private)/create-moment-entry" asChild>
           <Button>
             <PlusIcon />
           </Button>

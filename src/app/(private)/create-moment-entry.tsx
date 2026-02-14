@@ -1,5 +1,5 @@
 import { Box } from '@/components/ui/box'
-import Button from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
 import { LoadingScreen } from '@/components/ui/loading'
 import { Text } from '@/components/ui/text'
 import { QUERY_KEYS } from '@/constants/keys'
@@ -20,11 +20,6 @@ export default function CreateMomentEntry() {
 
   const { data: situations, isPending: isLoadingSituations } = useQuery({
     queryFn: async () => {
-      const user = await supabaseClient.auth.getUser()
-      if (user.error) {
-        throw new Error('Você precisa estar autenticado para buscar situações')
-      }
-
       const situations = await supabaseClient
         .from('situations')
         .select('id, code, label')
@@ -32,31 +27,17 @@ export default function CreateMomentEntry() {
         .eq('active', true)
 
       if (situations.error) {
-        console.error(situations.error)
         throw new Error('Erro ao buscar situações')
       }
 
       return situations.data
     },
     queryKey: QUERY_KEYS.SITUATIONS.OPTIONS,
-    throwOnError: (error) => {
-      toast.error(error.message)
-      if (error.message.includes('Você precisa estar autenticado')) {
-        router.replace('/')
-      }
-      return false
-    },
+    throwOnError: true,
   })
 
   const { mutateAsync: createMomentEntry } = useMutation({
     mutationFn: async (data: CreateMomentEntrySchema) => {
-      const user = await supabaseClient.auth.getUser()
-      if (user.error) {
-        toast.error('Você precisa estar autenticado para criar um registro')
-        router.replace('/')
-        return
-      }
-
       const momentEntry = await supabaseClient
         .rpc('create_moment_entry' as any, {
           p_emotion: data.emotion,
@@ -72,8 +53,6 @@ export default function CreateMomentEntry() {
         .single<string>()
 
       if (momentEntry.error) {
-        console.error(momentEntry.error)
-
         const message =
           CREATE_MOMENT_ENTRY_ERROR_MESSAGES_MAP[momentEntry.error.message] ||
           CREATE_MOMENT_ENTRY_ERROR_MESSAGES_MAP.DEFAULT
@@ -87,7 +66,7 @@ export default function CreateMomentEntry() {
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.MOMENT_ENTRIES.ALL,
       })
-      router.replace('/(tabs)/moment-entries')
+      router.replace('/(private)/(tabs)/moment-entries')
     },
     onError: (error) => {
       toast.error(error.message)
@@ -350,6 +329,5 @@ const createMomentEntrySchema = z.object({
 type CreateMomentEntrySchema = z.infer<typeof createMomentEntrySchema>
 
 const CREATE_MOMENT_ENTRY_ERROR_MESSAGES_MAP: Record<string, string> = {
-  DEFAULT: 'Erro ao criar registro',
-  SITUATION_NOT_FOUND: 'Situação não encontrada',
+  DEFAULT: 'Erro ao criar registro do momento',
 }

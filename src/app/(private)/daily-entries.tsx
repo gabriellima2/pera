@@ -5,42 +5,24 @@ import { QUERY_KEYS } from '@/constants/keys'
 import { supabaseClient } from '@/lib/supabase/client'
 import { theme } from '@/theme'
 import { useQuery } from '@tanstack/react-query'
-import { useRouter } from 'expo-router'
 import { FlatList } from 'react-native'
-import { toast } from 'sonner-native'
 
 export default function Screen() {
-  const router = useRouter()
-
   const { data: dailyEntries, isPending: isLoadingDailyEntries } = useQuery({
     queryFn: async () => {
-      const user = await supabaseClient.auth.getUser()
-      if (user.error) {
-        throw new Error(
-          'Você precisa estar autenticado para buscar registros diários',
-        )
-      }
-
       const dailyEntries = await supabaseClient
         .from('daily_entries')
         .select('id, date, emotion, notes')
         .order('date', { ascending: false })
 
       if (dailyEntries.error) {
-        console.error(dailyEntries.error)
         throw new Error('Erro ao buscar registros diários')
       }
 
       return dailyEntries.data
     },
     queryKey: QUERY_KEYS.DAILY_ENTRIES.ALL,
-    throwOnError: (error) => {
-      toast.error(error.message)
-      if (error.message.includes('Você precisa estar autenticado')) {
-        router.replace('/')
-      }
-      return false
-    },
+    throwOnError: true,
   })
 
   if (isLoadingDailyEntries) {

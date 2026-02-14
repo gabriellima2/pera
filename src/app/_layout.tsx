@@ -1,4 +1,5 @@
 import { LoadingIndicator } from '@/components/ui/loading'
+import { SessionProvider, useSession } from '@/contexts/session-context'
 import { queryClient } from '@/lib/react-query/client'
 import {
   Poppins_400Regular,
@@ -8,7 +9,7 @@ import {
 import { ThemeProvider } from '@shopify/restyle'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { useFonts } from 'expo-font'
-import { Stack } from 'expo-router'
+import { ErrorBoundaryProps, Stack } from 'expo-router'
 import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
 import {
@@ -18,12 +19,21 @@ import {
   XCircleIcon,
 } from 'lucide-react-native'
 import { useEffect } from 'react'
+import { Text, View } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import 'react-native-reanimated'
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 import { Toaster } from 'sonner-native'
 import { theme } from '../theme'
-export { ErrorBoundary } from 'expo-router'
+
+export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
+  return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>{error.message}</Text>
+      <Text onPress={retry}>Tentar novamente</Text>
+    </View>
+  )
+}
 
 export const unstable_settings = {
   initialRouteName: '/',
@@ -65,18 +75,9 @@ export default function RootLayout() {
                 paddingTop: theme.spacing.md,
               }}
             >
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                  contentStyle: { backgroundColor: 'transparent' },
-                }}
-              >
-                <Stack.Screen name="index" />
-                <Stack.Screen name="(tabs)" />
-                <Stack.Screen name="daily-entries" />
-                <Stack.Screen name="create-daily-entry" />
-                <Stack.Screen name="create-moment-entry" />
-              </Stack>
+              <SessionProvider>
+                <Router />
+              </SessionProvider>
               <Toaster
                 theme="light"
                 icons={toastIcons}
@@ -87,6 +88,25 @@ export default function RootLayout() {
         </ThemeProvider>
       </GestureHandlerRootView>
     </SafeAreaProvider>
+  )
+}
+
+function Router() {
+  const { session } = useSession()
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        contentStyle: { backgroundColor: 'transparent' },
+      }}
+    >
+      <Stack.Protected guard={!session}>
+        <Stack.Screen name="index" />
+      </Stack.Protected>
+      <Stack.Protected guard={!!session}>
+        <Stack.Screen name="(private)/(tabs)" />
+      </Stack.Protected>
+    </Stack>
   )
 }
 

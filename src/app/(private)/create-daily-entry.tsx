@@ -1,5 +1,5 @@
 import { Box } from '@/components/ui/box'
-import Button from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
 import { LoadingScreen } from '@/components/ui/loading'
 import { Text } from '@/components/ui/text'
 import { QUERY_KEYS } from '@/constants/keys'
@@ -23,44 +23,25 @@ export default function CreateDailyEntry() {
   const { data: hasTodayDailyEntry, isPending: isLoadingHasTodayDailyEntry } =
     useQuery({
       queryFn: async () => {
-        const user = await supabaseClient.auth.getUser()
-        if (user.error) {
-          throw new Error(
-            'Você precisa estar autenticado para buscar registros diários',
-          )
-        }
-
         const dailyEntry = await supabaseClient
           .from('daily_entries')
           .select('date')
           .eq('date', getCurrentDateString())
 
         if (dailyEntry.error) {
-          console.error(dailyEntry.error)
-          throw new Error('Erro ao buscar registro diário do dia atual')
+          throw new Error(
+            'Erro ao validar se existe um registro diário para o dia atual',
+          )
         }
 
         return !!dailyEntry.data?.[0]
       },
       queryKey: QUERY_KEYS.DAILY_ENTRIES.HAS_TODAY,
-      throwOnError: (error) => {
-        toast.error(error.message)
-        if (error.message.includes('Você precisa estar autenticado')) {
-          router.replace('/')
-        }
-        return false
-      },
+      throwOnError: true,
     })
 
   const { mutateAsync: createDailyEntry } = useMutation({
     mutationFn: async (data: CreateDailyEntrySchema) => {
-      const user = await supabaseClient.auth.getUser()
-      if (user.error) {
-        toast.error('Você precisa estar autenticado para criar um registro')
-        router.replace('/')
-        return
-      }
-
       const dailyEntry = await supabaseClient
         .rpc('create_daily_entry', {
           p_emotion: data.emotion,
@@ -70,8 +51,6 @@ export default function CreateDailyEntry() {
         .single<string>()
 
       if (dailyEntry.error) {
-        console.error(dailyEntry.error)
-
         const message =
           CREATE_DAILY_ENTRY_ERROR_MESSAGES_MAP[dailyEntry.error.message] ||
           CREATE_DAILY_ENTRY_ERROR_MESSAGES_MAP.DEFAULT
@@ -94,7 +73,7 @@ export default function CreateDailyEntry() {
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.DAILY_ENTRIES.PREVIEW,
       })
-      router.replace('/(tabs)')
+      router.replace('/(private)/(tabs)')
     },
     onError: (error) => {
       toast.error(error.message)
@@ -131,7 +110,7 @@ export default function CreateDailyEntry() {
     return (
       <Box>
         <Text>Você já criou um registro diário para hoje</Text>
-        <Link href="/(tabs)">
+        <Link href="/(private)/(tabs)">
           <Text>Voltar</Text>
         </Link>
       </Box>
@@ -256,6 +235,6 @@ const createDailyEntrySchema = z.object({
 type CreateDailyEntrySchema = z.infer<typeof createDailyEntrySchema>
 
 const CREATE_DAILY_ENTRY_ERROR_MESSAGES_MAP: Record<string, string> = {
-  DEFAULT: 'Erro ao criar registro',
+  DEFAULT: 'Erro ao criar registro diário',
   ALREADY_EXISTS: 'Já existe um registro para o dia atual',
 }

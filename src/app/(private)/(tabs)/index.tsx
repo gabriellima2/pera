@@ -1,96 +1,71 @@
 import { Box } from '@/components/ui/box'
-import { LoadingScreen } from '@/components/ui/loading'
+import { LoadingIndicator } from '@/components/ui/loading'
 import { Text } from '@/components/ui/text'
 import { QUERY_KEYS } from '@/constants/keys'
 import { supabaseClient } from '@/lib/supabase/client'
 import { theme } from '@/theme'
 import { getCurrentDateString } from '@/utils/date'
 import { useQuery } from '@tanstack/react-query'
-import { Link, useRouter } from 'expo-router'
+import { Link } from 'expo-router'
 import { useMemo } from 'react'
 import { FlatList } from 'react-native'
-import { toast } from 'sonner-native'
 
 export default function Screen() {
-  const router = useRouter()
+  const {
+    data: todayDailyEntry,
+    error: errorTodayDailyEntry,
+    isPending: isLoadingTodayDailyEntry,
+  } = useQuery({
+    queryFn: async () => {
+      const dailyEntry = await supabaseClient
+        .from('daily_entries')
+        .select('id, emotion')
+        .eq('date', getCurrentDateString())
 
-  const { data: todayDailyEntry, isPending: isLoadingTodayDailyEntry } =
-    useQuery({
-      queryFn: async () => {
-        const user = await supabaseClient.auth.getUser()
-        if (user.error) {
-          throw new Error(
-            'Você precisa estar autenticado para buscar registros diários',
-          )
-        }
+      if (dailyEntry.error) {
+        console.error(dailyEntry.error)
+        throw new Error('Erro ao buscar registro diário do dia atual')
+      }
 
-        const dailyEntry = await supabaseClient
-          .from('daily_entries')
-          .select('id, emotion')
-          .eq('date', getCurrentDateString())
+      return dailyEntry.data?.[0] || null
+    },
+    queryKey: QUERY_KEYS.DAILY_ENTRIES.TODAY,
+  })
 
-        if (dailyEntry.error) {
-          console.error(dailyEntry.error)
-          throw new Error('Erro ao buscar registro diário do dia atual')
-        }
+  const {
+    data: lastDailyEntries,
+    error: errorLastDailyEntries,
+    isPending: isLoadingLastDailyEntries,
+  } = useQuery({
+    queryFn: async () => {
+      const dailyEntries = await supabaseClient
+        .from('daily_entries')
+        .select('id, date, emotion, notes')
+        .order('date', { ascending: false })
+        .limit(8)
 
-        return dailyEntry.data?.[0] || null
-      },
-      queryKey: QUERY_KEYS.DAILY_ENTRIES.TODAY,
-      throwOnError: (error) => {
-        toast.error(error.message)
-        if (error.message.includes('Você precisa estar autenticado')) {
-          router.replace('/')
-        }
-        return false
-      },
-    })
+      if (dailyEntries.error) {
+        console.error(dailyEntries.error)
+        throw new Error('Erro ao buscar registros diários')
+      }
 
-  const { data: lastDailyEntries, isPending: isLoadingLastDailyEntries } =
-    useQuery({
-      queryFn: async () => {
-        const user = await supabaseClient.auth.getUser()
-        if (user.error) {
-          throw new Error(
-            'Você precisa estar autenticado para buscar registros diários',
-          )
-        }
-
-        const dailyEntries = await supabaseClient
-          .from('daily_entries')
-          .select('id, date, emotion, notes')
-          .order('date', { ascending: false })
-          .limit(8)
-
-        if (dailyEntries.error) {
-          console.error(dailyEntries.error)
-          throw new Error('Erro ao buscar registros diários')
-        }
-
-        return dailyEntries.data
-      },
-      queryKey: QUERY_KEYS.DAILY_ENTRIES.PREVIEW,
-      throwOnError: (error) => {
-        toast.error(error.message)
-        if (error.message.includes('Você precisa estar autenticado')) {
-          router.replace('/')
-        }
-        return false
-      },
-    })
+      return dailyEntries.data
+    },
+    queryKey: QUERY_KEYS.DAILY_ENTRIES.PREVIEW,
+  })
 
   const lastDailyEntriesPreview = useMemo(() => {
     if (!lastDailyEntries) return []
     return lastDailyEntries.slice(0, LAST_DAILY_ENTRIES_PREVIEW_COUNT)
   }, [lastDailyEntries])
 
-  if (isLoadingTodayDailyEntry || isLoadingLastDailyEntries) {
-    return <LoadingScreen />
-  }
-
   return (
     <Box gap="lg">
-      {todayDailyEntry ? (
+      {isLoadingTodayDailyEntry ? (
+        <LoadingIndicator />
+      ) : errorTodayDailyEntry ? (
+        <Text>{errorTodayDailyEntry.message}</Text>
+      ) : todayDailyEntry ? (
         <Box>
           <Text>Você já criou um registro diário para hoje</Text>
           <Text>{todayDailyEntry.emotion}</Text>
@@ -170,23 +145,29 @@ export default function Screen() {
           <Text>Seus últimos registros diários</Text>
           {lastDailyEntries &&
             lastDailyEntries.length > LAST_DAILY_ENTRIES_PREVIEW_COUNT && (
-              <Link href="/daily-entries">
+              <Link href="/(private)/daily-entries">
                 <Text>Ver todos</Text>
               </Link>
             )}
         </Box>
-        <FlatList
-          data={lastDailyEntriesPreview}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={{ gap: theme.spacing.md }}
-          renderItem={({ item }) => (
-            <Box>
-              <Text>{item.date}</Text>
-              <Text>{item.emotion}</Text>
-              {item.notes && <Text>{item.notes}</Text>}
-            </Box>
-          )}
-        />
+        {errorLastDailyEntries ? (
+          <Text>{errorLastDailyEntries.message}</Text>
+        ) : isLoadingLastDailyEntries ? (
+          <LoadingIndicator />
+        ) : (
+          <FlatList
+            data={lastDailyEntriesPreview}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={{ gap: theme.spacing.md }}
+            renderItem={({ item }) => (
+              <Box>
+                <Text>{item.date}</Text>
+                <Text>{item.emotion}</Text>
+                {item.notes && <Text>{item.notes}</Text>}
+              </Box>
+            )}
+          />
+        )}
       </Box>
     </Box>
   )
