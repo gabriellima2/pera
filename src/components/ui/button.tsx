@@ -3,15 +3,15 @@ import { ActivityIndicator, Pressable } from 'react-native'
 import { Box } from './box'
 import { Text } from './text'
 
-type Props = {
-  label: string
+type Props = React.PropsWithChildren<{
+  label?: string
   loading?: boolean
   variant?: 'primary' | 'secondary'
   size?: 'sm' | 'md'
   iconRight?: React.ReactNode
   iconLeft?: React.ReactNode
-  onPress: () => void
-}
+  onPress?: () => void
+}>
 
 const Button = ({
   variant = 'primary',
@@ -20,6 +20,7 @@ const Button = ({
   loading = false,
   iconRight,
   iconLeft,
+  children,
   onPress,
 }: Props) => {
   return (
@@ -35,6 +36,8 @@ const Button = ({
       >
         {loading ? (
           <ActivityIndicator color="white" />
+        ) : children ? (
+          children
         ) : (
           <>
             {iconLeft}

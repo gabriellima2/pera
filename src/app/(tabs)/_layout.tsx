@@ -10,6 +10,7 @@ export default function Layout() {
       }}
     >
       <Tabs.Screen name="index" options={{ headerShown: false }} />
+      <Tabs.Screen name="moment-entries" options={{ headerShown: false }} />
     </Tabs>
   )
 }

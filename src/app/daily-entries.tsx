@@ -2,6 +2,7 @@ import { Box } from '@/components/ui/box'
 import { LoadingScreen } from '@/components/ui/loading'
 import { Text } from '@/components/ui/text'
 import { supabaseClient } from '@/lib/supabase/client'
+import { theme } from '@/theme'
 import { useQuery } from '@tanstack/react-query'
 import { useRouter } from 'expo-router'
 import { FlatList } from 'react-native'
@@ -54,6 +55,7 @@ export default function Screen() {
       <FlatList
         data={dailyEntries}
         keyExtractor={(item) => item.id}
+        contentContainerStyle={{ gap: theme.spacing.md }}
         renderItem={({ item }) => (
           <Box>
             <Text>{item.date}</Text>

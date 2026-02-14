@@ -41,8 +41,8 @@ export default function Screen() {
       <Link href="/(tabs)">
         <Text>Go to Home</Text>
       </Link>
-      <Link href="/create-moment-entry">
-        <Text>Create Moment Entry</Text>
+      <Link href="/(tabs)/moment-entries">
+        <Text>Go to Moment Entries</Text>
       </Link>
     </Box>
   )
