@@ -5,7 +5,7 @@ import { Text } from '@/components/ui/text'
 import { supabaseClient } from '@/lib/supabase/client'
 import { theme } from '@/theme'
 import { useForm } from '@tanstack/react-form'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'expo-router'
 import { CircleCheck } from 'lucide-react-native'
 import { Pressable, TextInput } from 'react-native'
@@ -13,6 +13,7 @@ import { toast } from 'sonner-native'
 import { z } from 'zod'
 
 export default function CreateMomentEntry() {
+  const queryClient = useQueryClient()
   const router = useRouter()
 
   const { data: situations, isPending: isLoadingSituations } = useQuery({
@@ -82,6 +83,8 @@ export default function CreateMomentEntry() {
     onSuccess: () => {
       toast.success('Registro salvo com sucesso')
       form.reset()
+      queryClient.invalidateQueries({ queryKey: ['moment-entries'] })
+      router.replace('/(tabs)/moment-entries')
     },
     onError: (error) => {
       toast.error(error.message)

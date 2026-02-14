@@ -4,7 +4,7 @@ import { Text } from '@/components/ui/text'
 import { supabaseClient } from '@/lib/supabase/client'
 import { theme } from '@/theme'
 import { useForm } from '@tanstack/react-form'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { CircleCheck } from 'lucide-react-native'
 import { useMemo } from 'react'
@@ -13,8 +13,9 @@ import { toast } from 'sonner-native'
 import { z } from 'zod'
 
 export default function CreateDailyEntry() {
-  const router = useRouter()
   const { emotion } = useLocalSearchParams<{ emotion: string }>()
+  const queryClient = useQueryClient()
+  const router = useRouter()
 
   const { mutateAsync: createDailyEntry } = useMutation({
     mutationFn: async (data: CreateDailyEntrySchema) => {
@@ -46,6 +47,10 @@ export default function CreateDailyEntry() {
     onSuccess: () => {
       toast.success('Registro salvo com sucesso')
       form.reset()
+      queryClient.invalidateQueries({ queryKey: ['daily-entries'] })
+      queryClient.invalidateQueries({ queryKey: ['today-daily-entry'] })
+      queryClient.invalidateQueries({ queryKey: ['daily-entries-preview'] })
+      router.replace('/(tabs)')
     },
     onError: (error) => {
       toast.error(error.message)
