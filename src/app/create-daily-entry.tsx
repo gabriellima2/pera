@@ -1,11 +1,12 @@
 import { Box } from '@/components/ui/box'
 import Button from '@/components/ui/button'
+import { LoadingScreen } from '@/components/ui/loading'
 import { Text } from '@/components/ui/text'
 import { supabaseClient } from '@/lib/supabase/client'
 import { theme } from '@/theme'
 import { useForm } from '@tanstack/react-form'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useLocalSearchParams, useRouter } from 'expo-router'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Link, useLocalSearchParams, useRouter } from 'expo-router'
 import { CircleCheck } from 'lucide-react-native'
 import { useMemo } from 'react'
 import { Pressable, TextInput } from 'react-native'
@@ -16,6 +17,39 @@ export default function CreateDailyEntry() {
   const { emotion } = useLocalSearchParams<{ emotion: string }>()
   const queryClient = useQueryClient()
   const router = useRouter()
+
+  const { data: hasTodayDailyEntry, isPending: isLoadingHasTodayDailyEntry } =
+    useQuery({
+      queryFn: async () => {
+        const user = await supabaseClient.auth.getUser()
+        if (user.error) {
+          throw new Error(
+            'Você precisa estar autenticado para buscar registros diários',
+          )
+        }
+
+        const dailyEntry = await supabaseClient
+          .from('daily_entries')
+          .select('date')
+          .eq('date', getCurrentDateString())
+
+        if (dailyEntry.error) {
+          console.error(dailyEntry.error)
+          throw new Error('Erro ao buscar registro diário do dia atual')
+        }
+
+        return !!dailyEntry.data?.[0]
+      },
+      queryKey: ['has-today-daily-entry'],
+      throwOnError: (error) => {
+        toast.error(error.message)
+        if (error.message.includes('Você precisa estar autenticado')) {
+          router.replace('/')
+        }
+        return false
+      },
+      staleTime: 1000 * 60 * 5, // 5 minutes
+    })
 
   const { mutateAsync: createDailyEntry } = useMutation({
     mutationFn: async (data: CreateDailyEntrySchema) => {
@@ -49,6 +83,7 @@ export default function CreateDailyEntry() {
       form.reset()
       queryClient.invalidateQueries({ queryKey: ['daily-entries'] })
       queryClient.invalidateQueries({ queryKey: ['today-daily-entry'] })
+      queryClient.invalidateQueries({ queryKey: ['has-today-daily-entry'] })
       queryClient.invalidateQueries({ queryKey: ['daily-entries-preview'] })
       router.replace('/(tabs)')
     },
@@ -78,6 +113,21 @@ export default function CreateDailyEntry() {
     },
     onSubmit: ({ value }) => createDailyEntry(value),
   })
+
+  if (isLoadingHasTodayDailyEntry) {
+    return <LoadingScreen />
+  }
+
+  if (hasTodayDailyEntry) {
+    return (
+      <Box>
+        <Text>Você já criou um registro diário para hoje</Text>
+        <Link href="/(tabs)">
+          <Text>Voltar</Text>
+        </Link>
+      </Box>
+    )
+  }
 
   return (
     <Box>
