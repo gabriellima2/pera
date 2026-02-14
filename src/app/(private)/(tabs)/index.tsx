@@ -1,6 +1,7 @@
 import { Box } from '@/components/ui/box'
 import { LoadingIndicator } from '@/components/ui/loading'
 import { Text } from '@/components/ui/text'
+import { EMOTIONS_ENUM } from '@/constants/enums'
 import { QUERY_KEYS } from '@/constants/keys'
 import { supabaseClient } from '@/lib/supabase/client'
 import { theme } from '@/theme'
@@ -76,7 +77,7 @@ export default function Screen() {
             href={{
               pathname: '/create-daily-entry',
               params: {
-                emotion: 'calm',
+                emotion: EMOTIONS_ENUM.CALM,
               },
             }}
             prefetch={false}
@@ -87,7 +88,7 @@ export default function Screen() {
             href={{
               pathname: '/create-daily-entry',
               params: {
-                emotion: 'happy',
+                emotion: EMOTIONS_ENUM.HAPPY,
               },
             }}
             prefetch={false}
@@ -98,7 +99,7 @@ export default function Screen() {
             href={{
               pathname: '/create-daily-entry',
               params: {
-                emotion: 'neutral',
+                emotion: EMOTIONS_ENUM.NEUTRAL,
               },
             }}
             prefetch={false}
@@ -109,7 +110,7 @@ export default function Screen() {
             href={{
               pathname: '/create-daily-entry',
               params: {
-                emotion: 'anxious',
+                emotion: EMOTIONS_ENUM.ANXIOUS,
               },
             }}
             prefetch={false}
@@ -120,7 +121,7 @@ export default function Screen() {
             href={{
               pathname: '/create-daily-entry',
               params: {
-                emotion: 'sad',
+                emotion: EMOTIONS_ENUM.SAD,
               },
             }}
             prefetch={false}
@@ -131,7 +132,7 @@ export default function Screen() {
             href={{
               pathname: '/create-daily-entry',
               params: {
-                emotion: 'frustrated',
+                emotion: EMOTIONS_ENUM.FRUSTRATED,
               },
             }}
             prefetch={false}
