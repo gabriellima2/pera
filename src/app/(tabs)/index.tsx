@@ -44,7 +44,6 @@ export default function Screen() {
         }
         return false
       },
-      staleTime: 1000 * 60 * 5, // 5 minutes
     })
 
   const { data: lastDailyEntries, isPending: isLoadingLastDailyEntries } =
@@ -78,7 +77,6 @@ export default function Screen() {
         }
         return false
       },
-      staleTime: 1000 * 60 * 60 * 24, // 24 hours
     })
 
   const lastDailyEntriesPreview = useMemo(() => {

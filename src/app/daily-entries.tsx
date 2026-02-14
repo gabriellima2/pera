@@ -41,7 +41,6 @@ export default function Screen() {
       }
       return false
     },
-    staleTime: 1000 * 60 * 60 * 24, // 24 hours
   })
 
   if (isLoadingDailyEntries) {

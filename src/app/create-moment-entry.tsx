@@ -46,7 +46,6 @@ export default function CreateMomentEntry() {
       }
       return false
     },
-    staleTime: 1000 * 60 * 60 * 24, // 24 hours
   })
 
   const { mutateAsync: createMomentEntry } = useMutation({

@@ -50,7 +50,6 @@ export default function CreateDailyEntry() {
         }
         return false
       },
-      staleTime: 1000 * 60 * 5, // 5 minutes
     })
 
   const { mutateAsync: createDailyEntry } = useMutation({
