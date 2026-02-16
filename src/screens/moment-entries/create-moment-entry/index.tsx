@@ -230,7 +230,14 @@ export function CreateMomentEntry() {
                                 form.setFieldValue('situation.description', '')
                               }}
                             >
-                              <Text>Outro</Text>
+                              <Text>
+                                Outro{' '}
+                                {situationType === 'custom' && (
+                                  <CircleCheck
+                                    color={theme.colors.foreground}
+                                  />
+                                )}
+                              </Text>
                             </Pressable>
                           </>
                         ) : (
