@@ -50,7 +50,7 @@ export function MomentEntriesList() {
         contentContainerStyle={{ gap: theme.spacing.md }}
         renderItem={({ item }) => (
           <Box>
-            <Text>{item.date}</Text>
+            {item.date && <Text>{item.date}</Text>}
             <Text>{item.emotion}</Text>
             {item.notes && <Text>{item.notes}</Text>}
             {item.situation_description && (
