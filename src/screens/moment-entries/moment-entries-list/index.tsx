@@ -38,7 +38,10 @@ export function MomentEntriesList() {
     <Box gap="lg">
       <Box>
         <Text>Momentos</Text>
-        <Link href="/(private)/create-moment-entry" asChild>
+        <Link
+          href="/(private)/(tabs)/(moment-entries)/create-moment-entry"
+          asChild
+        >
           <Button>
             <PlusIcon />
           </Button>

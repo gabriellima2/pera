@@ -74,7 +74,7 @@ export function CreateDailyEntry() {
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.DAILY_ENTRIES.PREVIEW,
       })
-      router.replace('/(private)/(tabs)')
+      router.replace('/(private)/(tabs)/(daily-entries)')
     },
     onError: (error) => {
       toast.error(error.message)
@@ -104,7 +104,7 @@ export function CreateDailyEntry() {
     return (
       <Box>
         <Text>Você já criou um registro diário para hoje</Text>
-        <Link href="/(private)/(tabs)">
+        <Link href="/(private)/(tabs)/(daily-entries)">
           <Text>Voltar</Text>
         </Link>
       </Box>

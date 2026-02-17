@@ -9,8 +9,8 @@ export default function Layout() {
         sceneStyle: { backgroundColor: 'transparent' },
       }}
     >
-      <Tabs.Screen name="index" options={{ headerShown: false }} />
-      <Tabs.Screen name="moment-entries" options={{ headerShown: false }} />
+      <Tabs.Screen name="(daily-entries)" options={{ headerShown: false }} />
+      <Tabs.Screen name="(moment-entries)" options={{ headerShown: false }} />
     </Tabs>
   )
 }

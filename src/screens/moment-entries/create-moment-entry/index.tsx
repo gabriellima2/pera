@@ -68,7 +68,7 @@ export function CreateMomentEntry() {
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.MOMENT_ENTRIES.ALL,
       })
-      router.replace('/(private)/(tabs)/moment-entries')
+      router.replace('/(private)/(tabs)/(moment-entries)')
     },
     onError: (error) => {
       toast.error(error.message)

@@ -146,7 +146,7 @@ export function DailyEntriesPreview() {
           <Text>Seus últimos registros diários</Text>
           {lastDailyEntries &&
             lastDailyEntries.length > LAST_DAILY_ENTRIES_PREVIEW_COUNT && (
-              <Link href="/(private)/daily-entries">
+              <Link href="/(private)/(tabs)/(daily-entries)/daily-entries-list">
                 <Text>Ver todos</Text>
               </Link>
             )}

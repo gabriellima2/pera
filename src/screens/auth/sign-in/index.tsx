@@ -38,10 +38,10 @@ export function SignIn() {
 
   return (
     <Box flex={1} alignItems="center" justifyContent="center">
-      <Link href="/(private)/(tabs)">
+      <Link href="/(private)/(tabs)/(daily-entries)">
         <Text>Go to Home</Text>
       </Link>
-      <Link href="/(private)/(tabs)/moment-entries">
+      <Link href="/(private)/(tabs)/(moment-entries)">
         <Text>Go to Moment Entries</Text>
       </Link>
     </Box>
