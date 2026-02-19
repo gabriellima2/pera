@@ -1,8 +1,9 @@
+import type { EmotionType } from '@/@types/emotions'
 import { Box } from '@/components/ui/box'
 import { Button } from '@/components/ui/button'
 import { LoadingScreen } from '@/components/ui/loading'
 import { Text } from '@/components/ui/text'
-import { EMOTIONS_ENUM } from '@/constants/enums'
+import { EMOTION_TYPE_ENUM } from '@/constants/enums'
 import { QUERY_KEYS } from '@/constants/keys'
 import { supabaseClient } from '@/lib/supabase/client'
 import { theme } from '@/theme'
@@ -82,7 +83,7 @@ export function CreateDailyEntry() {
   })
 
   const isValidEmotion = useMemo(() => {
-    return Object.values(EMOTIONS_ENUM).includes(emotion)
+    return Object.values(EMOTION_TYPE_ENUM).includes(emotion as EmotionType)
   }, [emotion])
 
   const form = useForm({
@@ -124,61 +125,67 @@ export function CreateDailyEntry() {
                 <Text nativeID={field.name}>Emoção</Text>
                 <Box>
                   <Pressable
-                    onPress={() => field.handleChange(EMOTIONS_ENUM.CALM)}
+                    onPress={() => field.handleChange(EMOTION_TYPE_ENUM.CALM)}
                   >
                     <Text>
                       Calmo{' '}
-                      {field.state.value === EMOTIONS_ENUM.CALM && (
+                      {field.state.value === EMOTION_TYPE_ENUM.CALM && (
                         <CircleCheck color={theme.colors.foreground} />
                       )}
                     </Text>
                   </Pressable>
                   <Pressable
-                    onPress={() => field.handleChange(EMOTIONS_ENUM.HAPPY)}
+                    onPress={() => field.handleChange(EMOTION_TYPE_ENUM.HAPPY)}
                   >
                     <Text>
                       Feliz{' '}
-                      {field.state.value === EMOTIONS_ENUM.HAPPY && (
+                      {field.state.value === EMOTION_TYPE_ENUM.HAPPY && (
                         <CircleCheck color={theme.colors.foreground} />
                       )}
                     </Text>
                   </Pressable>
                   <Pressable
-                    onPress={() => field.handleChange(EMOTIONS_ENUM.NEUTRAL)}
+                    onPress={() =>
+                      field.handleChange(EMOTION_TYPE_ENUM.NEUTRAL)
+                    }
                   >
                     <Text>
                       Neutro
-                      {field.state.value === EMOTIONS_ENUM.NEUTRAL && (
+                      {field.state.value === EMOTION_TYPE_ENUM.NEUTRAL && (
                         <CircleCheck color={theme.colors.foreground} />
                       )}
                     </Text>
                   </Pressable>
                   <Pressable
-                    onPress={() => field.handleChange(EMOTIONS_ENUM.ANXIOUS)}
+                    onPress={() =>
+                      field.handleChange(EMOTION_TYPE_ENUM.ANXIOUS)
+                    }
                   >
                     <Text>
                       Ansioso
-                      {field.state.value === EMOTIONS_ENUM.ANXIOUS && (
+                      {field.state.value === EMOTION_TYPE_ENUM.ANXIOUS && (
                         <CircleCheck color={theme.colors.foreground} />
                       )}
                     </Text>
                   </Pressable>
                   <Pressable
-                    onPress={() => field.handleChange(EMOTIONS_ENUM.SAD)}
+                    onPress={() => field.handleChange(EMOTION_TYPE_ENUM.SAD)}
                   >
                     <Text>
                       Triste{' '}
-                      {field.state.value === EMOTIONS_ENUM.SAD && (
+                      {field.state.value === EMOTION_TYPE_ENUM.SAD && (
                         <CircleCheck color={theme.colors.foreground} />
                       )}
                     </Text>
                   </Pressable>
                   <Pressable
-                    onPress={() => field.handleChange(EMOTIONS_ENUM.FRUSTRATED)}
+                    onPress={() =>
+                      field.handleChange(EMOTION_TYPE_ENUM.FRUSTRATED)
+                    }
                   >
                     <Text>
                       Frustrado
-                      {field.state.value === EMOTIONS_ENUM.FRUSTRATED && (
+                      {field.state.value === EMOTION_TYPE_ENUM.FRUSTRATED && (
                         <CircleCheck color={theme.colors.foreground} />
                       )}
                     </Text>
@@ -207,7 +214,7 @@ export function CreateDailyEntry() {
                   keyboardAppearance="light"
                   placeholder="Digite suas anotações"
                   aria-labelledby={field.name}
-                  placeholderTextColor={theme.colors.mutedForeground}
+                  placeholderTextColor={theme.colors.foregroundSecondary}
                   onChangeText={(text) => field.handleChange(text)}
                   style={{ color: theme.colors.foreground }}
                 />

@@ -47,7 +47,7 @@ export default function Layout() {
 function TabBarLabel({ label, focused }: { label: string; focused: boolean }) {
   return (
     <Text
-      color={focused ? 'accent' : 'muted'}
+      color={focused ? 'accent' : 'foregroundSecondary'}
       variant="caption"
       fontSize={10}
       mt="xs"
@@ -67,7 +67,7 @@ function TabBarIcon({
   return (
     <Icon
       size={24}
-      color={focused ? theme.colors.accent : theme.colors.muted}
+      color={focused ? theme.colors.accent : theme.colors.foregroundSecondary}
     />
   )
 }

@@ -2,10 +2,10 @@ import { LoadingIndicator } from '@/components/ui/loading'
 import { SessionProvider, useSession } from '@/contexts/session-context'
 import { queryClient } from '@/lib/react-query/client'
 import {
-  Poppins_400Regular,
-  Poppins_500Medium,
-  Poppins_600SemiBold,
-} from '@expo-google-fonts/poppins'
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+} from '@expo-google-fonts/inter'
 import { ThemeProvider } from '@shopify/restyle'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { useFonts } from 'expo-font'
@@ -43,9 +43,9 @@ SplashScreen.preventAutoHideAsync()
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
-    Poppins_400Regular,
-    Poppins_500Medium,
-    Poppins_600SemiBold,
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
   })
 
   useEffect(() => {
@@ -66,13 +66,12 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <GestureHandlerRootView>
         <ThemeProvider theme={theme}>
-          <StatusBar style="light" />
+          <StatusBar style="dark" />
           <QueryClientProvider client={queryClient}>
             <SafeAreaView
               style={{
                 flex: 1,
                 backgroundColor: theme.colors.background,
-                paddingTop: theme.spacing.md,
               }}
             >
               <SessionProvider>
@@ -129,12 +128,12 @@ const toastOptions: ToasterProps['toastOptions'] = {
   },
   titleStyle: {
     color: theme.colors.surfaceForeground,
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'Inter_500Medium',
     fontSize: 14,
   },
   descriptionStyle: {
     color: theme.colors.surfaceForeground,
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'Inter_400Regular',
     fontSize: 14,
   },
 }

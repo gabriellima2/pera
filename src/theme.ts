@@ -2,32 +2,30 @@ import { createTheme } from '@shopify/restyle'
 
 export const theme = createTheme({
   colors: {
-    background: '#000000',
-    foreground: '#ffffff',
-    foregroundSecondary: '#777777',
+    background: '#F9FAFB',
+    foreground: '#000000',
+    foregroundSecondary: '#6B7280',
 
-    surface: '#222222',
-    surfaceAlt: '#333333',
-    surfaceForeground: '#ffffff',
+    surface: '#FFFFFF',
+    surfaceForeground: '#1A1A1A',
 
-    muted: '#777777',
-    mutedForeground: '#ffffff',
+    accent: '#000000',
+    accentForeground: '#FFFFFF',
 
-    accent: '#8AA1FF',
-    accentSoft: '#2E3557',
-    accentForeground: '#ffffff',
+    success: '#10B981',
 
-    success: '#00C853',
-    successSoft: '#004D40',
+    error: '#EF4444',
 
-    error: '#D32F2F',
-    errorSoft: '#4A0004',
+    warning: '#F59E0B',
 
-    warning: '#FFA000',
-    warningSoft: '#4A2900',
+    info: '#3B82F6',
 
-    info: '#00B8D9',
-    infoSoft: '#003647',
+    emotionCalm: '#D1FAE5',
+    emotionHappy: '#DBEAFE',
+    emotionNeutral: '#F3F4F6',
+    emotionAnxious: '#FEF3C7',
+    emotionSad: '#FEE2E2',
+    emotionFrustrated: '#FEE2E2',
   },
 
   spacing: {
@@ -45,7 +43,6 @@ export const theme = createTheme({
     sm: 8,
     md: 12,
     lg: 16,
-    xl: 24,
     full: 9999,
   },
 
@@ -56,36 +53,43 @@ export const theme = createTheme({
 
   textVariants: {
     defaults: {
-      fontFamily: 'Poppins_400Regular',
+      fontFamily: 'Inter_400Regular',
       color: 'foreground',
     },
 
+    display: {
+      fontFamily: 'Inter_700Bold',
+      fontSize: 32,
+      lineHeight: 40,
+    },
+
     title: {
-      fontFamily: 'Poppins_600SemiBold',
-      fontSize: 22,
-      lineHeight: 28,
+      fontFamily: 'Inter_600SemiBold',
+      fontSize: 20,
+      lineHeight: 24,
     },
 
     subtitle: {
-      fontFamily: 'Poppins_500Medium',
+      fontFamily: 'Inter_600SemiBold',
       fontSize: 16,
-      lineHeight: 22,
+      lineHeight: 20,
     },
 
     body: {
-      fontFamily: 'Poppins_400Regular',
+      fontFamily: 'Inter_400Regular',
       fontSize: 14,
       lineHeight: 20,
     },
 
-    bodyMedium: {
-      fontFamily: 'Poppins_500Medium',
+    bodyMuted: {
+      fontFamily: 'Inter_400Regular',
       fontSize: 14,
       lineHeight: 20,
+      color: 'foregroundSecondary',
     },
 
     caption: {
-      fontFamily: 'Poppins_400Regular',
+      fontFamily: 'Inter_400Regular',
       fontSize: 12,
       lineHeight: 16,
       color: 'foregroundSecondary',
@@ -97,7 +101,70 @@ export const theme = createTheme({
       backgroundColor: 'accent',
     },
     secondary: {
-      backgroundColor: 'surfaceAlt',
+      backgroundColor: 'surface',
+      borderWidth: 1,
+      borderColor: 'foregroundSecondary',
+    },
+    ghost: {
+      backgroundColor: 'transparent',
+    },
+    danger: {
+      backgroundColor: 'error',
+    },
+  },
+
+  cardVariants: {
+    defaults: {
+      backgroundColor: 'surface',
+      borderRadius: 'md',
+      padding: 'md',
+    },
+    default: {
+      backgroundColor: 'surface',
+      borderRadius: 'md',
+      padding: 'md',
+    },
+    outlined: {
+      backgroundColor: 'surface',
+      borderRadius: 'md',
+      padding: 'md',
+      borderWidth: 1,
+      borderColor: 'foregroundSecondary',
+    },
+    elevated: {
+      backgroundColor: 'surface',
+      borderRadius: 'md',
+      padding: 'md',
+      shadowColor: '#000000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+  },
+
+  listItemVariants: {
+    defaults: {
+      backgroundColor: 'surface',
+      padding: 'md',
+    },
+    default: {
+      backgroundColor: 'surface',
+      padding: 'md',
+    },
+    pressable: {
+      backgroundColor: 'surface',
+      padding: 'md',
+      borderRadius: 'sm',
+    },
+    danger: {
+      backgroundColor: 'surface',
+      padding: 'md',
+      borderLeftWidth: 3,
+      borderLeftColor: 'error',
     },
   },
 })
