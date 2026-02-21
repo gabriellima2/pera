@@ -25,7 +25,6 @@ export function Textarea({
 }) {
   return (
     <BaseTextInput
-      variant="default"
       aria-labelledby={id}
       multiline
       numberOfLines={numberOfLines}

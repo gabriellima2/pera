@@ -5,7 +5,11 @@ import { CalendarDaysIcon, HomeIcon } from 'lucide-react-native'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Animated } from 'react-native'
 
-const hideTabBarPaths = ['/create-daily-entry', '/daily-entries-list']
+const hideTabBarPaths = [
+  '/create-daily-entry',
+  '/daily-entries-list',
+  '/create-moment-entry',
+]
 
 export default function Layout() {
   const pathname = usePathname()

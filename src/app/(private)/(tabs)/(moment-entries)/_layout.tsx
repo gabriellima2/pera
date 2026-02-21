@@ -1,4 +1,3 @@
-import { theme } from '@/theme'
 import { Stack } from 'expo-router'
 
 export default function Layout() {
@@ -10,14 +9,7 @@ export default function Layout() {
       }}
     >
       <Stack.Screen name="index" />
-      <Stack.Screen
-        name="create-moment-entry"
-        options={{
-          presentation: 'formSheet',
-          sheetCornerRadius: theme.borderRadii.lg,
-          contentStyle: { backgroundColor: theme.colors.background },
-        }}
-      />
+      <Stack.Screen name="create-moment-entry" />
       <Stack.Screen name="moment-entries-list" />
     </Stack>
   )

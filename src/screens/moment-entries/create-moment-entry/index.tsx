@@ -1,20 +1,33 @@
+import { BackButton } from '@/components/buttons/back-button'
+import { BooleanSelector } from '@/components/selectors/boolean-selector'
+import { EmotionSelector } from '@/components/selectors/emotion-selector'
 import { Box } from '@/components/ui/box'
 import { Button } from '@/components/ui/button'
+import { DatePicker } from '@/components/ui/date-picker'
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '@/components/ui/field'
+import { Form } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 import { LoadingScreen } from '@/components/ui/loading'
 import { Text } from '@/components/ui/text'
-import { EMOTION_TYPE_ENUM } from '@/constants/enums'
+import { Textarea } from '@/components/ui/textarea'
 import { QUERY_KEYS } from '@/constants/keys'
 import { supabaseClient } from '@/lib/supabase/client'
 import { theme } from '@/theme'
-import { getCurrentDateString, getDateString } from '@/utils/date'
+import { getCurrentDateString } from '@/utils/date'
 import { useForm } from '@tanstack/react-form'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'expo-router'
-import { CircleCheck } from 'lucide-react-native'
-import { Pressable, ScrollView, TextInput } from 'react-native'
-import RNDatePicker from 'react-native-date-picker'
+import { useMemo } from 'react'
+import { ScrollView } from 'react-native'
 import { toast } from 'sonner-native'
 import { z } from 'zod'
+import { SituationsSelector } from './components/situations-selector'
+import { SituationType } from './types'
 
 export function CreateMomentEntry() {
   const queryClient = useQueryClient()
@@ -49,7 +62,7 @@ export function CreateMomentEntry() {
           p_situation_description: (data.situation.type === 'predefined'
             ? null
             : data.situation.description)!,
-          p_date: data.notRememberDate ? null : data.date || null,
+          p_date: data.rememberDate ? data.date || null : null,
           p_notes: (data.notes || null)!,
         })
         .single<string>()
@@ -68,7 +81,12 @@ export function CreateMomentEntry() {
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.MOMENT_ENTRIES.ALL,
       })
-      router.replace('/(private)/(tabs)/(moment-entries)')
+
+      if (router.canGoBack()) {
+        router.back()
+      } else {
+        router.replace('/(private)/(tabs)/(moment-entries)')
+      }
     },
     onError: (error) => {
       toast.error(error.message)
@@ -80,7 +98,7 @@ export function CreateMomentEntry() {
       emotion: '',
       notes: '',
       date: getCurrentDateString(),
-      notRememberDate: true,
+      rememberDate: false,
       situation: {
         id: '',
         type: 'predefined',
@@ -95,337 +113,230 @@ export function CreateMomentEntry() {
         ...value,
         situation: {
           ...value.situation,
-          type: value.situation.type as 'custom' | 'predefined',
+          type: value.situation.type as SituationType,
         },
       }),
   })
+
+  const situationsOptions = useMemo(() => {
+    if (!situations) return []
+    return situations.map((situation) => ({
+      value: situation.id,
+      label: situation.label,
+    }))
+  }, [situations])
+
+  function handleSituationChange(
+    situationId: string,
+    situationType: SituationType,
+  ) {
+    form.setFieldValue('situation.id', situationId)
+    form.setFieldValue('situation.type', situationType)
+    form.setFieldValue('situation.description', '')
+  }
 
   if (isLoadingSituations) {
     return <LoadingScreen />
   }
 
   return (
-    <ScrollView>
-      <Box>
-        <Box gap="lg">
-          <form.Field
-            name="emotion"
-            children={(field) => {
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid
-              return (
-                <Box data-invalid={isInvalid}>
-                  <Text nativeID={field.name}>Emoção</Text>
-                  <Box>
-                    <Pressable
-                      onPress={() => field.handleChange(EMOTION_TYPE_ENUM.CALM)}
-                    >
-                      <Text>
-                        Calmo{' '}
-                        {field.state.value === EMOTION_TYPE_ENUM.CALM && (
-                          <CircleCheck color={theme.colors.foreground} />
-                        )}
-                      </Text>
-                    </Pressable>
-                    <Pressable
-                      onPress={() =>
-                        field.handleChange(EMOTION_TYPE_ENUM.HAPPY)
-                      }
-                    >
-                      <Text>
-                        Feliz{' '}
-                        {field.state.value === EMOTION_TYPE_ENUM.HAPPY && (
-                          <CircleCheck color={theme.colors.foreground} />
-                        )}
-                      </Text>
-                    </Pressable>
-                    <Pressable
-                      onPress={() =>
-                        field.handleChange(EMOTION_TYPE_ENUM.NEUTRAL)
-                      }
-                    >
-                      <Text>
-                        Neutro
-                        {field.state.value === EMOTION_TYPE_ENUM.NEUTRAL && (
-                          <CircleCheck color={theme.colors.foreground} />
-                        )}
-                      </Text>
-                    </Pressable>
-                    <Pressable
-                      onPress={() =>
-                        field.handleChange(EMOTION_TYPE_ENUM.ANXIOUS)
-                      }
-                    >
-                      <Text>
-                        Ansioso
-                        {field.state.value === EMOTION_TYPE_ENUM.ANXIOUS && (
-                          <CircleCheck color={theme.colors.foreground} />
-                        )}
-                      </Text>
-                    </Pressable>
-                    <Pressable
-                      onPress={() => field.handleChange(EMOTION_TYPE_ENUM.SAD)}
-                    >
-                      <Text>
-                        Triste{' '}
-                        {field.state.value === EMOTION_TYPE_ENUM.SAD && (
-                          <CircleCheck color={theme.colors.foreground} />
-                        )}
-                      </Text>
-                    </Pressable>
-                    <Pressable
-                      onPress={() =>
-                        field.handleChange(EMOTION_TYPE_ENUM.FRUSTRATED)
-                      }
-                    >
-                      <Text>
-                        Frustrado
-                        {field.state.value === EMOTION_TYPE_ENUM.FRUSTRATED && (
-                          <CircleCheck color={theme.colors.foreground} />
-                        )}
-                      </Text>
-                    </Pressable>
-                  </Box>
-                  {isInvalid && (
-                    <Text>{field.state.meta.errors?.[0]?.message}</Text>
-                  )}
-                </Box>
-              )
-            }}
-          />
-          <form.Subscribe
-            selector={(state) => [state.values.situation.type]}
-            children={([situationType]) => {
-              return (
-                <form.Field
-                  name="situation.id"
-                  children={(field) => {
-                    const isInvalid =
-                      field.state.meta.isTouched && !field.state.meta.isValid
-                    return (
-                      <Box data-invalid={isInvalid}>
-                        <Text nativeID={field.name}>Situação</Text>
-                        <Box>
-                          {situations?.length ? (
-                            <>
-                              {situations?.map((situation) => (
-                                <Pressable
-                                  key={situation.id}
-                                  onPress={() => {
-                                    field.handleChange(situation.id)
-
-                                    form.setFieldValue(
-                                      'situation.type',
-                                      'predefined',
-                                    )
-                                    form.setFieldValue(
-                                      'situation.description',
-                                      '',
-                                    )
-                                  }}
-                                >
-                                  <Text>
-                                    {situation.label}
-                                    {field.state.value === situation.id && (
-                                      <CircleCheck
-                                        color={theme.colors.foreground}
-                                      />
-                                    )}
-                                  </Text>
-                                </Pressable>
-                              ))}
-                              <Pressable
-                                onPress={() => {
-                                  field.handleChange('')
-
-                                  form.setFieldValue('situation.type', 'custom')
-                                  form.setFieldValue(
-                                    'situation.description',
-                                    '',
-                                  )
-                                }}
-                              >
-                                <Text>
-                                  Outro{' '}
-                                  {situationType === 'custom' && (
-                                    <CircleCheck
-                                      color={theme.colors.foreground}
-                                    />
-                                  )}
-                                </Text>
-                              </Pressable>
-                            </>
-                          ) : (
-                            <Text>Nenhuma situação encontrada</Text>
-                          )}
-                        </Box>
-                        {isInvalid && (
-                          <Text>{field.state.meta.errors?.[0]?.message}</Text>
-                        )}
-                      </Box>
-                    )
-                  }}
-                />
-              )
-            }}
-          />
-          <form.Subscribe
-            selector={(state) => [state.values.situation.type]}
-            children={([situationType]) => (
-              <>
-                {situationType === 'custom' && (
-                  <form.Field
-                    name="situation.description"
-                    children={(field) => {
-                      const isInvalid =
-                        field.state.meta.isTouched && !field.state.meta.isValid
-                      return (
-                        <Box data-invalid={isInvalid}>
-                          <Text nativeID={field.name}>Descreva a situação</Text>
-                          <TextInput
-                            value={field.state.value as string}
-                            keyboardAppearance="light"
-                            placeholder="Descreva a situação"
-                            aria-labelledby={field.name}
-                            placeholderTextColor={
-                              theme.colors.foregroundSecondary
-                            }
-                            onChangeText={(text) => field.handleChange(text)}
-                            style={{ color: theme.colors.foreground }}
-                          />
-                          {isInvalid && (
-                            <Text>{field.state.meta.errors?.[0]?.message}</Text>
-                          )}
-                        </Box>
-                      )
-                    }}
-                  />
-                )}
-              </>
-            )}
-          />
-          <form.Field
-            name="notRememberDate"
-            listeners={{
-              onChange: () => {
-                form.setFieldValue('date', getCurrentDateString())
-              },
-            }}
-            children={(field) => {
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid
-              return (
-                <Box data-invalid={isInvalid}>
-                  <Text nativeID={field.name}>Não me lembro da data</Text>
-                  <Button
-                    label={field.state.value ? 'Não' : 'Sim'}
-                    onPress={() => {
-                      field.handleChange(!field.state.value)
-                    }}
-                  />
-                </Box>
-              )
-            }}
-          />
-          <form.Subscribe
-            selector={(state) => [state.values.notRememberDate]}
-            children={([notRememberDate]) => {
-              if (notRememberDate) {
-                return null
-              }
-
-              return (
-                <form.Field
-                  name="date"
-                  children={(field) => {
-                    return (
-                      <form.Field
-                        name="date"
-                        children={(field) => {
-                          const isInvalid =
-                            field.state.meta.isTouched &&
-                            !field.state.meta.isValid
-                          return (
-                            <Box data-invalid={isInvalid}>
-                              <Text nativeID={field.name}>Data</Text>
-                              <RNDatePicker
-                                mode="date"
-                                locale="pt-BR"
-                                theme="dark"
-                                aria-labelledby={field.name}
-                                date={getDatePickerValue(field.state.value)}
-                                onDateChange={(date) =>
-                                  field.handleChange(getDateString(date))
-                                }
-                              />
-                              {isInvalid && (
-                                <Text>
-                                  {field.state.meta.errors?.[0]?.message}
-                                </Text>
-                              )}
-                            </Box>
-                          )
-                        }}
+    <Box flex={1}>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingBottom: 76 + theme.spacing.lg }}
+      >
+        <Box flex={1} px="md" mt="lg" gap="lg">
+          <Box gap="md" flexDirection="row" alignItems="center" height={42}>
+            <BackButton />
+            <Text variant="title">Novo registro de momento</Text>
+          </Box>
+          <Form>
+            <FieldGroup>
+              <form.Field
+                name="emotion"
+                children={(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={field.name}>Emoção</FieldLabel>
+                      <EmotionSelector
+                        id={field.name}
+                        value={field.state.value}
+                        onSelect={field.handleChange}
                       />
-                    )
-                  }}
-                />
-              )
-            }}
-          />
-
-          <form.Field
-            name="notes"
-            children={(field) => {
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid
-              return (
-                <Box data-invalid={isInvalid}>
-                  <Text nativeID={field.name}>Anotações</Text>
-                  <TextInput
-                    multiline
-                    numberOfLines={4}
-                    value={field.state.value as string}
-                    textAlignVertical="top"
-                    keyboardAppearance="light"
-                    placeholder="Digite suas anotações"
-                    aria-labelledby={field.name}
-                    placeholderTextColor={theme.colors.foregroundSecondary}
-                    onChangeText={(text) => field.handleChange(text)}
-                    style={{ color: theme.colors.foreground }}
-                  />
-                  {isInvalid && (
-                    <Text>{field.state.meta.errors?.[0]?.message}</Text>
-                  )}
-                </Box>
-              )
-            }}
-          />
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </Field>
+                  )
+                }}
+              />
+              <form.Subscribe
+                selector={(state) => [
+                  state.values.situation.type as SituationType,
+                ]}
+                children={([situationType]) => {
+                  return (
+                    <form.Field
+                      name="situation.id"
+                      children={(field) => {
+                        const isInvalid =
+                          field.state.meta.isTouched &&
+                          !field.state.meta.isValid
+                        return (
+                          <Field data-invalid={isInvalid}>
+                            <FieldLabel htmlFor={field.name}>
+                              Situação
+                            </FieldLabel>
+                            <SituationsSelector
+                              id={field.name}
+                              type={situationType}
+                              value={field.state.value}
+                              situations={situationsOptions}
+                              onSelect={(value, type) => {
+                                handleSituationChange(value, type)
+                              }}
+                            />
+                            {isInvalid && (
+                              <FieldError errors={field.state.meta.errors} />
+                            )}
+                          </Field>
+                        )
+                      }}
+                    />
+                  )
+                }}
+              />
+              <form.Subscribe
+                selector={(state) => [state.values.situation.type]}
+                children={([situationType]) =>
+                  situationType === 'custom' ? (
+                    <form.Field
+                      name="situation.description"
+                      children={(field) => {
+                        const isInvalid =
+                          field.state.meta.isTouched &&
+                          !field.state.meta.isValid
+                        return (
+                          <Field data-invalid={isInvalid}>
+                            <FieldLabel htmlFor={field.name}>
+                              Descreva a situação
+                            </FieldLabel>
+                            <Input
+                              id={field.name}
+                              value={field.state.value}
+                              placeholder="Descreva a situação"
+                              onChangeText={field.handleChange}
+                            />
+                            {isInvalid && (
+                              <FieldError errors={field.state.meta.errors} />
+                            )}
+                          </Field>
+                        )
+                      }}
+                    />
+                  ) : null
+                }
+              />
+              <form.Field
+                name="rememberDate"
+                listeners={{
+                  onChange: () => {
+                    form.setFieldValue('date', getCurrentDateString())
+                  },
+                }}
+                children={(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={field.name}>
+                        Lembrar data?
+                      </FieldLabel>
+                      <BooleanSelector
+                        value={field.state.value}
+                        onSelect={field.handleChange}
+                      />
+                    </Field>
+                  )
+                }}
+              />
+              <form.Subscribe
+                selector={(state) => [state.values.rememberDate]}
+                children={([rememberDate]) =>
+                  rememberDate ? (
+                    <form.Field
+                      name="date"
+                      children={(field) => {
+                        const isInvalid =
+                          field.state.meta.isTouched &&
+                          !field.state.meta.isValid
+                        return (
+                          <Field data-invalid={isInvalid}>
+                            <FieldLabel htmlFor={field.name}>Data</FieldLabel>
+                            <DatePicker
+                              id={field.name}
+                              value={field.state.value}
+                              onChangeDate={field.handleChange}
+                            />
+                            {isInvalid && (
+                              <FieldError errors={field.state.meta.errors} />
+                            )}
+                          </Field>
+                        )
+                      }}
+                    />
+                  ) : null
+                }
+              />
+              <form.Field
+                name="notes"
+                children={(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={field.name}>Anotações</FieldLabel>
+                      <Textarea
+                        id={field.name}
+                        value={field.state.value}
+                        placeholder="Digite suas anotações"
+                        onChangeText={field.handleChange}
+                      />
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </Field>
+                  )
+                }}
+              />
+            </FieldGroup>
+          </Form>
         </Box>
+      </ScrollView>
+      <Box
+        position="absolute"
+        bottom={0}
+        left={0}
+        right={0}
+        px="md"
+        pb="lg"
+        backgroundColor="background"
+      >
         <form.Subscribe
           selector={(state) => [state.isSubmitting]}
           children={([isSubmitting]) => (
             <Button
               label="Salvar"
               loading={isSubmitting}
-              onPress={() => form.handleSubmit()}
+              onPress={form.handleSubmit}
             />
           )}
         />
       </Box>
-    </ScrollView>
+    </Box>
   )
-}
-
-function getDatePickerValue(value: string | undefined | null) {
-  const fallback = new Date()
-  const date = value ? new Date(value) : fallback
-
-  if (isNaN(date.getTime())) {
-    return fallback
-  }
-
-  return date
 }
 
 const createMomentEntrySchema = z.object({
@@ -442,7 +353,7 @@ const createMomentEntrySchema = z.object({
       description: z.string(),
     }),
   ]),
-  notRememberDate: z.boolean(),
+  rememberDate: z.boolean(),
   date: z.string().trim(),
   notes: z.string().trim(),
 })

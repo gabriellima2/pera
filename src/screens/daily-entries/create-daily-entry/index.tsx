@@ -16,6 +16,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { EMOTION_TYPE_ENUM } from '@/constants/enums'
 import { QUERY_KEYS } from '@/constants/keys'
 import { supabaseClient } from '@/lib/supabase/client'
+import { theme } from '@/theme'
 import { getCurrentDateString } from '@/utils/date'
 import { useForm } from '@tanstack/react-form'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -83,7 +84,12 @@ export function CreateDailyEntry() {
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.DAILY_ENTRIES.PREVIEW,
       })
-      router.replace('/(private)/(tabs)/(daily-entries)')
+
+      if (router.canGoBack()) {
+        router.back()
+      } else {
+        router.replace('/(private)/(tabs)/(daily-entries)')
+      }
     },
     onError: (error) => {
       toast.error(error.message)
@@ -110,81 +116,92 @@ export function CreateDailyEntry() {
   }
 
   return (
-    <ScrollView
-      contentContainerStyle={{
-        flex: 1,
-      }}
-    >
-      <Box px="md" flex={1} my="lg" gap="lg">
-        <Box gap="md" flexDirection="row" alignItems="center" height={42}>
-          <BackButton />
-          <Text variant="title">Novo registro diário</Text>
-        </Box>
-        {hasTodayDailyEntry ? (
-          <Box py="xl" alignItems="center">
-            <Text color="foregroundSecondary">
-              Você já criou um registro diário para hoje.
-            </Text>
+    <Box flex={1}>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingBottom: 76 + theme.spacing.lg }}
+      >
+        <Box px="md" flex={1} mt="lg" gap="lg">
+          <Box gap="md" flexDirection="row" alignItems="center" height={42}>
+            <BackButton />
+            <Text variant="title">Novo registro diário</Text>
           </Box>
-        ) : (
-          <Form flex={1} justifyContent="space-between">
-            <FieldGroup>
-              <form.Field
-                name="emotion"
-                children={(field) => {
-                  const isInvalid =
-                    field.state.meta.isTouched && !field.state.meta.isValid
-                  return (
-                    <Field data-invalid={isInvalid}>
-                      <FieldLabel htmlFor={field.name}>Emoção</FieldLabel>
-                      <EmotionSelector
-                        id={field.name}
-                        value={field.state.value}
-                        onSelect={(emotion) => field.handleChange(emotion)}
-                      />
-                      {isInvalid && (
-                        <FieldError errors={field.state.meta.errors} />
-                      )}
-                    </Field>
-                  )
-                }}
-              />
-              <form.Field
-                name="notes"
-                children={(field) => {
-                  const isInvalid =
-                    field.state.meta.isTouched && !field.state.meta.isValid
-                  return (
-                    <Field data-invalid={isInvalid}>
-                      <FieldLabel htmlFor={field.name}>Anotações</FieldLabel>
-                      <Textarea
-                        id={field.name}
-                        value={field.state.value as string}
-                        placeholder="Digite suas anotações"
-                        onChangeText={(text) => field.handleChange(text)}
-                      />
-                      {isInvalid && (
-                        <FieldError errors={field.state.meta.errors} />
-                      )}
-                    </Field>
-                  )
-                }}
-              />
-            </FieldGroup>
-            <form.Subscribe
-              selector={(state) => [state.isSubmitting]}
-              children={([isSubmitting]) => (
-                <Button
-                  label="Salvar"
-                  loading={isSubmitting}
-                  onPress={() => form.handleSubmit()}
+          {hasTodayDailyEntry ? (
+            <Box py="xl" alignItems="center">
+              <Text color="foregroundSecondary">
+                Você já criou um registro diário para hoje.
+              </Text>
+            </Box>
+          ) : (
+            <Form>
+              <FieldGroup>
+                <form.Field
+                  name="emotion"
+                  children={(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid
+                    return (
+                      <Field data-invalid={isInvalid}>
+                        <FieldLabel htmlFor={field.name}>Emoção</FieldLabel>
+                        <EmotionSelector
+                          id={field.name}
+                          value={field.state.value}
+                          onSelect={field.handleChange}
+                        />
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
+                      </Field>
+                    )
+                  }}
                 />
-              )}
+                <form.Field
+                  name="notes"
+                  children={(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid
+                    return (
+                      <Field data-invalid={isInvalid}>
+                        <FieldLabel htmlFor={field.name}>Anotações</FieldLabel>
+                        <Textarea
+                          id={field.name}
+                          value={field.state.value}
+                          placeholder="Digite suas anotações"
+                          onChangeText={field.handleChange}
+                        />
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
+                      </Field>
+                    )
+                  }}
+                />
+              </FieldGroup>
+            </Form>
+          )}
+        </Box>
+      </ScrollView>
+      <Box
+        position="absolute"
+        bottom={0}
+        left={0}
+        right={0}
+        px="md"
+        pb="lg"
+        backgroundColor="background"
+      >
+        <form.Subscribe
+          selector={(state) => [state.isSubmitting]}
+          children={([isSubmitting]) => (
+            <Button
+              label="Salvar"
+              loading={isSubmitting}
+              onPress={form.handleSubmit}
             />
-          </Form>
-        )}
+          )}
+        />
       </Box>
-    </ScrollView>
+    </Box>
   )
 }
 
