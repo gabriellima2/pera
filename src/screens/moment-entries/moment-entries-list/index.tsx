@@ -7,7 +7,6 @@ import { QUERY_KEYS } from '@/constants/keys'
 import { supabaseClient } from '@/lib/supabase/client'
 import { theme } from '@/theme'
 import { useQuery } from '@tanstack/react-query'
-import { formatDate } from 'date-fns'
 import { Link } from 'expo-router'
 import { ChevronRight, PlusIcon } from 'lucide-react-native'
 import { FlatList } from 'react-native'
@@ -88,18 +87,18 @@ export function MomentEntriesList() {
           </Box>
 
           <Box flex={1} gap="xs">
-            {item.date && (
-              <Text variant="bodyMuted">
-                {formatDate(item.date, 'dd/MM/yyyy')}
-              </Text>
-            )}
-            {item.situations?.label && <Text>{item.situations?.label}</Text>}
-            {item.situation_description && (
-              <Text variant="bodyMuted">{item.situation_description}</Text>
-            )}
-            {item.notes && (
+            {item.situations?.label ? (
+              <Text>{item.situations?.label}</Text>
+            ) : item.situation_description ? (
+              <Text numberOfLines={1}>{item.situation_description}</Text>
+            ) : null}
+            {item.notes ? (
               <Text variant="caption" numberOfLines={1}>
                 {item.notes}
+              </Text>
+            ) : (
+              <Text variant="caption" fontStyle="italic">
+                Registro sem anotações
               </Text>
             )}
           </Box>

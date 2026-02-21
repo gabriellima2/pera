@@ -209,7 +209,7 @@ export function DailyEntriesPreview() {
                     </Text>
                   ) : (
                     <Text variant="caption" fontStyle="italic">
-                      Registro apenas por emoção
+                      Registro sem anotações
                     </Text>
                   )}
                 </Box>
