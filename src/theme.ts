@@ -61,12 +61,6 @@ export const theme = createTheme({
       color: 'foreground',
     },
 
-    display: {
-      fontFamily: 'Inter_700Bold',
-      fontSize: 32,
-      lineHeight: 40,
-    },
-
     title: {
       fontFamily: 'Inter_600SemiBold',
       fontSize: 20,
@@ -81,6 +75,12 @@ export const theme = createTheme({
 
     body: {
       fontFamily: 'Inter_400Regular',
+      fontSize: 14,
+      lineHeight: 20,
+    },
+
+    bodyMedium: {
+      fontFamily: 'Inter_500Medium',
       fontSize: 14,
       lineHeight: 20,
     },

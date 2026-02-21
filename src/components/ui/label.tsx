@@ -6,5 +6,5 @@ export function Label({
 }: Omit<React.ComponentProps<typeof Text>, 'nativeID'> & {
   htmlFor?: string
 }) {
-  return <Text nativeID={htmlFor} {...props} />
+  return <Text variant="bodyMedium" nativeID={htmlFor} {...props} />
 }
