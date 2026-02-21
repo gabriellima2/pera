@@ -16,7 +16,7 @@ import { useQuery } from '@tanstack/react-query'
 import { formatDate } from 'date-fns'
 import { Link, useRouter } from 'expo-router'
 import { ChevronRight } from 'lucide-react-native'
-import { FlatList, Pressable, ScrollView } from 'react-native'
+import { Pressable, ScrollView } from 'react-native'
 
 const EMOTIONS: EmotionType[] = Object.values(EMOTION_TYPE_ENUM)
 
@@ -74,11 +74,15 @@ export function DailyEntriesPreview() {
   }
 
   return (
-    <Box flex={1} backgroundColor="surface">
+    <ScrollView
+      contentContainerStyle={{
+        paddingBottom: theme.spacing.lg,
+      }}
+    >
       {todayDailyEntry ? (
         <Box
           alignItems="center"
-          backgroundColor="background"
+          backgroundColor="surface"
           px="md"
           py="lg"
           borderBottomLeftRadius="lg"
@@ -108,9 +112,8 @@ export function DailyEntriesPreview() {
         </Box>
       ) : (
         <Box
-          backgroundColor="background"
-          pt="xl"
-          pb="lg"
+          backgroundColor="surface"
+          py="lg"
           gap="lg"
           mb="lg"
           borderBottomLeftRadius="lg"
@@ -123,7 +126,7 @@ export function DailyEntriesPreview() {
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{
-              gap: 12,
+              gap: theme.spacing.md,
               paddingHorizontal: theme.spacing.md,
             }}
           >
@@ -153,13 +156,7 @@ export function DailyEntriesPreview() {
         </Box>
       )}
 
-      <Box
-        flex={1}
-        px="md"
-        gap="md"
-        borderTopLeftRadius="lg"
-        borderTopRightRadius="lg"
-      >
+      <Box flex={1} px="md" gap="md" backgroundColor="background">
         <Box
           flexDirection="row"
           justifyContent="space-between"
@@ -176,63 +173,63 @@ export function DailyEntriesPreview() {
             )}
         </Box>
 
-        <FlatList
-          data={lastDailyEntries}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <Box
-              backgroundColor="background"
-              p="md"
-              borderRadius="lg"
-              flexDirection="row"
-              alignItems="center"
-              gap="md"
-              mb="sm"
-            >
+        <Box>
+          {lastDailyEntries && lastDailyEntries.length > 0 ? (
+            lastDailyEntries?.map((dailyEntry) => (
               <Box
-                backgroundColor={EMOTION_COLORS[item.emotion]}
-                width={40}
-                height={40}
+                key={dailyEntry.id}
+                backgroundColor="surface"
+                p="md"
+                borderRadius="lg"
+                flexDirection="row"
                 alignItems="center"
-                justifyContent="center"
-                borderRadius="full"
+                gap="md"
+                mb="sm"
               >
-                <Text fontSize={20} lineHeight={24}>
-                  {EMOTION_ICONS[item.emotion]}
-                </Text>
-              </Box>
-
-              <Box flex={1} gap="xs">
-                <Text variant="bodyMuted">
-                  {formatDate(item.date, 'dd/MM/yyyy')}
-                </Text>
-                {item.notes ? (
-                  <Text variant="caption" numberOfLines={1}>
-                    {item.notes}
+                <Box
+                  backgroundColor={EMOTION_COLORS[dailyEntry.emotion]}
+                  width={40}
+                  height={40}
+                  alignItems="center"
+                  justifyContent="center"
+                  borderRadius="full"
+                >
+                  <Text fontSize={20} lineHeight={24}>
+                    {EMOTION_ICONS[dailyEntry.emotion]}
                   </Text>
-                ) : (
-                  <Text variant="caption" fontStyle="italic">
-                    Registro apenas por emoção
-                  </Text>
-                )}
-              </Box>
+                </Box>
 
-              <ChevronRight
-                size={16}
-                color={theme.colors.foregroundSecondary}
-              />
-            </Box>
-          )}
-          ListEmptyComponent={
+                <Box flex={1} gap="xs">
+                  <Text variant="bodyMuted">
+                    {formatDate(dailyEntry.date, 'dd/MM/yyyy')}
+                  </Text>
+                  {dailyEntry.notes ? (
+                    <Text variant="caption" numberOfLines={1}>
+                      {dailyEntry.notes}
+                    </Text>
+                  ) : (
+                    <Text variant="caption" fontStyle="italic">
+                      Registro apenas por emoção
+                    </Text>
+                  )}
+                </Box>
+
+                <ChevronRight
+                  size={16}
+                  color={theme.colors.foregroundSecondary}
+                />
+              </Box>
+            ))
+          ) : (
             <Box py="xl" alignItems="center">
               <Text color="foregroundSecondary">
                 Nenhum registro encontrado.
               </Text>
             </Box>
-          }
-        />
+          )}
+        </Box>
       </Box>
-    </Box>
+    </ScrollView>
   )
 }
 

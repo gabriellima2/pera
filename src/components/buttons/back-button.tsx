@@ -3,12 +3,25 @@ import { ArrowLeft } from 'lucide-react-native'
 import { Button } from '../ui/button'
 import { Text } from '../ui/text'
 
-export function BackButton() {
+export function BackButton(
+  props: Omit<React.ComponentProps<typeof Button>, 'onPress' | 'children'>,
+) {
   const router = useRouter()
   return (
-    <Button onPress={() => router.back()}>
+    <Button
+      size="sm"
+      variant="secondary"
+      onPress={() => {
+        if (router.canGoBack()) {
+          router.back()
+        } else {
+          router.replace('/(private)/(tabs)/(daily-entries)')
+        }
+      }}
+      {...props}
+    >
       <Text>
-        <ArrowLeft size={24} color="white" />
+        <ArrowLeft />
       </Text>
     </Button>
   )

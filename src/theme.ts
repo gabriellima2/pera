@@ -2,11 +2,11 @@ import { createTheme } from '@shopify/restyle'
 
 export const theme = createTheme({
   colors: {
-    background: '#F9FAFB',
+    background: '#FFFFFF',
     foreground: '#000000',
     foregroundSecondary: '#6B7280',
 
-    surface: '#FFFFFF',
+    surface: '#F9FAFB',
     surfaceForeground: '#1A1A1A',
 
     accent: '#000000',
