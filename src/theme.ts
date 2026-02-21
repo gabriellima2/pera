@@ -9,6 +9,8 @@ export const theme = createTheme({
     surface: '#F9FAFB',
     surfaceForeground: '#1A1A1A',
 
+    border: '#EEEEEE',
+
     accent: '#000000',
     accentForeground: '#FFFFFF',
 
@@ -102,8 +104,6 @@ export const theme = createTheme({
     },
     secondary: {
       backgroundColor: 'surface',
-      borderWidth: 1,
-      borderColor: 'foregroundSecondary',
     },
     ghost: {
       backgroundColor: 'transparent',

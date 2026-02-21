@@ -11,7 +11,8 @@ export default function Layout() {
         sceneStyle: { backgroundColor: 'transparent' },
         tabBarStyle: {
           backgroundColor: theme.colors.surface,
-          borderTopWidth: 0,
+          borderTopWidth: 1,
+          borderTopColor: theme.colors.border,
           paddingTop: theme.spacing.sm,
         },
       }}
@@ -47,10 +48,11 @@ export default function Layout() {
 function TabBarLabel({ label, focused }: { label: string; focused: boolean }) {
   return (
     <Text
-      color={focused ? 'accent' : 'foregroundSecondary'}
+      color="foreground"
       variant="caption"
       fontSize={10}
       mt="xs"
+      opacity={focused ? 1 : 0.6}
     >
       {label}
     </Text>
@@ -67,7 +69,8 @@ function TabBarIcon({
   return (
     <Icon
       size={24}
-      color={focused ? theme.colors.accent : theme.colors.foregroundSecondary}
+      color={theme.colors.foreground}
+      opacity={focused ? 1 : 0.6}
     />
   )
 }
