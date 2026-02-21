@@ -4,6 +4,7 @@ import { EmotionListSkeleton } from '@/components/ui/skeleton'
 import { Text } from '@/components/ui/text'
 import { EMOTION_COLORS, EMOTION_ICONS } from '@/constants/emotions'
 import { QUERY_KEYS } from '@/constants/keys'
+import { PADDING_BOTTOM_TAB_BAR_HEIGHT } from '@/constants/styles'
 import { supabaseClient } from '@/lib/supabase/client'
 import { theme } from '@/theme'
 import { useQuery } from '@tanstack/react-query'
@@ -37,7 +38,7 @@ export function MomentEntriesList() {
       keyExtractor={(item) => item.id}
       contentContainerStyle={{
         paddingHorizontal: theme.spacing.md,
-        paddingBottom: theme.spacing.lg,
+        paddingBottom: PADDING_BOTTOM_TAB_BAR_HEIGHT,
       }}
       ListHeaderComponent={() => (
         <Box

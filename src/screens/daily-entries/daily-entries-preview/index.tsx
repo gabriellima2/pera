@@ -9,6 +9,7 @@ import {
 } from '@/constants/emotions'
 import { EMOTION_TYPE_ENUM } from '@/constants/enums'
 import { QUERY_KEYS } from '@/constants/keys'
+import { PADDING_BOTTOM_TAB_BAR_HEIGHT } from '@/constants/styles'
 import { supabaseClient } from '@/lib/supabase/client'
 import { theme } from '@/theme'
 import { getCurrentDateString } from '@/utils/date'
@@ -78,7 +79,7 @@ export function DailyEntriesPreview() {
   return (
     <ScrollView
       contentContainerStyle={{
-        paddingBottom: theme.spacing.lg,
+        paddingBottom: PADDING_BOTTOM_TAB_BAR_HEIGHT,
       }}
     >
       {isLoadingTodayDailyEntry ? (
@@ -137,7 +138,8 @@ export function DailyEntriesPreview() {
           alignItems="center"
           backgroundColor="surface"
           px="md"
-          py="lg"
+          pt="md"
+          pb="lg"
           borderBottomLeftRadius="lg"
           borderBottomRightRadius="lg"
           gap="lg"
@@ -166,7 +168,8 @@ export function DailyEntriesPreview() {
       ) : (
         <Box
           backgroundColor="surface"
-          py="lg"
+          pt="md"
+          pb="lg"
           gap="lg"
           mb="lg"
           borderBottomLeftRadius="lg"
