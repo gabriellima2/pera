@@ -168,8 +168,7 @@ export function DailyEntriesPreview() {
       ) : (
         <Box
           backgroundColor="surface"
-          pt="md"
-          pb="lg"
+          py="lg"
           gap="lg"
           mb="lg"
           borderBottomLeftRadius="lg"
