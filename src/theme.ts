@@ -12,6 +12,7 @@ export const theme = createTheme({
     border: '#EEEEEE',
 
     accent: '#000000',
+    accentSoft: '#0000000F',
     accentForeground: '#FFFFFF',
 
     success: '#10B981',
@@ -110,6 +111,18 @@ export const theme = createTheme({
     },
     danger: {
       backgroundColor: 'error',
+    },
+  },
+
+  inputVariants: {
+    default: {
+      fontFamily: 'Inter_400Regular',
+      fontSize: 14,
+      lineHeight: 20,
+      color: 'foreground',
+      backgroundColor: 'surface',
+      borderRadius: 'lg',
+      paddingHorizontal: 'md',
     },
   },
 })

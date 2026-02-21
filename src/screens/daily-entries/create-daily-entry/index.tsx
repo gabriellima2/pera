@@ -1,19 +1,27 @@
 import type { EmotionType } from '@/@types/emotions'
+import { BackButton } from '@/components/buttons/back-button'
+import { EmotionSelector } from '@/components/selectors/emotion-selector'
 import { Box } from '@/components/ui/box'
 import { Button } from '@/components/ui/button'
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '@/components/ui/field'
+import { Form } from '@/components/ui/form'
 import { LoadingScreen } from '@/components/ui/loading'
 import { Text } from '@/components/ui/text'
+import { Textarea } from '@/components/ui/textarea'
 import { EMOTION_TYPE_ENUM } from '@/constants/enums'
 import { QUERY_KEYS } from '@/constants/keys'
 import { supabaseClient } from '@/lib/supabase/client'
-import { theme } from '@/theme'
 import { getCurrentDateString } from '@/utils/date'
 import { useForm } from '@tanstack/react-form'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Link, useLocalSearchParams, useRouter } from 'expo-router'
-import { CircleCheck } from 'lucide-react-native'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useMemo } from 'react'
-import { Pressable, TextInput } from 'react-native'
+import { ScrollView } from 'react-native'
 import { toast } from 'sonner-native'
 import { z } from 'zod'
 
@@ -101,142 +109,82 @@ export function CreateDailyEntry() {
     return <LoadingScreen />
   }
 
-  if (hasTodayDailyEntry) {
-    return (
-      <Box>
-        <Text>Você já criou um registro diário para hoje</Text>
-        <Link href="/(private)/(tabs)/(daily-entries)">
-          <Text>Voltar</Text>
-        </Link>
-      </Box>
-    )
-  }
-
   return (
-    <Box>
-      <Box gap="lg">
-        <form.Field
-          name="emotion"
-          children={(field) => {
-            const isInvalid =
-              field.state.meta.isTouched && !field.state.meta.isValid
-            return (
-              <Box data-invalid={isInvalid}>
-                <Text nativeID={field.name}>Emoção</Text>
-                <Box>
-                  <Pressable
-                    onPress={() => field.handleChange(EMOTION_TYPE_ENUM.CALM)}
-                  >
-                    <Text>
-                      Calmo{' '}
-                      {field.state.value === EMOTION_TYPE_ENUM.CALM && (
-                        <CircleCheck color={theme.colors.foreground} />
+    <ScrollView
+      contentContainerStyle={{
+        flex: 1,
+      }}
+    >
+      <Box px="md" flex={1} my="lg" gap="lg">
+        <Box gap="md" flexDirection="row" alignItems="center" height={42}>
+          <BackButton />
+          <Text variant="title">Novo registro diário</Text>
+        </Box>
+        {hasTodayDailyEntry ? (
+          <Box py="xl" alignItems="center">
+            <Text color="foregroundSecondary">
+              Você já criou um registro diário para hoje.
+            </Text>
+          </Box>
+        ) : (
+          <Form flex={1} justifyContent="space-between">
+            <FieldGroup>
+              <form.Field
+                name="emotion"
+                children={(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={field.name}>Emoção</FieldLabel>
+                      <EmotionSelector
+                        id={field.name}
+                        value={field.state.value}
+                        onSelect={(emotion) => field.handleChange(emotion)}
+                      />
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
                       )}
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={() => field.handleChange(EMOTION_TYPE_ENUM.HAPPY)}
-                  >
-                    <Text>
-                      Feliz{' '}
-                      {field.state.value === EMOTION_TYPE_ENUM.HAPPY && (
-                        <CircleCheck color={theme.colors.foreground} />
+                    </Field>
+                  )
+                }}
+              />
+              <form.Field
+                name="notes"
+                children={(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={field.name}>Anotações</FieldLabel>
+                      <Textarea
+                        id={field.name}
+                        value={field.state.value as string}
+                        placeholder="Digite suas anotações"
+                        onChangeText={(text) => field.handleChange(text)}
+                      />
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
                       )}
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={() =>
-                      field.handleChange(EMOTION_TYPE_ENUM.NEUTRAL)
-                    }
-                  >
-                    <Text>
-                      Neutro
-                      {field.state.value === EMOTION_TYPE_ENUM.NEUTRAL && (
-                        <CircleCheck color={theme.colors.foreground} />
-                      )}
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={() =>
-                      field.handleChange(EMOTION_TYPE_ENUM.ANXIOUS)
-                    }
-                  >
-                    <Text>
-                      Ansioso
-                      {field.state.value === EMOTION_TYPE_ENUM.ANXIOUS && (
-                        <CircleCheck color={theme.colors.foreground} />
-                      )}
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={() => field.handleChange(EMOTION_TYPE_ENUM.SAD)}
-                  >
-                    <Text>
-                      Triste{' '}
-                      {field.state.value === EMOTION_TYPE_ENUM.SAD && (
-                        <CircleCheck color={theme.colors.foreground} />
-                      )}
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={() =>
-                      field.handleChange(EMOTION_TYPE_ENUM.FRUSTRATED)
-                    }
-                  >
-                    <Text>
-                      Frustrado
-                      {field.state.value === EMOTION_TYPE_ENUM.FRUSTRATED && (
-                        <CircleCheck color={theme.colors.foreground} />
-                      )}
-                    </Text>
-                  </Pressable>
-                </Box>
-                {isInvalid && (
-                  <Text>{field.state.meta.errors?.[0]?.message}</Text>
-                )}
-              </Box>
-            )
-          }}
-        />
-        <form.Field
-          name="notes"
-          children={(field) => {
-            const isInvalid =
-              field.state.meta.isTouched && !field.state.meta.isValid
-            return (
-              <Box data-invalid={isInvalid}>
-                <Text nativeID={field.name}>Anotações</Text>
-                <TextInput
-                  multiline
-                  numberOfLines={4}
-                  value={field.state.value as string}
-                  textAlignVertical="top"
-                  keyboardAppearance="light"
-                  placeholder="Digite suas anotações"
-                  aria-labelledby={field.name}
-                  placeholderTextColor={theme.colors.foregroundSecondary}
-                  onChangeText={(text) => field.handleChange(text)}
-                  style={{ color: theme.colors.foreground }}
+                    </Field>
+                  )
+                }}
+              />
+            </FieldGroup>
+            <form.Subscribe
+              selector={(state) => [state.isSubmitting]}
+              children={([isSubmitting]) => (
+                <Button
+                  label="Salvar"
+                  loading={isSubmitting}
+                  onPress={() => form.handleSubmit()}
                 />
-                {isInvalid && (
-                  <Text>{field.state.meta.errors?.[0]?.message}</Text>
-                )}
-              </Box>
-            )
-          }}
-        />
-      </Box>
-      <form.Subscribe
-        selector={(state) => [state.isSubmitting]}
-        children={([isSubmitting]) => (
-          <Button
-            label="Salvar"
-            loading={isSubmitting}
-            onPress={() => form.handleSubmit()}
-          />
+              )}
+            />
+          </Form>
         )}
-      />
-    </Box>
+      </Box>
+    </ScrollView>
   )
 }
 

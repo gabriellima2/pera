@@ -18,10 +18,21 @@ const BaseButton = createRestyleComponent<
   Theme
 >([buttonVariant], Box)
 
+const paddingMap = {
+  sm: 'sm',
+  md: 'md',
+  lg: 'lg',
+} as const
+
+const fontSizeMap = {
+  sm: 12,
+  md: 14,
+  lg: 16,
+} as const
+
 type ButtonProps = React.ComponentProps<typeof BaseButton> & {
   label?: string
   loading?: boolean
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger'
   size?: 'sm' | 'md' | 'lg'
   iconRight?: React.ReactNode
   iconLeft?: React.ReactNode
@@ -39,18 +50,6 @@ export function Button({
   onPress,
   ...props
 }: ButtonProps) {
-  const paddingMap = {
-    sm: 'sm',
-    md: 'md',
-    lg: 'lg',
-  } as const
-
-  const fontSizeMap = {
-    sm: 12,
-    md: 14,
-    lg: 16,
-  } as const
-
   const getTextColor = () => {
     switch (variant) {
       case 'primary':
@@ -72,7 +71,7 @@ export function Button({
         <BaseButton
           variant={variant}
           padding={paddingMap[size]}
-          borderRadius="md"
+          borderRadius="lg"
           alignItems="center"
           justifyContent="center"
           flexDirection="row"
