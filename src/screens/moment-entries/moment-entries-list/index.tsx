@@ -1,6 +1,6 @@
 import { Box } from '@/components/ui/box'
 import { Button } from '@/components/ui/button'
-import { LoadingScreen } from '@/components/ui/loading'
+import { EmotionListSkeleton } from '@/components/ui/skeleton'
 import { Text } from '@/components/ui/text'
 import { EMOTION_COLORS, EMOTION_ICONS } from '@/constants/emotions'
 import { QUERY_KEYS } from '@/constants/keys'
@@ -30,10 +30,6 @@ export function MomentEntriesList() {
     queryKey: QUERY_KEYS.MOMENT_ENTRIES.ALL,
     throwOnError: true,
   })
-
-  if (isLoadingMomentEntries) {
-    return <LoadingScreen />
-  }
 
   return (
     <FlatList
@@ -106,9 +102,13 @@ export function MomentEntriesList() {
         </Box>
       )}
       ListEmptyComponent={
-        <Box py="xl" alignItems="center">
-          <Text color="foregroundSecondary">Nenhum registro encontrado.</Text>
-        </Box>
+        isLoadingMomentEntries ? (
+          <EmotionListSkeleton />
+        ) : (
+          <Box py="xl" alignItems="center">
+            <Text color="foregroundSecondary">Nenhum registro encontrado.</Text>
+          </Box>
+        )
       }
     />
   )

@@ -1,6 +1,6 @@
 import type { EmotionType } from '@/@types/emotions'
 import { Box } from '@/components/ui/box'
-import { LoadingScreen } from '@/components/ui/loading'
+import { EmotionListSkeleton, Skeleton } from '@/components/ui/skeleton'
 import { Text } from '@/components/ui/text'
 import {
   EMOTION_COLORS,
@@ -23,44 +23,50 @@ const EMOTIONS: EmotionType[] = Object.values(EMOTION_TYPE_ENUM)
 export function DailyEntriesPreview() {
   const router = useRouter()
 
-  const { data: todayDailyEntry, isPending: isLoadingTodayDailyEntry } =
-    useQuery({
-      queryFn: async () => {
-        const dailyEntry = await supabaseClient
-          .from('daily_entries')
-          .select('id, emotion')
-          .eq('date', getCurrentDateString())
+  const {
+    data: todayDailyEntry,
+    error: todayDailyEntryError,
+    isPending: isLoadingTodayDailyEntry,
+  } = useQuery({
+    queryFn: async () => {
+      const dailyEntry = await supabaseClient
+        .from('daily_entries')
+        .select('id, emotion')
+        .eq('date', getCurrentDateString())
 
-        if (dailyEntry.error) {
-          console.error(dailyEntry.error)
-          throw new Error('Erro ao buscar registro diário do dia atual')
-        }
+      if (dailyEntry.error) {
+        console.error(dailyEntry.error)
+        throw new Error('Erro ao buscar registro diário do dia atual')
+      }
 
-        return dailyEntry.data?.[0] || null
-      },
-      retry: false,
-      queryKey: QUERY_KEYS.DAILY_ENTRIES.TODAY,
-    })
+      return dailyEntry.data?.[0] || null
+    },
+    retry: false,
+    queryKey: QUERY_KEYS.DAILY_ENTRIES.TODAY,
+  })
 
-  const { data: lastDailyEntries, isPending: isLoadingLastDailyEntries } =
-    useQuery({
-      queryFn: async () => {
-        const dailyEntries = await supabaseClient
-          .from('daily_entries')
-          .select('id, date, emotion, notes')
-          .order('date', { ascending: false })
-          .limit(8)
+  const {
+    data: lastDailyEntries,
+    error: lastDailyEntriesError,
+    isPending: isLoadingLastDailyEntries,
+  } = useQuery({
+    queryFn: async () => {
+      const dailyEntries = await supabaseClient
+        .from('daily_entries')
+        .select('id, date, emotion, notes')
+        .order('date', { ascending: false })
+        .limit(8)
 
-        if (dailyEntries.error) {
-          console.error(dailyEntries.error)
-          throw new Error('Erro ao buscar registros diários')
-        }
+      if (dailyEntries.error) {
+        console.error(dailyEntries.error)
+        throw new Error('Erro ao buscar registros diários')
+      }
 
-        return dailyEntries.data || []
-      },
-      retry: false,
-      queryKey: QUERY_KEYS.DAILY_ENTRIES.PREVIEW,
-    })
+      return dailyEntries.data || []
+    },
+    retry: false,
+    queryKey: QUERY_KEYS.DAILY_ENTRIES.PREVIEW,
+  })
 
   const handleSelectEmotion = (emotion: EmotionType) => {
     router.push({
@@ -69,17 +75,64 @@ export function DailyEntriesPreview() {
     })
   }
 
-  if (isLoadingTodayDailyEntry || isLoadingLastDailyEntries) {
-    return <LoadingScreen />
-  }
-
   return (
     <ScrollView
       contentContainerStyle={{
         paddingBottom: theme.spacing.lg,
       }}
     >
-      {todayDailyEntry ? (
+      {isLoadingTodayDailyEntry ? (
+        <Box
+          backgroundColor="surface"
+          py="lg"
+          gap="lg"
+          mb="lg"
+          borderBottomLeftRadius="lg"
+          borderBottomRightRadius="lg"
+        >
+          <Skeleton
+            width={200}
+            height={24}
+            backgroundColor="background"
+            ml="md"
+          />
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{
+              gap: theme.spacing.md,
+              paddingHorizontal: theme.spacing.md,
+            }}
+          >
+            {EMOTIONS.map((emotion) => (
+              <Box key={emotion} alignItems="center" gap="sm">
+                <Skeleton
+                  width={60}
+                  height={60}
+                  borderRadius="full"
+                  backgroundColor="background"
+                />
+                <Skeleton width={50} height={16} backgroundColor="background" />
+              </Box>
+            ))}
+          </ScrollView>
+        </Box>
+      ) : todayDailyEntryError ? (
+        <Box
+          alignItems="center"
+          backgroundColor="surface"
+          px="md"
+          py="lg"
+          borderBottomLeftRadius="lg"
+          borderBottomRightRadius="lg"
+          gap="lg"
+          mb="lg"
+        >
+          <Text color="foregroundSecondary">
+            Erro ao buscar registro de hoje.
+          </Text>
+        </Box>
+      ) : todayDailyEntry ? (
         <Box
           alignItems="center"
           backgroundColor="surface"
@@ -135,7 +188,7 @@ export function DailyEntriesPreview() {
                 key={emotion}
                 onPress={() => handleSelectEmotion(emotion)}
               >
-                <Box alignItems="center" gap="xs">
+                <Box alignItems="center" gap="sm">
                   <Box
                     backgroundColor={EMOTION_COLORS[emotion]}
                     borderRadius="full"
@@ -174,7 +227,15 @@ export function DailyEntriesPreview() {
         </Box>
 
         <Box>
-          {lastDailyEntries && lastDailyEntries.length > 0 ? (
+          {isLoadingLastDailyEntries ? (
+            <EmotionListSkeleton />
+          ) : lastDailyEntriesError ? (
+            <Box py="xl" alignItems="center">
+              <Text color="foregroundSecondary">
+                Erro ao buscar registros diários.
+              </Text>
+            </Box>
+          ) : lastDailyEntries && lastDailyEntries.length > 0 ? (
             lastDailyEntries?.map((dailyEntry) => (
               <Box
                 key={dailyEntry.id}

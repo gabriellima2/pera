@@ -1,6 +1,6 @@
 import { BackButton } from '@/components/buttons/back-button'
 import { Box } from '@/components/ui/box'
-import { LoadingScreen } from '@/components/ui/loading'
+import { EmotionListSkeleton } from '@/components/ui/skeleton'
 import { Text } from '@/components/ui/text'
 import { EMOTION_COLORS, EMOTION_ICONS } from '@/constants/emotions'
 import { QUERY_KEYS } from '@/constants/keys'
@@ -28,10 +28,6 @@ export function DailyEntriesList() {
     queryKey: QUERY_KEYS.DAILY_ENTRIES.ALL,
     throwOnError: true,
   })
-
-  if (isLoadingDailyEntries) {
-    return <LoadingScreen />
-  }
 
   return (
     <FlatList
@@ -95,9 +91,13 @@ export function DailyEntriesList() {
         </Box>
       )}
       ListEmptyComponent={
-        <Box py="xl" alignItems="center">
-          <Text color="foregroundSecondary">Nenhum registro encontrado.</Text>
-        </Box>
+        isLoadingDailyEntries ? (
+          <EmotionListSkeleton />
+        ) : (
+          <Box py="xl" alignItems="center">
+            <Text color="foregroundSecondary">Nenhum registro encontrado.</Text>
+          </Box>
+        )
       }
     />
   )
