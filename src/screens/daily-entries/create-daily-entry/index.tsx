@@ -15,8 +15,8 @@ import { Text } from '@/components/ui/text'
 import { Textarea } from '@/components/ui/textarea'
 import { EMOTION_TYPE_ENUM } from '@/constants/enums'
 import { QUERY_KEYS } from '@/constants/keys'
+import { PADDING_BOTTOM_FORM_FOOTER_HEIGHT } from '@/constants/styles'
 import { supabaseClient } from '@/lib/supabase/client'
-import { theme } from '@/theme'
 import { getCurrentDateString } from '@/utils/date'
 import { useForm } from '@tanstack/react-form'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -119,7 +119,9 @@ export function CreateDailyEntry() {
     <Box flex={1}>
       <ScrollView
         style={{ flex: 1 }}
-        contentContainerStyle={{ paddingBottom: 76 + theme.spacing.lg }}
+        contentContainerStyle={{
+          paddingBottom: PADDING_BOTTOM_FORM_FOOTER_HEIGHT,
+        }}
       >
         <Box px="md" flex={1} mt="lg" gap="lg">
           <Box gap="md" flexDirection="row" alignItems="center" height={42}>
