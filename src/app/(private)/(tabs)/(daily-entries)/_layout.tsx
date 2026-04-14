@@ -11,6 +11,7 @@ export default function Layout() {
       <Stack.Screen name="index" />
       <Stack.Screen name="create-daily-entry" />
       <Stack.Screen name="daily-entries-list" />
+      <Stack.Screen name="edit-daily-entry/[id]" />
     </Stack>
   )
 }

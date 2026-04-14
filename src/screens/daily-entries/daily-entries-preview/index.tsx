@@ -16,8 +16,12 @@ import { getCurrentDateString } from '@/utils/date'
 import { useQuery } from '@tanstack/react-query'
 import { formatDate } from 'date-fns'
 import { Link, useRouter } from 'expo-router'
-import { ChevronRight } from 'lucide-react-native'
+import { ChevronRight, Pencil } from 'lucide-react-native'
+import { useRef } from 'react'
 import { Pressable, ScrollView } from 'react-native'
+import ReanimatedSwipeable, {
+  type SwipeableMethods,
+} from 'react-native-gesture-handler/ReanimatedSwipeable'
 
 const EMOTIONS: EmotionType[] = Object.values(EMOTION_TYPE_ENUM)
 
@@ -239,49 +243,10 @@ export function DailyEntriesPreview() {
             </Box>
           ) : lastDailyEntries && lastDailyEntries.length > 0 ? (
             lastDailyEntries?.map((dailyEntry) => (
-              <Box
+              <DailyEntryPreviewItem
                 key={dailyEntry.id}
-                backgroundColor="surface"
-                p="md"
-                borderRadius="lg"
-                flexDirection="row"
-                alignItems="center"
-                gap="md"
-                mb="sm"
-              >
-                <Box
-                  backgroundColor={EMOTION_COLORS[dailyEntry.emotion]}
-                  width={40}
-                  height={40}
-                  alignItems="center"
-                  justifyContent="center"
-                  borderRadius="full"
-                >
-                  <Text fontSize={20} lineHeight={24}>
-                    {EMOTION_ICONS[dailyEntry.emotion]}
-                  </Text>
-                </Box>
-
-                <Box flex={1} gap="xs">
-                  <Text variant="bodyMuted">
-                    {formatDate(dailyEntry.date, 'dd/MM/yyyy')}
-                  </Text>
-                  {dailyEntry.notes ? (
-                    <Text variant="caption" numberOfLines={1}>
-                      {dailyEntry.notes}
-                    </Text>
-                  ) : (
-                    <Text variant="caption" fontStyle="italic">
-                      Registro sem anotações
-                    </Text>
-                  )}
-                </Box>
-
-                <ChevronRight
-                  size={16}
-                  color={theme.colors.foregroundSecondary}
-                />
-              </Box>
+                dailyEntry={dailyEntry}
+              />
             ))
           ) : (
             <Box py="xl" alignItems="center">
@@ -297,3 +262,81 @@ export function DailyEntriesPreview() {
 }
 
 const LAST_DAILY_ENTRIES_PREVIEW_COUNT = 7
+
+type DailyEntryItem = {
+  id: string
+  date: string
+  emotion: string
+  notes: string | null
+}
+
+function DailyEntryPreviewItem({ dailyEntry }: { dailyEntry: DailyEntryItem }) {
+  const router = useRouter()
+  const swipeableRef = useRef<SwipeableMethods>(null)
+
+  return (
+    <ReanimatedSwipeable
+      ref={swipeableRef}
+      containerStyle={{ marginBottom: theme.spacing.sm }}
+      overshootLeft={false}
+      renderLeftActions={() => (
+        <Box
+          width={80}
+          backgroundColor="editSwipe"
+          alignItems="center"
+          justifyContent="center"
+          borderTopLeftRadius="lg"
+          borderBottomLeftRadius="lg"
+        >
+          <Pencil size={24} color={theme.colors.editSwipeForeground} />
+        </Box>
+      )}
+      onSwipeableOpen={() => {
+        swipeableRef.current?.close()
+        router.push({
+          pathname: '/edit-daily-entry/[id]',
+          params: { id: dailyEntry.id },
+        })
+      }}
+    >
+      <Box
+        backgroundColor="surface"
+        p="md"
+        borderRadius="lg"
+        flexDirection="row"
+        alignItems="center"
+        gap="md"
+      >
+        <Box
+          backgroundColor={EMOTION_COLORS[dailyEntry.emotion]}
+          width={40}
+          height={40}
+          alignItems="center"
+          justifyContent="center"
+          borderRadius="full"
+        >
+          <Text fontSize={20} lineHeight={24}>
+            {EMOTION_ICONS[dailyEntry.emotion]}
+          </Text>
+        </Box>
+
+        <Box flex={1} gap="xs">
+          <Text variant="bodyMuted">
+            {formatDate(dailyEntry.date, 'dd/MM/yyyy')}
+          </Text>
+          {dailyEntry.notes ? (
+            <Text variant="caption" numberOfLines={1}>
+              {dailyEntry.notes}
+            </Text>
+          ) : (
+            <Text variant="caption" fontStyle="italic">
+              Registro sem anotações
+            </Text>
+          )}
+        </Box>
+
+        <ChevronRight size={16} color={theme.colors.foregroundSecondary} />
+      </Box>
+    </ReanimatedSwipeable>
+  )
+}

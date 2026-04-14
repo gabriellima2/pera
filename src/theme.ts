@@ -29,6 +29,9 @@ export const theme = createTheme({
     emotionAnxious: '#FEF3C7',
     emotionSad: '#FEE2E2',
     emotionFrustrated: '#FEE2E2',
+
+    editSwipe: '#FEF3C7',
+    editSwipeForeground: '#B45309',
   },
 
   spacing: {

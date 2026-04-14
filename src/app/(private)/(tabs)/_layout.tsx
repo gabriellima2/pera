@@ -7,6 +7,7 @@ import { Animated } from 'react-native'
 
 const hideTabBarPaths = [
   '/create-daily-entry',
+  '/edit-daily-entry',
   '/daily-entries-list',
   '/create-moment-entry',
 ]
