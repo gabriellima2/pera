@@ -24,6 +24,7 @@ export function MomentEntriesList() {
         .select(
           'id, situation_description, date, emotion, notes, situations ( id, label, code )',
         )
+        .is('deleted_at', null)
         .order('created_at', { ascending: false })
 
       if (momentEntries.error) {

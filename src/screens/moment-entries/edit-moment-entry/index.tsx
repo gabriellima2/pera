@@ -40,6 +40,7 @@ export function EditMomentEntry() {
           'id, emotion, notes, date, situation_description, situations ( id, label, code )',
         )
         .eq('id', id)
+        .is('deleted_at', null)
         .single()
 
       if (result.error) {
