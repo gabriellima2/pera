@@ -25,7 +25,7 @@ import { z } from 'zod'
 export function EditDailyEntry() {
   const { id } = useLocalSearchParams<{ id: string }>()
 
-  const { data, isPending } = useQuery({
+  const { data: dailyEntry, isPending: isLoadingDailyEntry } = useQuery({
     queryFn: async () => {
       const result = await supabaseClient
         .from('daily_entries')
@@ -44,15 +44,15 @@ export function EditDailyEntry() {
     throwOnError: true,
   })
 
-  if (isPending) {
+  if (isLoadingDailyEntry) {
     return <LoadingScreen />
   }
 
-  if (!data) {
+  if (!dailyEntry) {
     return null
   }
 
-  return <EditDailyEntryForm data={data} />
+  return <EditDailyEntryForm dailyEntry={dailyEntry} />
 }
 
 type DailyEntryData = {
@@ -61,7 +61,7 @@ type DailyEntryData = {
   notes: string | null
 }
 
-function EditDailyEntryForm({ data }: { data: DailyEntryData }) {
+function EditDailyEntryForm({ dailyEntry }: { dailyEntry: DailyEntryData }) {
   const queryClient = useQueryClient()
   const router = useRouter()
 
@@ -73,11 +73,15 @@ function EditDailyEntryForm({ data }: { data: DailyEntryData }) {
           emotion: values.emotion,
           notes: values.notes || null,
         })
-        .eq('id', data.id)
+        .eq('id', dailyEntry.id)
         .is('deleted_at', null)
 
       if (result.error) {
-        throw new Error('Erro ao editar registro diário')
+        const message =
+          EDIT_DAILY_ENTRY_ERROR_MESSAGES_MAP[result.error.message] ||
+          EDIT_DAILY_ENTRY_ERROR_MESSAGES_MAP.DEFAULT
+
+        throw new Error(message)
       }
     },
     onSuccess: () => {
@@ -90,7 +94,7 @@ function EditDailyEntryForm({ data }: { data: DailyEntryData }) {
         queryKey: QUERY_KEYS.DAILY_ENTRIES.PREVIEW,
       })
       queryClient.invalidateQueries({
-        queryKey: [...QUERY_KEYS.DAILY_ENTRIES.GET_TO_EDIT, data.id],
+        queryKey: [...QUERY_KEYS.DAILY_ENTRIES.GET_TO_EDIT, dailyEntry.id],
         exact: true,
       })
       if (router.canGoBack()) {
@@ -106,8 +110,8 @@ function EditDailyEntryForm({ data }: { data: DailyEntryData }) {
 
   const form = useForm({
     defaultValues: {
-      emotion: data.emotion,
-      notes: data.notes || '',
+      emotion: dailyEntry.emotion,
+      notes: dailyEntry.notes || '',
     },
     validators: {
       onSubmit: editDailyEntrySchema,
@@ -205,3 +209,7 @@ const editDailyEntrySchema = z.object({
 })
 
 type EditDailyEntrySchema = z.infer<typeof editDailyEntrySchema>
+
+const EDIT_DAILY_ENTRY_ERROR_MESSAGES_MAP: Record<string, string> = {
+  DEFAULT: 'Erro ao editar registro diário',
+}

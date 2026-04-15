@@ -8,6 +8,7 @@ export const QUERY_KEYS = {
   },
   MOMENT_ENTRIES: {
     ALL: ['moment-entries'],
+    GET_TO_EDIT: ['moment-entry-to-edit'],
   },
   SITUATIONS: {
     OPTIONS: ['situations-options'],

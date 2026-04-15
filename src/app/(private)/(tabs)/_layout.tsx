@@ -10,6 +10,7 @@ const hideTabBarPaths = [
   '/edit-daily-entry',
   '/daily-entries-list',
   '/create-moment-entry',
+  '/edit-moment-entry',
 ]
 
 export default function Layout() {

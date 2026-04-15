@@ -8,9 +8,13 @@ import { PADDING_BOTTOM_TAB_BAR_HEIGHT } from '@/constants/styles'
 import { supabaseClient } from '@/lib/supabase/client'
 import { theme } from '@/theme'
 import { useQuery } from '@tanstack/react-query'
-import { Link } from 'expo-router'
-import { ChevronRight, PlusIcon } from 'lucide-react-native'
+import { Link, useRouter } from 'expo-router'
+import { ChevronRight, Pencil, PlusIcon } from 'lucide-react-native'
+import { useRef } from 'react'
 import { FlatList } from 'react-native'
+import ReanimatedSwipeable, {
+  type SwipeableMethods,
+} from 'react-native-gesture-handler/ReanimatedSwipeable'
 
 export function MomentEntriesList() {
   const { data: momentEntries, isPending: isLoadingMomentEntries } = useQuery({
@@ -60,48 +64,7 @@ export function MomentEntriesList() {
           </Link>
         </Box>
       )}
-      renderItem={({ item }) => (
-        <Box
-          backgroundColor="surface"
-          p="md"
-          borderRadius="lg"
-          flexDirection="row"
-          alignItems="center"
-          gap="md"
-          mb="sm"
-        >
-          <Box
-            backgroundColor={EMOTION_COLORS[item.emotion]}
-            width={40}
-            height={40}
-            alignItems="center"
-            justifyContent="center"
-            borderRadius="full"
-          >
-            <Text fontSize={20} lineHeight={24}>
-              {EMOTION_ICONS[item.emotion]}
-            </Text>
-          </Box>
-
-          <Box flex={1} gap="xs">
-            {item.situations?.label ? (
-              <Text>{item.situations?.label}</Text>
-            ) : item.situation_description ? (
-              <Text numberOfLines={1}>{item.situation_description}</Text>
-            ) : null}
-            {item.notes ? (
-              <Text variant="caption" numberOfLines={1}>
-                {item.notes}
-              </Text>
-            ) : (
-              <Text variant="caption" fontStyle="italic">
-                Registro sem anotações
-              </Text>
-            )}
-          </Box>
-          <ChevronRight size={16} color={theme.colors.foregroundSecondary} />
-        </Box>
-      )}
+      renderItem={({ item }) => <MomentEntriesListItem item={item} />}
       ListEmptyComponent={
         isLoadingMomentEntries ? (
           <EmotionListSkeleton />
@@ -112,5 +75,88 @@ export function MomentEntriesList() {
         )
       }
     />
+  )
+}
+
+type MomentEntry = {
+  id: string
+  emotion: string
+  notes: string | null
+  situation_description: string | null
+  situations: { id: string; label: string; code: string } | null
+}
+
+function MomentEntriesListItem({ item }: { item: MomentEntry }) {
+  const router = useRouter()
+  const swipeableRef = useRef<SwipeableMethods>(null)
+
+  return (
+    <ReanimatedSwipeable
+      ref={swipeableRef}
+      containerStyle={{ marginBottom: theme.spacing.sm }}
+      overshootLeft={false}
+      overshootRight={false}
+      renderLeftActions={() => (
+        <Box
+          width={80}
+          backgroundColor="editSwipe"
+          alignItems="center"
+          justifyContent="center"
+          borderTopLeftRadius="lg"
+          borderBottomLeftRadius="lg"
+        >
+          <Pencil size={24} color={theme.colors.editSwipeForeground} />
+        </Box>
+      )}
+      onSwipeableOpen={(direction) => {
+        swipeableRef.current?.close()
+        if (direction === 'right') {
+          router.push({
+            pathname: '/edit-moment-entry/[id]',
+            params: { id: item.id },
+          })
+        }
+      }}
+    >
+      <Box
+        backgroundColor="surface"
+        p="md"
+        borderRadius="lg"
+        flexDirection="row"
+        alignItems="center"
+        gap="md"
+      >
+        <Box
+          backgroundColor={EMOTION_COLORS[item.emotion]}
+          width={40}
+          height={40}
+          alignItems="center"
+          justifyContent="center"
+          borderRadius="full"
+        >
+          <Text fontSize={20} lineHeight={24}>
+            {EMOTION_ICONS[item.emotion]}
+          </Text>
+        </Box>
+
+        <Box flex={1} gap="xs">
+          {item.situations?.label ? (
+            <Text>{item.situations?.label}</Text>
+          ) : item.situation_description ? (
+            <Text numberOfLines={1}>{item.situation_description}</Text>
+          ) : null}
+          {item.notes ? (
+            <Text variant="caption" numberOfLines={1}>
+              {item.notes}
+            </Text>
+          ) : (
+            <Text variant="caption" fontStyle="italic">
+              Registro sem anotações
+            </Text>
+          )}
+        </Box>
+        <ChevronRight size={16} color={theme.colors.foregroundSecondary} />
+      </Box>
+    </ReanimatedSwipeable>
   )
 }

@@ -54,17 +54,15 @@ export function CreateDailyEntry() {
 
   const { mutateAsync: createDailyEntry } = useMutation({
     mutationFn: async (data: CreateDailyEntrySchema) => {
-      const dailyEntry = await supabaseClient
-        .rpc('create_daily_entry', {
-          p_emotion: data.emotion,
-          p_date: getCurrentDateString(),
-          p_notes: (data.notes || null)!,
-        })
-        .single<string>()
+      const result = await supabaseClient.rpc('create_daily_entry', {
+        p_emotion: data.emotion,
+        p_date: getCurrentDateString(),
+        p_notes: (data.notes || null)!,
+      })
 
-      if (dailyEntry.error) {
+      if (result.error) {
         const message =
-          CREATE_DAILY_ENTRY_ERROR_MESSAGES_MAP[dailyEntry.error.message] ||
+          CREATE_DAILY_ENTRY_ERROR_MESSAGES_MAP[result.error.message] ||
           CREATE_DAILY_ENTRY_ERROR_MESSAGES_MAP.DEFAULT
 
         throw new Error(message)

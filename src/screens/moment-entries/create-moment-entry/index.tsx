@@ -53,23 +53,21 @@ export function CreateMomentEntry() {
 
   const { mutateAsync: createMomentEntry } = useMutation({
     mutationFn: async (data: CreateMomentEntrySchema) => {
-      const momentEntry = await supabaseClient
-        .rpc('create_moment_entry' as any, {
-          p_emotion: data.emotion,
-          p_situation_id: (data.situation.type === 'predefined'
-            ? data.situation.id
-            : null)!,
-          p_situation_description: (data.situation.type === 'predefined'
-            ? null
-            : data.situation.description)!,
-          p_date: data.rememberDate ? data.date || null : null,
-          p_notes: (data.notes || null)!,
-        })
-        .single<string>()
+      const result = await supabaseClient.rpc('create_moment_entry' as any, {
+        p_emotion: data.emotion,
+        p_situation_id: (data.situation.type === 'predefined'
+          ? data.situation.id
+          : null)!,
+        p_situation_description: (data.situation.type === 'predefined'
+          ? null
+          : data.situation.description)!,
+        p_date: data.rememberDate ? data.date || null : null,
+        p_notes: (data.notes || null)!,
+      })
 
-      if (momentEntry.error) {
+      if (result.error) {
         const message =
-          CREATE_MOMENT_ENTRY_ERROR_MESSAGES_MAP[momentEntry.error.message] ||
+          CREATE_MOMENT_ENTRY_ERROR_MESSAGES_MAP[result.error.message] ||
           CREATE_MOMENT_ENTRY_ERROR_MESSAGES_MAP.DEFAULT
 
         throw new Error(message)
@@ -363,5 +361,5 @@ const createMomentEntrySchema = z.object({
 type CreateMomentEntrySchema = z.infer<typeof createMomentEntrySchema>
 
 const CREATE_MOMENT_ENTRY_ERROR_MESSAGES_MAP: Record<string, string> = {
-  DEFAULT: 'Erro ao criar registro do momento',
+  DEFAULT: 'Erro ao criar registro de momento',
 }

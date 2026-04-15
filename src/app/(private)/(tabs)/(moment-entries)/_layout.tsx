@@ -11,6 +11,7 @@ export default function Layout() {
       <Stack.Screen name="index" />
       <Stack.Screen name="create-moment-entry" />
       <Stack.Screen name="moment-entries-list" />
+      <Stack.Screen name="edit-moment-entry/[id]" />
     </Stack>
   )
 }
