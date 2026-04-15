@@ -5,3 +5,7 @@ export function getDateString(date: Date) {
 export function getCurrentDateString() {
   return getDateString(new Date())
 }
+
+export function getNowISOString() {
+  return new Date().toISOString()
+}

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Text } from '@/components/ui/text'
 import { QUERY_KEYS } from '@/constants/keys'
 import { supabaseClient } from '@/lib/supabase/client'
+import { getNowISOString } from '@/utils/date'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner-native'
 
@@ -20,41 +21,42 @@ export function DeleteDailyEntryBottomSheet({
 }: DeleteDailyEntryBottomSheetProps) {
   const queryClient = useQueryClient()
 
-  const { mutateAsync: deleteDailyEntry, isPending } = useMutation({
-    mutationFn: async () => {
-      const result = await supabaseClient
-        .from('daily_entries')
-        .update({ deleted_at: new Date().toISOString() })
-        .eq('id', dailyEntryId)
-        .is('deleted_at', null)
+  const { mutateAsync: deleteDailyEntry, isPending: isDeletingDailyEntry } =
+    useMutation({
+      mutationFn: async () => {
+        const result = await supabaseClient
+          .from('daily_entries')
+          .update({ deleted_at: getNowISOString() })
+          .eq('id', dailyEntryId)
+          .is('deleted_at', null)
 
-      if (result.error) {
-        throw new Error('Erro ao deletar registro diário')
-      }
-    },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.DAILY_ENTRIES.ALL,
-      })
-      await queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.DAILY_ENTRIES.TODAY,
-      })
-      await queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.DAILY_ENTRIES.PREVIEW,
-      })
-      await queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.DAILY_ENTRIES.GET_TO_EDIT,
-      })
-      await queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.DAILY_ENTRIES.HAS_TODAY,
-      })
-      toast.success('Registro deletado com sucesso')
-      onClose()
-    },
-    onError: (error) => {
-      toast.error(error.message)
-    },
-  })
+        if (result.error) {
+          throw new Error('Erro ao deletar registro diário')
+        }
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.DAILY_ENTRIES.ALL,
+        })
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.DAILY_ENTRIES.TODAY,
+        })
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.DAILY_ENTRIES.PREVIEW,
+        })
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.DAILY_ENTRIES.GET_TO_EDIT,
+        })
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.DAILY_ENTRIES.HAS_TODAY,
+        })
+        toast.success('Registro deletado com sucesso')
+        onClose()
+      },
+      onError: (error) => {
+        toast.error(error.message)
+      },
+    })
 
   return (
     <BottomSheet isVisible={isVisible} onClose={onClose}>
@@ -71,14 +73,14 @@ export function DeleteDailyEntryBottomSheet({
           <Button
             variant="danger"
             label="Confirmar"
-            loading={isPending}
-            disabled={isPending}
-            onPress={() => deleteDailyEntry()}
+            loading={isDeletingDailyEntry}
+            disabled={isDeletingDailyEntry}
+            onPress={deleteDailyEntry}
           />
           <Button
             variant="secondary"
             label="Cancelar"
-            disabled={isPending}
+            disabled={isDeletingDailyEntry}
             onPress={onClose}
           />
         </Box>
