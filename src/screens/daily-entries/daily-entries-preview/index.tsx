@@ -39,6 +39,7 @@ export function DailyEntriesPreview() {
         .from('daily_entries')
         .select('id, emotion')
         .eq('date', getCurrentDateString())
+        .is('deleted_at', null)
 
       if (dailyEntry.error) {
         console.error(dailyEntry.error)
@@ -61,6 +62,7 @@ export function DailyEntriesPreview() {
         .from('daily_entries')
         .select('id, date, emotion, notes')
         .order('date', { ascending: false })
+        .is('deleted_at', null)
         .limit(8)
 
       if (dailyEntries.error) {

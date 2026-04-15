@@ -24,8 +24,9 @@ export function DeleteDailyEntryBottomSheet({
     mutationFn: async () => {
       const result = await supabaseClient
         .from('daily_entries')
-        .delete()
+        .update({ deleted_at: new Date().toISOString() })
         .eq('id', dailyEntryId)
+        .is('deleted_at', null)
 
       if (result.error) {
         throw new Error('Erro ao deletar registro diário')

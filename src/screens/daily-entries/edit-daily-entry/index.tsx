@@ -31,6 +31,7 @@ export function EditDailyEntry() {
         .from('daily_entries')
         .select('id, emotion, notes')
         .eq('id', id)
+        .is('deleted_at', null)
         .single()
 
       if (result.error) {
@@ -73,7 +74,7 @@ function EditDailyEntryForm({ data }: { data: DailyEntryData }) {
           notes: values.notes || null,
         })
         .eq('id', data.id)
-        .single()
+        .is('deleted_at', null)
 
       if (result.error) {
         throw new Error('Erro ao editar registro diário')

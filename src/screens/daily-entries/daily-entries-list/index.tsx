@@ -24,6 +24,7 @@ export function DailyEntriesList() {
         .from('daily_entries')
         .select('id, date, emotion, notes')
         .order('date', { ascending: false })
+        .is('deleted_at', null)
 
       if (dailyEntries.error) {
         throw new Error('Erro ao buscar registros diários')

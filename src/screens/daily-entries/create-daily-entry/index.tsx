@@ -38,6 +38,7 @@ export function CreateDailyEntry() {
           .from('daily_entries')
           .select('date')
           .eq('date', getCurrentDateString())
+          .is('deleted_at', null)
 
         if (dailyEntry.error) {
           throw new Error(
