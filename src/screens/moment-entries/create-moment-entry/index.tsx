@@ -1,6 +1,7 @@
 import { BackButton } from '@/components/buttons/back-button'
 import { BooleanSelector } from '@/components/selectors/boolean-selector'
 import { EmotionSelector } from '@/components/selectors/emotion-selector'
+import { SituationSelector } from '@/components/selectors/situation-selector'
 import { Box } from '@/components/ui/box'
 import { Button } from '@/components/ui/button'
 import { DatePicker } from '@/components/ui/date-picker'
@@ -26,7 +27,6 @@ import { useMemo } from 'react'
 import { ScrollView } from 'react-native'
 import { toast } from 'sonner-native'
 import { z } from 'zod'
-import { SituationsSelector } from './components/situations-selector'
 import { SituationType } from './types'
 
 export function CreateMomentEntry() {
@@ -191,7 +191,7 @@ export function CreateMomentEntry() {
                             <FieldLabel htmlFor={field.name}>
                               Situação
                             </FieldLabel>
-                            <SituationsSelector
+                            <SituationSelector
                               id={field.name}
                               type={situationType}
                               value={field.state.value}

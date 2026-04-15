@@ -1,8 +1,8 @@
 import { Chip, ChipGroup } from '@/components/ui/chip'
 import { Text } from '@/components/ui/text'
-import type { SituationType } from '../types'
+import type { SituationType } from '../../screens/moment-entries/create-moment-entry/types'
 
-type SituationsSelectorProps = {
+type SituationSelectorProps = {
   id?: string
   type: SituationType
   value: string
@@ -13,13 +13,13 @@ type SituationsSelectorProps = {
   onSelect: (value: string, type: SituationType) => void
 }
 
-export function SituationsSelector({
+export function SituationSelector({
   id,
   type,
   value,
   situations,
   onSelect,
-}: SituationsSelectorProps) {
+}: SituationSelectorProps) {
   return (
     <ChipGroup aria-labelledby={id}>
       {situations?.length ? (
