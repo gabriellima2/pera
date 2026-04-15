@@ -32,6 +32,9 @@ export const theme = createTheme({
 
     editSwipe: '#FEF3C7',
     editSwipeForeground: '#B45309',
+
+    deleteSwipe: '#DC2626',
+    deleteSwipeForeground: '#FFFFFF',
   },
 
   spacing: {

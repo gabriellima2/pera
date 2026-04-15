@@ -33,6 +33,7 @@ const fontSizeMap = {
 type ButtonProps = React.ComponentProps<typeof BaseButton> & {
   label?: string
   loading?: boolean
+  disabled?: boolean
   size?: 'sm' | 'md' | 'lg'
   iconRight?: React.ReactNode
   iconLeft?: React.ReactNode
@@ -44,6 +45,7 @@ export function Button({
   size = 'md',
   label,
   loading = false,
+  disabled = false,
   iconRight,
   iconLeft,
   children,
@@ -66,7 +68,7 @@ export function Button({
   }
 
   return (
-    <Pressable onPress={onPress} disabled={loading}>
+    <Pressable onPress={onPress} disabled={loading || disabled}>
       {({ pressed }) => (
         <BaseButton
           variant={variant}

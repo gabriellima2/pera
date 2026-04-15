@@ -1,3 +1,4 @@
+import { DeleteDailyEntryBottomSheet } from '@/components/bottom-sheets/delete-daily-entry-bottom-sheet'
 import { BackButton } from '@/components/buttons/back-button'
 import { Box } from '@/components/ui/box'
 import { EmotionListSkeleton } from '@/components/ui/skeleton'
@@ -9,8 +10,8 @@ import { theme } from '@/theme'
 import { useQuery } from '@tanstack/react-query'
 import { formatDate } from 'date-fns'
 import { useRouter } from 'expo-router'
-import { ChevronRight, Pencil } from 'lucide-react-native'
-import { useRef } from 'react'
+import { ChevronRight, Pencil, Trash2 } from 'lucide-react-native'
+import { useRef, useState } from 'react'
 import { FlatList } from 'react-native'
 import ReanimatedSwipeable, {
   type SwipeableMethods,
@@ -78,68 +79,97 @@ type DailyEntry = {
 function DailyEntriesListItem({ item }: { item: DailyEntry }) {
   const router = useRouter()
   const swipeableRef = useRef<SwipeableMethods>(null)
+  const [selectedDeleteId, setSelectedDeleteId] = useState<string | null>(null)
 
   return (
-    <ReanimatedSwipeable
-      ref={swipeableRef}
-      containerStyle={{ marginBottom: theme.spacing.sm }}
-      overshootLeft={false}
-      renderLeftActions={() => (
-        <Box
-          width={80}
-          backgroundColor="editSwipe"
-          alignItems="center"
-          justifyContent="center"
-          borderTopLeftRadius="lg"
-          borderBottomLeftRadius="lg"
-        >
-          <Pencil size={24} color={theme.colors.editSwipeForeground} />
-        </Box>
-      )}
-      onSwipeableOpen={() => {
-        swipeableRef.current?.close()
-        router.push({
-          pathname: '/edit-daily-entry/[id]',
-          params: { id: item.id },
-        })
-      }}
-    >
-      <Box
-        backgroundColor="surface"
-        p="md"
-        borderRadius="lg"
-        flexDirection="row"
-        alignItems="center"
-        gap="md"
+    <>
+      <ReanimatedSwipeable
+        ref={swipeableRef}
+        containerStyle={{ marginBottom: theme.spacing.sm }}
+        overshootLeft={false}
+        overshootRight={false}
+        renderLeftActions={() => (
+          <Box
+            width={80}
+            backgroundColor="editSwipe"
+            alignItems="center"
+            justifyContent="center"
+            borderTopLeftRadius="lg"
+            borderBottomLeftRadius="lg"
+          >
+            <Pencil size={24} color={theme.colors.editSwipeForeground} />
+          </Box>
+        )}
+        renderRightActions={() => (
+          <Box
+            width={80}
+            backgroundColor="deleteSwipe"
+            alignItems="center"
+            justifyContent="center"
+            borderTopRightRadius="lg"
+            borderBottomRightRadius="lg"
+          >
+            <Trash2 size={24} color={theme.colors.deleteSwipeForeground} />
+          </Box>
+        )}
+        onSwipeableOpen={(direction) => {
+          swipeableRef.current?.close()
+          if (direction === 'right') {
+            router.push({
+              pathname: '/edit-daily-entry/[id]',
+              params: { id: item.id },
+            })
+          } else {
+            setSelectedDeleteId(item.id)
+          }
+        }}
       >
         <Box
-          backgroundColor={EMOTION_COLORS[item.emotion]}
-          width={40}
-          height={40}
+          backgroundColor="surface"
+          p="md"
+          borderRadius="lg"
+          flexDirection="row"
           alignItems="center"
-          justifyContent="center"
-          borderRadius="full"
+          gap="md"
         >
-          <Text fontSize={20} lineHeight={24}>
-            {EMOTION_ICONS[item.emotion]}
-          </Text>
-        </Box>
-
-        <Box flex={1} gap="xs">
-          <Text variant="bodyMuted">{formatDate(item.date, 'dd/MM/yyyy')}</Text>
-          {item.notes ? (
-            <Text variant="caption" numberOfLines={1}>
-              {item.notes}
+          <Box
+            backgroundColor={EMOTION_COLORS[item.emotion]}
+            width={40}
+            height={40}
+            alignItems="center"
+            justifyContent="center"
+            borderRadius="full"
+          >
+            <Text fontSize={20} lineHeight={24}>
+              {EMOTION_ICONS[item.emotion]}
             </Text>
-          ) : (
-            <Text variant="caption" fontStyle="italic">
-              Registro sem anotações
-            </Text>
-          )}
-        </Box>
+          </Box>
 
-        <ChevronRight size={16} color={theme.colors.foregroundSecondary} />
-      </Box>
-    </ReanimatedSwipeable>
+          <Box flex={1} gap="xs">
+            <Text variant="bodyMuted">
+              {formatDate(item.date, 'dd/MM/yyyy')}
+            </Text>
+            {item.notes ? (
+              <Text variant="caption" numberOfLines={1}>
+                {item.notes}
+              </Text>
+            ) : (
+              <Text variant="caption" fontStyle="italic">
+                Registro sem anotações
+              </Text>
+            )}
+          </Box>
+
+          <ChevronRight size={16} color={theme.colors.foregroundSecondary} />
+        </Box>
+      </ReanimatedSwipeable>
+      {selectedDeleteId && (
+        <DeleteDailyEntryBottomSheet
+          isVisible={selectedDeleteId !== null}
+          dailyEntryId={selectedDeleteId}
+          onClose={() => setSelectedDeleteId(null)}
+        />
+      )}
+    </>
   )
 }

@@ -52,6 +52,7 @@ export type Database = {
       moment_entries: {
         Row: {
           created_at: string
+          deleted_at: string | null
           date: string | null
           emotion: string
           id: string
@@ -62,6 +63,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          deleted_at?: string | null
           date: string | null
           emotion: string
           id?: string
@@ -72,6 +74,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          deleted_at?: string | null
           date?: string | null
           emotion?: string
           id?: string
