@@ -18,13 +18,20 @@ import { useQuery } from '@tanstack/react-query'
 import { formatDate } from 'date-fns'
 import { Link, useRouter } from 'expo-router'
 import { ChevronRight, Pencil, Trash2 } from 'lucide-react-native'
-import { useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { Pressable, ScrollView } from 'react-native'
 import ReanimatedSwipeable, {
   type SwipeableMethods,
 } from 'react-native-gesture-handler/ReanimatedSwipeable'
 
 const EMOTIONS: EmotionType[] = Object.values(EMOTION_TYPE_ENUM)
+
+type DailyEntryItem = {
+  id: string
+  date: string
+  emotion: string
+  notes: string | null
+}
 
 export function DailyEntriesPreview() {
   const router = useRouter()
@@ -246,10 +253,7 @@ export function DailyEntriesPreview() {
             </Box>
           ) : lastDailyEntries && lastDailyEntries.length > 0 ? (
             lastDailyEntries?.map((dailyEntry) => (
-              <DailyEntryPreviewItem
-                key={dailyEntry.id}
-                dailyEntry={dailyEntry}
-              />
+              <DailyEntryPreviewItem key={dailyEntry.id} item={dailyEntry} />
             ))
           ) : (
             <Box py="xl" alignItems="center">
@@ -266,60 +270,79 @@ export function DailyEntriesPreview() {
 
 const LAST_DAILY_ENTRIES_PREVIEW_COUNT = 7
 
-type DailyEntryItem = {
-  id: string
-  date: string
-  emotion: string
-  notes: string | null
+type DailyEntryPreviewItemProps = {
+  item: DailyEntryItem
 }
 
-function DailyEntryPreviewItem({ dailyEntry }: { dailyEntry: DailyEntryItem }) {
-  const router = useRouter()
-  const swipeableRef = useRef<SwipeableMethods>(null)
+function DailyEntryPreviewItem({ item }: DailyEntryPreviewItemProps) {
   const [selectedDeleteId, setSelectedDeleteId] = useState<string | null>(null)
+  const swipeableRef = useRef<SwipeableMethods>(null)
+
+  const router = useRouter()
+
+  const handleEditMomentEntry = useCallback(() => {
+    router.push({
+      pathname: '/edit-daily-entry/[id]',
+      params: { id: item.id },
+    })
+  }, [router, item.id])
+
+  const handleDeleteMomentEntry = useCallback(() => {
+    setSelectedDeleteId(item.id)
+  }, [item.id])
+
+  const handleSwipeableOpen = useCallback(
+    (direction: 'left' | 'right') => {
+      swipeableRef.current?.close()
+      if (direction === 'right') {
+        handleEditMomentEntry()
+      } else if (direction === 'left') {
+        handleDeleteMomentEntry()
+      }
+    },
+    [handleEditMomentEntry, handleDeleteMomentEntry],
+  )
+
+  const renderLeftActions = useCallback(() => {
+    return (
+      <Box
+        width={80}
+        backgroundColor="editSwipe"
+        alignItems="center"
+        justifyContent="center"
+        borderTopLeftRadius="lg"
+        borderBottomLeftRadius="lg"
+      >
+        <Pencil size={24} color={theme.colors.editSwipeForeground} />
+      </Box>
+    )
+  }, [])
+
+  const renderRightActions = useCallback(() => {
+    return (
+      <Box
+        width={80}
+        backgroundColor="deleteSwipe"
+        alignItems="center"
+        justifyContent="center"
+        borderTopRightRadius="lg"
+        borderBottomRightRadius="lg"
+      >
+        <Trash2 size={24} color={theme.colors.deleteSwipeForeground} />
+      </Box>
+    )
+  }, [])
 
   return (
     <>
       <ReanimatedSwipeable
         ref={swipeableRef}
-        containerStyle={{ marginBottom: theme.spacing.sm }}
         overshootLeft={false}
         overshootRight={false}
-        renderLeftActions={() => (
-          <Box
-            width={80}
-            backgroundColor="editSwipe"
-            alignItems="center"
-            justifyContent="center"
-            borderTopLeftRadius="lg"
-            borderBottomLeftRadius="lg"
-          >
-            <Pencil size={24} color={theme.colors.editSwipeForeground} />
-          </Box>
-        )}
-        renderRightActions={() => (
-          <Box
-            width={80}
-            backgroundColor="deleteSwipe"
-            alignItems="center"
-            justifyContent="center"
-            borderTopRightRadius="lg"
-            borderBottomRightRadius="lg"
-          >
-            <Trash2 size={24} color={theme.colors.deleteSwipeForeground} />
-          </Box>
-        )}
-        onSwipeableOpen={(direction) => {
-          swipeableRef.current?.close()
-          if (direction === 'right') {
-            router.push({
-              pathname: '/edit-daily-entry/[id]',
-              params: { id: dailyEntry.id },
-            })
-          } else {
-            setSelectedDeleteId(dailyEntry.id)
-          }
-        }}
+        onSwipeableOpen={handleSwipeableOpen}
+        renderLeftActions={renderLeftActions}
+        renderRightActions={renderRightActions}
+        containerStyle={{ marginBottom: theme.spacing.sm }}
       >
         <Box
           backgroundColor="surface"
@@ -330,7 +353,7 @@ function DailyEntryPreviewItem({ dailyEntry }: { dailyEntry: DailyEntryItem }) {
           gap="md"
         >
           <Box
-            backgroundColor={EMOTION_COLORS[dailyEntry.emotion]}
+            backgroundColor={EMOTION_COLORS[item.emotion]}
             width={40}
             height={40}
             alignItems="center"
@@ -338,17 +361,17 @@ function DailyEntryPreviewItem({ dailyEntry }: { dailyEntry: DailyEntryItem }) {
             borderRadius="full"
           >
             <Text fontSize={20} lineHeight={24}>
-              {EMOTION_ICONS[dailyEntry.emotion]}
+              {EMOTION_ICONS[item.emotion]}
             </Text>
           </Box>
 
           <Box flex={1} gap="xs">
             <Text variant="bodyMuted">
-              {formatDate(dailyEntry.date, 'dd/MM/yyyy')}
+              {formatDate(item.date, 'dd/MM/yyyy')}
             </Text>
-            {dailyEntry.notes ? (
+            {item.notes ? (
               <Text variant="caption" numberOfLines={1}>
-                {dailyEntry.notes}
+                {item.notes}
               </Text>
             ) : (
               <Text variant="caption" fontStyle="italic">

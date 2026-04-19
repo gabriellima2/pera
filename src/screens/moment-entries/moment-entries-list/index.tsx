@@ -11,11 +11,19 @@ import { theme } from '@/theme'
 import { useQuery } from '@tanstack/react-query'
 import { Link, useRouter } from 'expo-router'
 import { ChevronRight, Pencil, PlusIcon, Trash2 } from 'lucide-react-native'
-import { useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { FlatList } from 'react-native'
 import ReanimatedSwipeable, {
   type SwipeableMethods,
 } from 'react-native-gesture-handler/ReanimatedSwipeable'
+
+type MomentEntry = {
+  id: string
+  emotion: string
+  notes: string | null
+  situation_description: string | null
+  situations: { id: string; label: string; code: string } | null
+}
 
 export function MomentEntriesList() {
   const { data: momentEntries, isPending: isLoadingMomentEntries } = useQuery({
@@ -23,7 +31,7 @@ export function MomentEntriesList() {
       const momentEntries = await supabaseClient
         .from('moment_entries')
         .select(
-          'id, situation_description, date, emotion, notes, situations ( id, label, code )',
+          'id, situation_description, emotion, notes, situations ( id, label, code )',
         )
         .is('deleted_at', null)
         .order('created_at', { ascending: false })
@@ -38,103 +46,135 @@ export function MomentEntriesList() {
     throwOnError: true,
   })
 
+  const keyExtractor = useCallback((item: MomentEntry) => item.id, [])
+
+  const renderItem = useCallback(({ item }: { item: MomentEntry }) => {
+    return <MomentEntriesListItem item={item} />
+  }, [])
+
+  const renderListHeaderComponent = useCallback(() => {
+    return (
+      <Box
+        gap="md"
+        flexDirection="row"
+        justifyContent="space-between"
+        alignItems="center"
+        height={42}
+        my="lg"
+      >
+        <Text variant="title">Momentos</Text>
+        <Link
+          href="/(private)/(tabs)/(moment-entries)/create-moment-entry"
+          asChild
+        >
+          <Button size="sm" variant="secondary">
+            <PlusIcon />
+          </Button>
+        </Link>
+      </Box>
+    )
+  }, [])
+
+  const renderListEmptyComponent = useCallback(() => {
+    if (isLoadingMomentEntries) {
+      return <EmotionListSkeleton />
+    }
+
+    return (
+      <Box py="xl" alignItems="center">
+        <Text color="foregroundSecondary">Nenhum registro encontrado.</Text>
+      </Box>
+    )
+  }, [isLoadingMomentEntries])
+
   return (
     <FlatList
       data={momentEntries}
-      keyExtractor={(item) => item.id}
+      keyExtractor={keyExtractor}
+      renderItem={renderItem}
+      ListHeaderComponent={renderListHeaderComponent}
+      ListEmptyComponent={renderListEmptyComponent}
       contentContainerStyle={{
         paddingHorizontal: theme.spacing.md,
         paddingBottom: PADDING_BOTTOM_TAB_BAR_HEIGHT,
       }}
-      ListHeaderComponent={() => (
-        <Box
-          gap="md"
-          flexDirection="row"
-          justifyContent="space-between"
-          alignItems="center"
-          height={42}
-          my="lg"
-        >
-          <Text variant="title">Momentos</Text>
-          <Link
-            href="/(private)/(tabs)/(moment-entries)/create-moment-entry"
-            asChild
-          >
-            <Button size="sm" variant="secondary">
-              <PlusIcon />
-            </Button>
-          </Link>
-        </Box>
-      )}
-      renderItem={({ item }) => <MomentEntriesListItem item={item} />}
-      ListEmptyComponent={
-        isLoadingMomentEntries ? (
-          <EmotionListSkeleton />
-        ) : (
-          <Box py="xl" alignItems="center">
-            <Text color="foregroundSecondary">Nenhum registro encontrado.</Text>
-          </Box>
-        )
-      }
     />
   )
 }
 
-type MomentEntry = {
-  id: string
-  emotion: string
-  notes: string | null
-  situation_description: string | null
-  situations: { id: string; label: string; code: string } | null
+type MomentEntriesListItemProps = {
+  item: MomentEntry
 }
 
-function MomentEntriesListItem({ item }: { item: MomentEntry }) {
-  const router = useRouter()
-  const swipeableRef = useRef<SwipeableMethods>(null)
+function MomentEntriesListItem({ item }: MomentEntriesListItemProps) {
   const [selectedDeleteId, setSelectedDeleteId] = useState<string | null>(null)
+  const swipeableRef = useRef<SwipeableMethods>(null)
+
+  const router = useRouter()
+
+  const handleEditMomentEntry = useCallback(() => {
+    router.push({
+      pathname: '/edit-moment-entry/[id]',
+      params: { id: item.id },
+    })
+  }, [router, item.id])
+
+  const handleDeleteMomentEntry = useCallback(() => {
+    setSelectedDeleteId(item.id)
+  }, [item.id])
+
+  const handleSwipeableOpen = useCallback(
+    (direction: 'left' | 'right') => {
+      swipeableRef.current?.close()
+      if (direction === 'right') {
+        handleEditMomentEntry()
+      } else if (direction === 'left') {
+        handleDeleteMomentEntry()
+      }
+    },
+    [handleEditMomentEntry, handleDeleteMomentEntry],
+  )
+
+  const renderLeftActions = useCallback(() => {
+    return (
+      <Box
+        width={80}
+        backgroundColor="editSwipe"
+        alignItems="center"
+        justifyContent="center"
+        borderTopLeftRadius="lg"
+        borderBottomLeftRadius="lg"
+      >
+        <Pencil size={24} color={theme.colors.editSwipeForeground} />
+      </Box>
+    )
+  }, [])
+
+  const renderRightActions = useCallback(() => {
+    return (
+      <Box
+        width={80}
+        backgroundColor="deleteSwipe"
+        alignItems="center"
+        justifyContent="center"
+        borderTopRightRadius="lg"
+        borderBottomRightRadius="lg"
+      >
+        <Trash2 size={24} color={theme.colors.deleteSwipeForeground} />
+      </Box>
+    )
+  }, [])
 
   return (
     <>
       <ReanimatedSwipeable
         ref={swipeableRef}
-        containerStyle={{ marginBottom: theme.spacing.sm }}
         overshootLeft={false}
         overshootRight={false}
-        renderLeftActions={() => (
-          <Box
-            width={80}
-            backgroundColor="editSwipe"
-            alignItems="center"
-            justifyContent="center"
-            borderTopLeftRadius="lg"
-            borderBottomLeftRadius="lg"
-          >
-            <Pencil size={24} color={theme.colors.editSwipeForeground} />
-          </Box>
-        )}
-        renderRightActions={() => (
-          <Box
-            width={80}
-            backgroundColor="deleteSwipe"
-            alignItems="center"
-            justifyContent="center"
-            borderTopRightRadius="lg"
-            borderBottomRightRadius="lg"
-          >
-            <Trash2 size={24} color={theme.colors.deleteSwipeForeground} />
-          </Box>
-        )}
-        onSwipeableOpen={(direction) => {
-          swipeableRef.current?.close()
-          if (direction === 'right') {
-            router.push({
-              pathname: '/edit-moment-entry/[id]',
-              params: { id: item.id },
-            })
-          } else {
-            setSelectedDeleteId(item.id)
-          }
-        }}
+        onSwipeableOpen={handleSwipeableOpen}
+        renderLeftActions={renderLeftActions}
+        renderRightActions={renderRightActions}
+        containerStyle={{ marginBottom: theme.spacing.sm }}
       >
         <Box
           backgroundColor="surface"

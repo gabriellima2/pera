@@ -11,11 +11,18 @@ import { useQuery } from '@tanstack/react-query'
 import { formatDate } from 'date-fns'
 import { useRouter } from 'expo-router'
 import { ChevronRight, Pencil, Trash2 } from 'lucide-react-native'
-import { useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { FlatList } from 'react-native'
 import ReanimatedSwipeable, {
   type SwipeableMethods,
 } from 'react-native-gesture-handler/ReanimatedSwipeable'
+
+type DailyEntry = {
+  id: string
+  date: string
+  emotion: string
+  notes: string | null
+}
 
 export function DailyEntriesList() {
   const { data: dailyEntries, isPending: isLoadingDailyEntries } = useQuery({
@@ -36,94 +43,121 @@ export function DailyEntriesList() {
     throwOnError: true,
   })
 
+  const keyExtractor = useCallback((item: DailyEntry) => item.id, [])
+
+  const renderItem = useCallback(({ item }: { item: DailyEntry }) => {
+    return <DailyEntriesListItem item={item} />
+  }, [])
+
+  const renderListHeaderComponent = useCallback(() => {
+    return (
+      <Box gap="md" flexDirection="row" alignItems="center" height={42} my="lg">
+        <BackButton />
+        <Text variant="title">Registros diários</Text>
+      </Box>
+    )
+  }, [])
+
+  const renderListEmptyComponent = useCallback(() => {
+    if (isLoadingDailyEntries) {
+      return <EmotionListSkeleton />
+    }
+
+    return (
+      <Box py="xl" alignItems="center">
+        <Text color="foregroundSecondary">Nenhum registro encontrado.</Text>
+      </Box>
+    )
+  }, [isLoadingDailyEntries])
+
   return (
     <FlatList
       data={dailyEntries}
-      keyExtractor={(item) => item.id}
+      keyExtractor={keyExtractor}
+      renderItem={renderItem}
+      ListHeaderComponent={renderListHeaderComponent}
+      ListEmptyComponent={renderListEmptyComponent}
       contentContainerStyle={{
         paddingHorizontal: theme.spacing.md,
         paddingBottom: theme.spacing.lg,
       }}
-      ListHeaderComponent={() => (
-        <Box
-          gap="md"
-          flexDirection="row"
-          alignItems="center"
-          height={42}
-          my="lg"
-        >
-          <BackButton />
-          <Text variant="title">Registros diários</Text>
-        </Box>
-      )}
-      renderItem={({ item }) => <DailyEntriesListItem item={item} />}
-      ListEmptyComponent={
-        isLoadingDailyEntries ? (
-          <EmotionListSkeleton />
-        ) : (
-          <Box py="xl" alignItems="center">
-            <Text color="foregroundSecondary">Nenhum registro encontrado.</Text>
-          </Box>
-        )
-      }
     />
   )
 }
 
-type DailyEntry = {
-  id: string
-  date: string
-  emotion: string
-  notes: string | null
+type DailyEntriesListItemProps = {
+  item: DailyEntry
 }
 
-function DailyEntriesListItem({ item }: { item: DailyEntry }) {
-  const router = useRouter()
-  const swipeableRef = useRef<SwipeableMethods>(null)
+function DailyEntriesListItem({ item }: DailyEntriesListItemProps) {
   const [selectedDeleteId, setSelectedDeleteId] = useState<string | null>(null)
+  const swipeableRef = useRef<SwipeableMethods>(null)
+
+  const router = useRouter()
+
+  const handleEditMomentEntry = useCallback(() => {
+    router.push({
+      pathname: '/edit-daily-entry/[id]',
+      params: { id: item.id },
+    })
+  }, [router, item.id])
+
+  const handleDeleteMomentEntry = useCallback(() => {
+    setSelectedDeleteId(item.id)
+  }, [item.id])
+
+  const handleSwipeableOpen = useCallback(
+    (direction: 'left' | 'right') => {
+      swipeableRef.current?.close()
+      if (direction === 'right') {
+        handleEditMomentEntry()
+      } else if (direction === 'left') {
+        handleDeleteMomentEntry()
+      }
+    },
+    [handleEditMomentEntry, handleDeleteMomentEntry],
+  )
+
+  const renderLeftActions = useCallback(() => {
+    return (
+      <Box
+        width={80}
+        backgroundColor="editSwipe"
+        alignItems="center"
+        justifyContent="center"
+        borderTopLeftRadius="lg"
+        borderBottomLeftRadius="lg"
+      >
+        <Pencil size={24} color={theme.colors.editSwipeForeground} />
+      </Box>
+    )
+  }, [])
+
+  const renderRightActions = useCallback(() => {
+    return (
+      <Box
+        width={80}
+        backgroundColor="deleteSwipe"
+        alignItems="center"
+        justifyContent="center"
+        borderTopRightRadius="lg"
+        borderBottomRightRadius="lg"
+      >
+        <Trash2 size={24} color={theme.colors.deleteSwipeForeground} />
+      </Box>
+    )
+  }, [])
 
   return (
     <>
       <ReanimatedSwipeable
         ref={swipeableRef}
-        containerStyle={{ marginBottom: theme.spacing.sm }}
         overshootLeft={false}
         overshootRight={false}
-        renderLeftActions={() => (
-          <Box
-            width={80}
-            backgroundColor="editSwipe"
-            alignItems="center"
-            justifyContent="center"
-            borderTopLeftRadius="lg"
-            borderBottomLeftRadius="lg"
-          >
-            <Pencil size={24} color={theme.colors.editSwipeForeground} />
-          </Box>
-        )}
-        renderRightActions={() => (
-          <Box
-            width={80}
-            backgroundColor="deleteSwipe"
-            alignItems="center"
-            justifyContent="center"
-            borderTopRightRadius="lg"
-            borderBottomRightRadius="lg"
-          >
-            <Trash2 size={24} color={theme.colors.deleteSwipeForeground} />
-          </Box>
-        )}
-        onSwipeableOpen={(direction) => {
-          swipeableRef.current?.close()
-          if (direction === 'right') {
-            router.push({
-              pathname: '/edit-daily-entry/[id]',
-              params: { id: item.id },
-            })
-          } else {
-            setSelectedDeleteId(item.id)
-          }
-        }}
+        onSwipeableOpen={handleSwipeableOpen}
+        renderLeftActions={renderLeftActions}
+        renderRightActions={renderRightActions}
+        containerStyle={{ marginBottom: theme.spacing.sm }}
       >
         <Box
           backgroundColor="surface"
