@@ -9,6 +9,7 @@ export function SignIn() {
     ;(async () => {
       try {
         const session = await supabaseClient.auth.getSession()
+        console.log('Session:', session)
 
         if (session.error) {
           console.error(session.error)
@@ -37,7 +38,7 @@ export function SignIn() {
   }, [])
 
   return (
-    <Box flex={1} alignItems="center" justifyContent="center">
+    <Box flex={1} alignItems="center" justifyContent="center" gap="lg">
       <Link href="/(private)/(tabs)/(daily-entries)">
         <Text>Go to Home</Text>
       </Link>

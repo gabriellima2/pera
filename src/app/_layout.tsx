@@ -105,6 +105,9 @@ function Router() {
       <Stack.Protected guard={!!session}>
         <Stack.Screen name="(private)/(tabs)" />
       </Stack.Protected>
+      <Stack.Protected guard={!!session}>
+        <Stack.Screen name="(private)/breathing-exercises/do-breathing-exercise" />
+      </Stack.Protected>
     </Stack>
   )
 }

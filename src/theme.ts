@@ -35,6 +35,9 @@ export const theme = createTheme({
 
     deleteSwipe: '#DC2626',
     deleteSwipeForeground: '#FFFFFF',
+
+    breathingCircle: '#6CB8F0',
+    breathingCircleSoft: '#EBF5FB',
   },
 
   spacing: {
