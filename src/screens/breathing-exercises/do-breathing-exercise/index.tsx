@@ -54,9 +54,6 @@ export function DoBreathingExercise() {
         if (nextCycle >= breathingMode.cycles) {
           setIsPlaying(false)
           setIsDone(true)
-          console.log(
-            `[Breathing Exercise] Exercício "${breathingMode.name}" concluído! Total de ciclos: ${breathingMode.cycles}`,
-          )
           return
         }
         setCycle(nextCycle)
@@ -75,7 +72,6 @@ export function DoBreathingExercise() {
     cycle,
     breathingMode.phases,
     breathingMode.cycles,
-    breathingMode.name,
     scale,
   ])
 
@@ -153,14 +149,12 @@ type BreathingPhase = {
 }
 
 type BreathingModeOption = {
-  name: string
   phases: BreathingPhase[]
   cycles: number
 }
 
 const BREATHING_MODE_OPTIONS: Record<string, BreathingModeOption> = {
   [BREATHING_MODE_ENUM.DIAPHRAGMATIC]: {
-    name: 'Respiração Diafragmática',
     phases: [
       { label: 'Inspire', duration: 4000, targetScale: 1 },
       { label: 'Expire', duration: 4000, targetScale: 0.45 },
@@ -168,7 +162,6 @@ const BREATHING_MODE_OPTIONS: Record<string, BreathingModeOption> = {
     cycles: 6,
   },
   [BREATHING_MODE_ENUM.BOX]: {
-    name: 'Box Breathing',
     phases: [
       { label: 'Inspire', duration: 4000, targetScale: 1 },
       { label: 'Segure', duration: 4000, targetScale: 1 },
@@ -178,7 +171,6 @@ const BREATHING_MODE_OPTIONS: Record<string, BreathingModeOption> = {
     cycles: 4,
   },
   [BREATHING_MODE_ENUM['478']]: {
-    name: '4-7-8',
     phases: [
       { label: 'Inspire', duration: 4000, targetScale: 1 },
       { label: 'Segure', duration: 7000, targetScale: 1 },
@@ -187,7 +179,6 @@ const BREATHING_MODE_OPTIONS: Record<string, BreathingModeOption> = {
     cycles: 4,
   },
   [BREATHING_MODE_ENUM.COHERENT]: {
-    name: 'Respiração Coerente',
     phases: [
       { label: 'Inspire', duration: 5000, targetScale: 1 },
       { label: 'Expire', duration: 5000, targetScale: 0.45 },
