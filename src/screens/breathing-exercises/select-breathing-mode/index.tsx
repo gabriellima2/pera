@@ -3,45 +3,11 @@ import { BackButton } from '@/components/buttons/back-button'
 import { Box } from '@/components/ui/box'
 import { Button } from '@/components/ui/button'
 import { Text } from '@/components/ui/text'
+import { BREATHING_MODE_LABELS } from '@/constants/breathing-exercises'
 import { BREATHING_MODE_ENUM } from '@/constants/enums'
 import { useRouter } from 'expo-router'
 import { useState } from 'react'
 import { ScrollView, TouchableOpacity } from 'react-native'
-
-type ModeOption = {
-  mode: BreathingMode
-  label: string
-  description: string
-  detail: string
-}
-
-const MODE_OPTIONS: ModeOption[] = [
-  {
-    mode: BREATHING_MODE_ENUM.DIAPHRAGMATIC,
-    label: 'Diafragmática',
-    description: 'Respiração lenta e profunda pelo diafragma.',
-    detail: '4s inspira · 4s expira · 6 ciclos',
-  },
-  {
-    mode: BREATHING_MODE_ENUM.BOX,
-    label: 'Box',
-    description: 'Quatro fases iguais para acalmar o sistema nervoso.',
-    detail: '4s × 4 fases · 4 ciclos',
-  },
-  {
-    mode: BREATHING_MODE_ENUM['478'],
-    label: '4-7-8',
-    description: 'Técnica relaxante indicada para ansiedade e sono.',
-    detail: '4s · 7s · 8s · 4 ciclos',
-  },
-  {
-    mode: BREATHING_MODE_ENUM.COHERENT,
-    label: 'Coerente',
-    description:
-      'Cinco segundos em cada fase para equilibrar o ritmo cardíaco.',
-    detail: '5s inspira · 5s expira · 5 ciclos',
-  },
-]
 
 export function SelectBreathingMode() {
   const router = useRouter()
@@ -129,3 +95,38 @@ export function SelectBreathingMode() {
     </Box>
   )
 }
+
+type ModeOption = {
+  mode: BreathingMode
+  label: string
+  description: string
+  detail: string
+}
+
+const MODE_OPTIONS: ModeOption[] = [
+  {
+    mode: BREATHING_MODE_ENUM.DIAPHRAGMATIC,
+    label: BREATHING_MODE_LABELS[BREATHING_MODE_ENUM.DIAPHRAGMATIC],
+    description: 'Respiração lenta e profunda pelo diafragma.',
+    detail: '4s inspira · 4s expira · 6 ciclos',
+  },
+  {
+    mode: BREATHING_MODE_ENUM.BOX,
+    label: BREATHING_MODE_LABELS[BREATHING_MODE_ENUM.BOX],
+    description: 'Quatro fases iguais para acalmar o sistema nervoso.',
+    detail: '4s × 4 fases · 4 ciclos',
+  },
+  {
+    mode: BREATHING_MODE_ENUM['478'],
+    label: BREATHING_MODE_LABELS[BREATHING_MODE_ENUM['478']],
+    description: 'Técnica relaxante indicada para ansiedade e sono.',
+    detail: '4s · 7s · 8s · 4 ciclos',
+  },
+  {
+    mode: BREATHING_MODE_ENUM.COHERENT,
+    label: BREATHING_MODE_LABELS[BREATHING_MODE_ENUM.COHERENT],
+    description:
+      'Cinco segundos em cada fase para equilibrar o ritmo cardíaco.',
+    detail: '5s inspira · 5s expira · 5 ciclos',
+  },
+]

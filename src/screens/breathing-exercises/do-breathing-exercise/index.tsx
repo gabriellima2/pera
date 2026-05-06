@@ -1,13 +1,15 @@
 import type { BreathingMode } from '@/@types/breathing-exercises'
+import { BackButton } from '@/components/buttons/back-button'
 import { Box } from '@/components/ui/box'
 import { Button } from '@/components/ui/button'
 import { Text } from '@/components/ui/text'
+import { BREATHING_MODE_LABELS } from '@/constants/breathing-exercises'
 import { BREATHING_MODE_ENUM } from '@/constants/enums'
 import { theme } from '@/theme'
 import * as Haptics from 'expo-haptics'
 import { useLocalSearchParams } from 'expo-router'
 import { PauseIcon, PlayIcon, RefreshCcwIcon } from 'lucide-react-native'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import Animated, {
   Easing,
   cancelAnimation,
@@ -23,10 +25,16 @@ export function DoBreathingExercise() {
     ? BREATHING_MODE_OPTIONS[mode]
     : BREATHING_MODE_OPTIONS[BREATHING_MODE_ENUM.DIAPHRAGMATIC]
 
-  const [isPlaying, setIsPlaying] = useState(false)
+  const [exerciseState, setExerciseState] = useState<ExerciseState>('idle')
   const [phaseIndex, setPhaseIndex] = useState(0)
   const [cycle, setCycle] = useState(0)
-  const [isDone, setIsDone] = useState(false)
+  const [countdown, setCountdown] = useState(3)
+
+  const isPlaying = exerciseState === 'playing'
+  const isDone = exerciseState === 'done'
+  const isCountdown = exerciseState === 'countdown'
+
+  const currentPhase = breathingMode.phases[phaseIndex]
 
   const scale = useSharedValue(INITIAL_SCALE)
 
@@ -34,9 +42,77 @@ export function DoBreathingExercise() {
     transform: [{ scale: scale.value }],
   }))
 
-  useEffect(() => {
-    if (!isPlaying) return
+  const titleText = useMemo(() => {
+    if (isDone) return 'Concluído!'
+    if (isCountdown) return 'Prepare-se...'
+    if (exerciseState === 'idle') return `Respiração ${breathingMode.label}`
+    if (exerciseState === 'paused') return 'Pausado'
+    return currentPhase.label
+  }, [
+    ,
+    isDone,
+    isCountdown,
+    exerciseState,
+    currentPhase.label,
+    breathingMode.label,
+  ])
 
+  const buttonConfig = useMemo(() => {
+    if (isDone) {
+      return { label: 'Reiniciar', Icon: RefreshCcwIcon }
+    }
+    if (isPlaying) {
+      return { label: 'Pausar', Icon: PauseIcon }
+    }
+    if (exerciseState === 'paused') {
+      return { label: 'Continuar', Icon: PlayIcon }
+    }
+    return { label: 'Iniciar', Icon: PlayIcon }
+  }, [isDone, isPlaying, exerciseState])
+
+  const handleToggle = useCallback(() => {
+    if (isDone) {
+      cancelAnimation(scale)
+      scale.value = INITIAL_SCALE
+      setCycle(0)
+      setPhaseIndex(0)
+      setExerciseState('countdown')
+      return
+    }
+    if (exerciseState === 'idle') {
+      setExerciseState('countdown')
+      return
+    }
+    if (exerciseState === 'paused') {
+      setExerciseState('playing')
+      return
+    }
+    if (isPlaying) {
+      cancelAnimation(scale)
+      setExerciseState('paused')
+    }
+  }, [isDone, isPlaying, exerciseState, scale])
+
+  const startCountdown = useCallback(() => {
+    setCountdown(3)
+    let count = 3
+
+    const interval = setInterval(() => {
+      count -= 1
+      if (count <= 0) {
+        clearInterval(interval)
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+        setExerciseState('playing')
+      } else {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft)
+        setCountdown(count)
+      }
+    }, 1000)
+
+    return { interval }
+  }, [])
+
+  const startExercise = useCallback(() => {
     const phase = breathingMode.phases[phaseIndex]
 
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
@@ -52,8 +128,7 @@ export function DoBreathingExercise() {
       if (nextIndex === 0) {
         const nextCycle = cycle + 1
         if (nextCycle >= breathingMode.cycles) {
-          setIsPlaying(false)
-          setIsDone(true)
+          setExerciseState('done')
           return
         }
         setCycle(nextCycle)
@@ -62,44 +137,51 @@ export function DoBreathingExercise() {
       setPhaseIndex(nextIndex)
     }, phase.duration)
 
+    return { timer }
+  }, [phaseIndex, cycle, breathingMode.phases, breathingMode.cycles, scale])
+
+  const resetScale = useCallback(() => {
+    scale.value = withTiming(INITIAL_SCALE, {
+      duration: 1200,
+      easing: Easing.inOut(Easing.ease),
+    })
+  }, [scale])
+
+  useEffect(() => {
+    if (!isCountdown) return
+
+    const { interval } = startCountdown()
+
+    return () => clearInterval(interval)
+  }, [isCountdown, startCountdown])
+
+  useEffect(() => {
+    if (!isPlaying) return
+
+    const { timer } = startExercise()
+
     return () => {
       clearTimeout(timer)
       cancelAnimation(scale)
     }
-  }, [
-    isPlaying,
-    phaseIndex,
-    cycle,
-    breathingMode.phases,
-    breathingMode.cycles,
-    scale,
-  ])
+  }, [isPlaying, scale, startExercise])
 
-  const handleToggle = useCallback(() => {
-    if (isDone) {
-      cancelAnimation(scale)
-      scale.value = INITIAL_SCALE
-      setIsDone(false)
-      setCycle(0)
-      setPhaseIndex(0)
-      setIsPlaying(true)
-      return
-    }
-    if (isPlaying) {
-      cancelAnimation(scale)
-    }
-    setIsPlaying((prev) => !prev)
-  }, [isDone, isPlaying, scale])
-
-  const currentPhase = breathingMode.phases[phaseIndex]
+  useEffect(() => {
+    if (!isDone) return
+    resetScale()
+  }, [isDone, resetScale])
 
   return (
     <Box flex={1} backgroundColor="background">
-      <Box alignItems="center" pt="xxl" px="md" gap="sm">
+      <Box px="md" pt="md" flexDirection="row" alignItems="center">
+        <BackButton />
+      </Box>
+
+      <Box alignItems="center" pt="lg" px="md" gap="xs">
         <Text variant="title" textAlign="center">
-          {isDone ? 'Concluído!' : currentPhase.label}
+          {titleText}
         </Text>
-        {!isDone && (
+        {!isDone && exerciseState === 'playing' && (
           <Text variant="bodyMuted">
             Ciclo {cycle + 1} de {breathingMode.cycles}
           </Text>
@@ -114,7 +196,7 @@ export function DoBreathingExercise() {
               width: CIRCLE_SIZE,
               height: CIRCLE_SIZE,
               borderRadius: CIRCLE_SIZE / 2,
-              backgroundColor: '#6CB8F0',
+              backgroundColor: theme.colors.breathingCircle,
             },
           ]}
         />
@@ -123,24 +205,59 @@ export function DoBreathingExercise() {
       <Box
         alignItems="center"
         px="md"
-        pb="xl"
-        flexDirection="row"
-        gap="md"
+        pb="md"
+        minHeight={80}
         justifyContent="center"
       >
-        <Button width={64} onPress={handleToggle}>
-          {isPlaying ? (
-            <PauseIcon color={theme.colors.accentForeground} />
-          ) : isDone ? (
-            <RefreshCcwIcon color={theme.colors.accentForeground} />
-          ) : (
-            <PlayIcon color={theme.colors.accentForeground} />
-          )}
-        </Button>
+        {isCountdown && (
+          <Box alignItems="center" gap="xs">
+            <Text
+              variant="title"
+              style={{ fontSize: 64, lineHeight: 72 }}
+              color="foreground"
+            >
+              {countdown}
+            </Text>
+            <Text variant="bodyMuted" textAlign="center">
+              Foque na sua respiração...
+            </Text>
+          </Box>
+        )}
+        {exerciseState === 'idle' && (
+          <Text variant="bodyMuted" textAlign="center">
+            Encontre uma posição confortável e relaxe
+          </Text>
+        )}
+        {exerciseState === 'paused' && (
+          <Text variant="bodyMuted" textAlign="center">
+            Continue quando estiver pronto
+          </Text>
+        )}
+        {isDone && (
+          <Text variant="bodyMuted" textAlign="center">
+            Parabéns! Você concluiu o exercício.
+          </Text>
+        )}
+      </Box>
+
+      <Box alignItems="center" px="md" pb="xl">
+        <Button
+          label={buttonConfig.label}
+          iconLeft={
+            <buttonConfig.Icon
+              color={theme.colors.accentForeground}
+              size={18}
+            />
+          }
+          onPress={handleToggle}
+          disabled={isCountdown}
+        />
       </Box>
     </Box>
   )
 }
+
+type ExerciseState = 'idle' | 'countdown' | 'playing' | 'paused' | 'done'
 
 type BreathingPhase = {
   label: string
@@ -149,12 +266,14 @@ type BreathingPhase = {
 }
 
 type BreathingModeOption = {
+  label: string
   phases: BreathingPhase[]
   cycles: number
 }
 
 const BREATHING_MODE_OPTIONS: Record<string, BreathingModeOption> = {
   [BREATHING_MODE_ENUM.DIAPHRAGMATIC]: {
+    label: BREATHING_MODE_LABELS[BREATHING_MODE_ENUM.DIAPHRAGMATIC],
     phases: [
       { label: 'Inspire', duration: 4000, targetScale: 1 },
       { label: 'Expire', duration: 4000, targetScale: 0.45 },
@@ -162,6 +281,7 @@ const BREATHING_MODE_OPTIONS: Record<string, BreathingModeOption> = {
     cycles: 6,
   },
   [BREATHING_MODE_ENUM.BOX]: {
+    label: BREATHING_MODE_LABELS[BREATHING_MODE_ENUM.BOX],
     phases: [
       { label: 'Inspire', duration: 4000, targetScale: 1 },
       { label: 'Segure', duration: 4000, targetScale: 1 },
@@ -171,6 +291,7 @@ const BREATHING_MODE_OPTIONS: Record<string, BreathingModeOption> = {
     cycles: 4,
   },
   [BREATHING_MODE_ENUM['478']]: {
+    label: BREATHING_MODE_LABELS[BREATHING_MODE_ENUM['478']],
     phases: [
       { label: 'Inspire', duration: 4000, targetScale: 1 },
       { label: 'Segure', duration: 7000, targetScale: 1 },
@@ -179,6 +300,7 @@ const BREATHING_MODE_OPTIONS: Record<string, BreathingModeOption> = {
     cycles: 4,
   },
   [BREATHING_MODE_ENUM.COHERENT]: {
+    label: BREATHING_MODE_LABELS[BREATHING_MODE_ENUM.COHERENT],
     phases: [
       { label: 'Inspire', duration: 5000, targetScale: 1 },
       { label: 'Expire', duration: 5000, targetScale: 0.45 },
