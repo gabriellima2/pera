@@ -7,8 +7,13 @@ import { BREATHING_MODE_LABELS } from '@/constants/breathing-exercises'
 import { BREATHING_MODE_ENUM } from '@/constants/enums'
 import { theme } from '@/theme'
 import * as Haptics from 'expo-haptics'
-import { useLocalSearchParams } from 'expo-router'
-import { PauseIcon, PlayIcon, RefreshCcwIcon } from 'lucide-react-native'
+import { useLocalSearchParams, useRouter } from 'expo-router'
+import {
+  CheckIcon,
+  PauseIcon,
+  PlayIcon,
+  RefreshCcwIcon,
+} from 'lucide-react-native'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Animated, {
   Easing,
@@ -20,6 +25,7 @@ import Animated, {
 
 export function DoBreathingExercise() {
   const { mode } = useLocalSearchParams<{ mode?: BreathingMode }>()
+  const router = useRouter()
 
   const breathingMode = mode
     ? BREATHING_MODE_OPTIONS[mode]
@@ -240,18 +246,47 @@ export function DoBreathingExercise() {
         )}
       </Box>
 
-      <Box alignItems="center" px="md" pb="xl">
-        <Button
-          label={buttonConfig.label}
-          iconLeft={
-            <buttonConfig.Icon
-              color={theme.colors.accentForeground}
-              size={18}
+      <Box px="md" pb="xl" gap="md">
+        {isDone ? (
+          <Box flexDirection="row" gap="md" alignItems="center">
+            <Button
+              variant="secondary"
+              label="Reiniciar"
+              iconLeft={
+                <RefreshCcwIcon
+                  color={theme.colors.surfaceForeground}
+                  size={18}
+                />
+              }
+              onPress={handleToggle}
             />
-          }
-          onPress={handleToggle}
-          disabled={isCountdown}
-        />
+            <Box flex={1}>
+              <Button
+                label="Finalizar"
+                iconLeft={
+                  <CheckIcon color={theme.colors.accentForeground} size={18} />
+                }
+                onPress={() =>
+                  router.replace('/(private)/(tabs)/(daily-entries)')
+                }
+              />
+            </Box>
+          </Box>
+        ) : (
+          <Box alignItems="center">
+            <Button
+              label={buttonConfig.label}
+              iconLeft={
+                <buttonConfig.Icon
+                  color={theme.colors.accentForeground}
+                  size={18}
+                />
+              }
+              onPress={handleToggle}
+              disabled={isCountdown}
+            />
+          </Box>
+        )}
       </Box>
     </Box>
   )
