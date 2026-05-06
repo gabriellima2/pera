@@ -23,8 +23,9 @@ export function EmotionSelector({ id, value, onSelect }: EmotionSelectorProps) {
             key={emotion}
             onPress={() => onSelect(emotion)}
             style={{
-              flex: 1,
-              minWidth: 100,
+              flexBasis: '25%',
+              flexGrow: 1,
+              flexShrink: 0,
             }}
           >
             <Box
