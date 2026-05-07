@@ -1,7 +1,7 @@
 import { Text } from '@/components/ui/text'
 import { theme } from '@/theme'
 import { Tabs, usePathname } from 'expo-router'
-import { CalendarDaysIcon, HomeIcon } from 'lucide-react-native'
+import { CalendarDaysIcon, HomeIcon, TargetIcon } from 'lucide-react-native'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Animated } from 'react-native'
 
@@ -11,6 +11,7 @@ const hideTabBarPaths = [
   '/daily-entries-list',
   '/create-moment-entry',
   '/edit-moment-entry',
+  '/do-breathing-exercise',
 ]
 
 export default function Layout() {
@@ -71,6 +72,18 @@ export default function Layout() {
           ),
           tabBarIcon: ({ focused }) => (
             <TabBarIcon icon={HomeIcon} focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="(breathing-exercises)"
+        options={{
+          headerShown: false,
+          tabBarLabel: ({ focused }) => (
+            <TabBarLabel label="Exercícios de Respiração" focused={focused} />
+          ),
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon icon={TargetIcon} focused={focused} />
           ),
         }}
       />

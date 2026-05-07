@@ -179,11 +179,17 @@ export function DoBreathingExercise() {
 
   return (
     <Box flex={1} backgroundColor="background">
-      <Box px="md" pt="md" flexDirection="row" alignItems="center">
+      <Box
+        px="md"
+        alignItems="flex-start"
+        justifyContent="center"
+        height={42}
+        my="lg"
+      >
         <BackButton />
       </Box>
 
-      <Box alignItems="center" pt="lg" px="md" gap="xs">
+      <Box alignItems="center" px="md" gap="xs">
         <Text variant="title" textAlign="center">
           {titleText}
         </Text>
@@ -267,7 +273,7 @@ export function DoBreathingExercise() {
                   <CheckIcon color={theme.colors.accentForeground} size={18} />
                 }
                 onPress={() =>
-                  router.replace('/(private)/(tabs)/(daily-entries)')
+                  router.replace('/breathing-exercises/select-breathing-mode')
                 }
               />
             </Box>

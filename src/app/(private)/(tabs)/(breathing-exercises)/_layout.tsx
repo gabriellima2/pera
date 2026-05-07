@@ -8,7 +8,7 @@ export default function Layout() {
         contentStyle: { backgroundColor: 'transparent' },
       }}
     >
-      <Stack.Screen name="select-breathing-mode" />
+      <Stack.Screen name="index" />
       <Stack.Screen name="do-breathing-exercise" />
     </Stack>
   )
