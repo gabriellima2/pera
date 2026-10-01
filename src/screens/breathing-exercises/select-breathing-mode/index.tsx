@@ -27,7 +27,7 @@ export function SelectBreathingMode() {
             <Link
               key={option.mode}
               href={{
-                pathname: '/breathing-exercises/do-breathing-exercise',
+                pathname: '/do-breathing-exercise',
                 params: { mode: option.mode },
               }}
             >

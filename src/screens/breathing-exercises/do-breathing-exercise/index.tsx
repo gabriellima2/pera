@@ -273,7 +273,7 @@ export function DoBreathingExercise() {
                   <CheckIcon color={theme.colors.accentForeground} size={18} />
                 }
                 onPress={() =>
-                  router.replace('/breathing-exercises/select-breathing-mode')
+                  router.replace('/(private)/(tabs)/(breathing-exercises)')
                 }
               />
             </Box>
