@@ -10,95 +10,122 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: '14.1'
+    PostgrestVersion: '14.5'
   }
   public: {
     Tables: {
-      daily_entries: {
+      auth_users: {
         Row: {
           created_at: string
           deleted_at: string | null
-          date: string
-          emotion: string
           id: string
-          notes: string | null
-          user_id: string
+          name: string
+          onboarding_completed: boolean
+          updated_at: string
         }
         Insert: {
           created_at?: string
           deleted_at?: string | null
-          date: string
-          emotion: string
           id?: string
-          notes?: string | null
-          user_id: string
+          name: string
+          onboarding_completed?: boolean
+          updated_at?: string
         }
         Update: {
           created_at?: string
           deleted_at?: string | null
+          id?: string
+          name?: string
+          onboarding_completed?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      daily_entries: {
+        Row: {
+          auth_user_id: string
+          created_at: string
+          date: string
+          deleted_at: string | null
+          emotion: string
+          id: string
+          notes: string | null
+        }
+        Insert: {
+          auth_user_id: string
+          created_at?: string
+          date: string
+          deleted_at?: string | null
+          emotion: string
+          id?: string
+          notes?: string | null
+        }
+        Update: {
+          auth_user_id?: string
+          created_at?: string
           date?: string
+          deleted_at?: string | null
           emotion?: string
           id?: string
           notes?: string | null
-          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: 'daily_entries_user_id_fkey'
-            columns: ['user_id']
+            foreignKeyName: 'daily_entries_auth_user_id_fkey'
+            columns: ['auth_user_id']
             isOneToOne: false
-            referencedRelation: 'users'
+            referencedRelation: 'auth_users'
             referencedColumns: ['id']
           },
         ]
       }
       moment_entries: {
         Row: {
+          auth_user_id: string
           created_at: string
-          deleted_at: string | null
           date: string | null
+          deleted_at: string | null
           emotion: string
           id: string
           notes: string | null
           situation_description: string | null
           situation_id: string | null
-          user_id: string
         }
         Insert: {
+          auth_user_id: string
           created_at?: string
+          date?: string | null
           deleted_at?: string | null
-          date: string | null
           emotion: string
           id?: string
           notes?: string | null
           situation_description?: string | null
           situation_id?: string | null
-          user_id: string
         }
         Update: {
+          auth_user_id?: string
           created_at?: string
-          deleted_at?: string | null
           date?: string | null
+          deleted_at?: string | null
           emotion?: string
           id?: string
           notes?: string | null
           situation_description?: string | null
           situation_id?: string | null
-          user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: 'moment_entries_auth_user_id_fkey'
+            columns: ['auth_user_id']
+            isOneToOne: false
+            referencedRelation: 'auth_users'
+            referencedColumns: ['id']
+          },
           {
             foreignKeyName: 'moment_entries_situation_id_fkey'
             columns: ['situation_id']
             isOneToOne: false
             referencedRelation: 'situations'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'moment_entries_user_id_fkey'
-            columns: ['user_id']
-            isOneToOne: false
-            referencedRelation: 'users'
             referencedColumns: ['id']
           },
         ]
@@ -127,33 +154,6 @@ export type Database = {
         }
         Relationships: []
       }
-      users: {
-        Row: {
-          created_at: string
-          deleted_at: string | null
-          id: string
-          name: string
-          onboarding_completed: boolean
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          deleted_at?: string | null
-          id?: string
-          name: string
-          onboarding_completed?: boolean
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          deleted_at?: string | null
-          id?: string
-          name?: string
-          onboarding_completed?: boolean
-          updated_at?: string
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
@@ -161,6 +161,27 @@ export type Database = {
     Functions: {
       create_daily_entry: {
         Args: { p_date: string; p_emotion: string; p_notes: string }
+        Returns: string
+      }
+      create_moment_entry: {
+        Args: {
+          p_date: string
+          p_emotion: string
+          p_notes: string
+          p_situation_description: string
+          p_situation_id: string
+        }
+        Returns: string
+      }
+      edit_moment_entry: {
+        Args: {
+          p_date: string
+          p_emotion: string
+          p_moment_entry_id: string
+          p_notes: string
+          p_situation_description: string
+          p_situation_id: string
+        }
         Returns: string
       }
     }
