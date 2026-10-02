@@ -1,5 +1,5 @@
 import { LoadingIndicator } from '@/components/ui/loading'
-import { SessionProvider, useSession } from '@/contexts/session-context'
+import { AuthProvider, useAuth } from '@/contexts/auth-context'
 import { queryClient } from '@/lib/react-query/client'
 import {
   Inter_400Regular,
@@ -74,9 +74,9 @@ export default function RootLayout() {
                 backgroundColor: theme.colors.background,
               }}
             >
-              <SessionProvider>
+              <AuthProvider>
                 <Router />
-              </SessionProvider>
+              </AuthProvider>
               <Toaster
                 theme="light"
                 icons={toastIcons}
@@ -91,7 +91,7 @@ export default function RootLayout() {
 }
 
 function Router() {
-  const { session } = useSession()
+  const { session } = useAuth()
   return (
     <Stack
       screenOptions={{
@@ -99,8 +99,9 @@ function Router() {
         contentStyle: { backgroundColor: 'transparent' },
       }}
     >
+      <Stack.Screen name="index" />
       <Stack.Protected guard={!session}>
-        <Stack.Screen name="index" />
+        <Stack.Screen name="(auth)" />
       </Stack.Protected>
       <Stack.Protected guard={!!session}>
         <Stack.Screen name="(private)/(tabs)" />

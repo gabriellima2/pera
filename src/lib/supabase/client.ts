@@ -1,5 +1,8 @@
-import { createClient } from '@supabase/supabase-js'
 import 'expo-sqlite/localStorage/install'
+import 'react-native-url-polyfill/auto'
+
+import { createClient } from '@supabase/supabase-js'
+import { AppState, type AppStateStatus } from 'react-native'
 import { z } from 'zod'
 import type { Database } from './database-types'
 
@@ -25,3 +28,30 @@ export const supabaseClient = createClient<Database>(
     },
   },
 )
+
+let authRefreshSubscription: ReturnType<
+  typeof AppState.addEventListener
+> | null = null
+
+export function bindSupabaseAuthRefreshToAppState() {
+  const onChange = (state: AppStateStatus) => {
+    if (state === 'active') {
+      supabaseClient.auth.startAutoRefresh()
+    } else {
+      supabaseClient.auth.stopAutoRefresh()
+    }
+  }
+
+  onChange(AppState.currentState)
+
+  if (authRefreshSubscription) {
+    authRefreshSubscription.remove()
+  }
+
+  authRefreshSubscription = AppState.addEventListener('change', onChange)
+
+  return () => {
+    authRefreshSubscription?.remove()
+    authRefreshSubscription = null
+  }
+}
