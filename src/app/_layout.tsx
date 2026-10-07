@@ -1,6 +1,7 @@
 import { LoadingIndicator } from '@/components/ui/loading'
 import { AuthProvider, useAuth } from '@/contexts/auth-context'
 import { queryClient } from '@/lib/react-query/client'
+import { isEmailVerified } from '@/lib/supabase/email-verified'
 import {
   Inter_400Regular,
   Inter_500Medium,
@@ -77,13 +78,13 @@ export default function RootLayout() {
               <AuthProvider>
                 <Router />
               </AuthProvider>
-              <Toaster
-                theme="light"
-                icons={toastIcons}
-                toastOptions={toastOptions}
-              />
             </SafeAreaView>
           </QueryClientProvider>
+          <Toaster
+            theme="light"
+            icons={toastIcons}
+            toastOptions={toastOptions}
+          />
         </ThemeProvider>
       </GestureHandlerRootView>
     </SafeAreaProvider>
@@ -92,6 +93,8 @@ export default function RootLayout() {
 
 function Router() {
   const { session } = useAuth()
+  const emailVerified = isEmailVerified(session)
+
   return (
     <Stack
       screenOptions={{
@@ -103,7 +106,10 @@ function Router() {
       <Stack.Protected guard={!session}>
         <Stack.Screen name="(auth)" />
       </Stack.Protected>
-      <Stack.Protected guard={!!session}>
+      <Stack.Protected guard={!!session && !emailVerified}>
+        <Stack.Screen name="verify-email" />
+      </Stack.Protected>
+      <Stack.Protected guard={!!session && emailVerified}>
         <Stack.Screen name="(private)/(tabs)" />
       </Stack.Protected>
     </Stack>

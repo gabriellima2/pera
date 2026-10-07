@@ -5,6 +5,7 @@ import {
   bindSupabaseAuthRefreshToAppState,
   supabaseClient,
 } from '@/lib/supabase/client'
+import { isEmailVerified } from '@/lib/supabase/email-verified'
 import { handleSupabaseAuthRedirect } from '@/lib/supabase/handle-auth-redirect'
 import type { AuthError, Session } from '@supabase/supabase-js'
 import * as Linking from 'expo-linking'
@@ -33,6 +34,11 @@ type AuthContextValue = {
   signOut: () => Promise<void>
   requestPasswordReset: (email: string) => Promise<{ error: AuthError | null }>
   updatePassword: (password: string) => Promise<{ error: AuthError | null }>
+  resendSignupConfirmation: () => Promise<{ error: AuthError | null }>
+  refreshSession: () => Promise<{
+    error: AuthError | null
+    verified: boolean
+  }>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -120,6 +126,27 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
     return { error }
   }, [])
 
+  const resendSignupConfirmation = useCallback(async () => {
+    const email = session?.user.email
+    if (!email) {
+      return { error: null }
+    }
+
+    const { error } = await supabaseClient.auth.resend({
+      type: 'signup',
+      email,
+    })
+    return { error }
+  }, [session?.user.email])
+
+  const refreshSession = useCallback(async () => {
+    const { data, error } = await supabaseClient.auth.refreshSession()
+    return {
+      error,
+      verified: isEmailVerified(data.session),
+    }
+  }, [])
+
   const value = useMemo<AuthContextValue>(
     () => ({
       session,
@@ -130,6 +157,8 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
       signOut,
       requestPasswordReset,
       updatePassword,
+      resendSignupConfirmation,
+      refreshSession,
     }),
     [
       session,
@@ -139,6 +168,8 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
       signOut,
       requestPasswordReset,
       updatePassword,
+      resendSignupConfirmation,
+      refreshSession,
     ],
   )
 
