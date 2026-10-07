@@ -1,7 +1,12 @@
 import { Text } from '@/components/ui/text'
 import { theme } from '@/theme'
 import { Tabs, usePathname } from 'expo-router'
-import { CalendarDaysIcon, HomeIcon, TargetIcon } from 'lucide-react-native'
+import {
+  CalendarDaysIcon,
+  HomeIcon,
+  TargetIcon,
+  UserIcon,
+} from 'lucide-react-native'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Animated } from 'react-native'
 
@@ -99,6 +104,18 @@ export default function Layout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="(profile)/index"
+        options={{
+          headerShown: false,
+          tabBarLabel: ({ focused }) => (
+            <TabBarLabel label="Perfil" focused={focused} />
+          ),
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon icon={UserIcon} focused={focused} />
+          ),
+        }}
+      />
     </Tabs>
   )
 }
@@ -108,6 +125,7 @@ function TabBarLabel({ label, focused }: { label: string; focused: boolean }) {
     <Text
       color="foreground"
       variant="caption"
+      textAlign="center"
       fontSize={10}
       mt="xs"
       opacity={focused ? 1 : 0.6}
