@@ -1,5 +1,5 @@
 import { ForgotPasswordScreen } from '@/screens/auth/forgot-password'
 
-export default function ForgotPasswordRoute() {
+export default function Screen() {
   return <ForgotPasswordScreen />
 }
