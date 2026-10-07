@@ -4,7 +4,7 @@ import {
   createVariant,
   VariantProps,
 } from '@shopify/restyle'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { ActivityIndicator, Pressable } from 'react-native'
 import { Box } from './box'
 import { Text } from './text'
@@ -52,7 +52,7 @@ export function Button({
   onPress,
   ...props
 }: ButtonProps) {
-  const getTextColor = () => {
+  const textColor = useMemo(() => {
     switch (variant) {
       case 'primary':
         return 'accentForeground'
@@ -65,7 +65,18 @@ export function Button({
       default:
         return 'accentForeground'
     }
-  }
+  }, [variant])
+
+  const loadingIndicatorColor = useMemo(() => {
+    switch (variant) {
+      case 'secondary':
+        return 'black'
+      case 'ghost':
+        return 'black'
+      default:
+        return 'white'
+    }
+  }, [variant])
 
   return (
     <Pressable onPress={onPress} disabled={loading || disabled}>
@@ -82,14 +93,14 @@ export function Button({
           {...props}
         >
           {loading ? (
-            <ActivityIndicator color="white" />
+            <ActivityIndicator color={loadingIndicatorColor} />
           ) : children ? (
             children
           ) : (
             <>
               {iconLeft}
               <Text
-                color={getTextColor()}
+                color={textColor}
                 fontSize={fontSizeMap[size]}
                 fontWeight="500"
               >
