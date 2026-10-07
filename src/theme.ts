@@ -17,6 +17,7 @@ export const theme = createTheme({
 
     success: '#10B981',
 
+    transparent: 'transparent',
     error: '#EF4444',
 
     warning: '#F59E0B',
