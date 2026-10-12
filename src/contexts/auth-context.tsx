@@ -18,19 +18,13 @@ import {
   useState,
 } from 'react'
 
+import type { SignInInput, SignUpInput } from '@/@types/auth'
+
 type AuthContextValue = {
   session: Session | null
   isLoading: boolean
-
-  signInWithEmail: (
-    email: string,
-    password: string,
-  ) => Promise<{ error: AuthError | null }>
-  signUpWithEmail: (input: {
-    email: string
-    password: string
-    name: string
-  }) => Promise<{ error: AuthError | null }>
+  signIn: (input: SignInInput) => Promise<void>
+  signUp: (input: SignUpInput) => Promise<void>
   signOut: () => Promise<void>
   requestPasswordReset: (email: string) => Promise<{ error: AuthError | null }>
   updatePassword: (password: string) => Promise<{ error: AuthError | null }>
@@ -84,30 +78,30 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
     }
   }, [])
 
-  const signInWithEmail = useCallback(
-    async (email: string, password: string) => {
-      const { error } = await supabaseClient.auth.signInWithPassword({
-        email,
-        password,
-      })
-      return { error }
-    },
-    [],
-  )
+  const signIn = useCallback(async (input: SignInInput) => {
+    const { error } = await supabaseClient.auth.signInWithPassword({
+      email: input.email,
+      password: input.password,
+    })
 
-  const signUpWithEmail = useCallback(
-    async (input: { email: string; password: string; name: string }) => {
-      const { error } = await supabaseClient.auth.signUp({
-        email: input.email,
-        password: input.password,
-        options: {
-          data: { name: input.name },
-        },
-      })
-      return { error }
-    },
-    [],
-  )
+    if (error) {
+      throw new Error(error.message)
+    }
+  }, [])
+
+  const signUp = useCallback(async (input: SignUpInput) => {
+    const { error } = await supabaseClient.auth.signUp({
+      email: input.email,
+      password: input.password,
+      options: {
+        data: { name: input.name },
+      },
+    })
+
+    if (error) {
+      throw new Error(error.message)
+    }
+  }, [])
 
   const signOut = useCallback(async () => {
     await supabaseClient.auth.signOut({ scope: 'local' })
@@ -152,8 +146,8 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
       session,
       isLoading,
 
-      signInWithEmail,
-      signUpWithEmail,
+      signIn,
+      signUp,
       signOut,
       requestPasswordReset,
       updatePassword,
@@ -163,8 +157,8 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
     [
       session,
       isLoading,
-      signInWithEmail,
-      signUpWithEmail,
+      signIn,
+      signUp,
       signOut,
       requestPasswordReset,
       updatePassword,
