@@ -1,21 +1,32 @@
-import { useRouter } from 'expo-router'
+import { Href, useRouter } from 'expo-router'
 import { ArrowLeft } from 'lucide-react-native'
 import { Button } from '../ui/button'
 import { Text } from '../ui/text'
 
-export function BackButton(
-  props: Omit<React.ComponentProps<typeof Button>, 'onPress' | 'children'>,
-) {
+type BackButtonProps = Omit<
+  React.ComponentProps<typeof Button>,
+  'onPress' | 'children'
+> & {
+  fallbackHref?: Href
+}
+
+export function BackButton({ fallbackHref, ...props }: BackButtonProps) {
   const router = useRouter()
+
+  if (!router.canGoBack() && !fallbackHref) {
+    return null
+  }
+
   return (
     <Button
       size="sm"
       variant="secondary"
+      accessibilityLabel="Voltar"
       onPress={() => {
         if (router.canGoBack()) {
           router.back()
-        } else {
-          router.replace('/(private)/(tabs)/(daily-entries)')
+        } else if (fallbackHref) {
+          router.replace(fallbackHref)
         }
       }}
       {...props}
