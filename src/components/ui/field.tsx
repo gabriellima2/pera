@@ -42,7 +42,11 @@ function FieldError({
     return null
   }
 
-  return <Text {...props}>{content}</Text>
+  return (
+    <Text color="error" variant="bodyMedium" {...props}>
+      {content}
+    </Text>
+  )
 }
 
 export { Field, FieldError, FieldGroup, FieldLabel }
