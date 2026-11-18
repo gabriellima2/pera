@@ -55,10 +55,12 @@ export default function Layout() {
         sceneStyle: { backgroundColor: 'transparent' },
         tabBarStyle: [
           {
+            height: 'auto',
             backgroundColor: theme.colors.surface,
             borderTopWidth: 1,
             borderTopColor: theme.colors.border,
             paddingTop: theme.spacing.sm,
+            paddingBottom: 0,
             opacity,
             transform: [{ translateY }],
             pointerEvents: opacity === 0 ? 'none' : 'auto',
@@ -129,6 +131,8 @@ function TabBarLabel({ label, focused }: { label: string; focused: boolean }) {
       fontSize={10}
       mt="xs"
       opacity={focused ? 1 : 0.6}
+      numberOfLines={2}
+      ellipsizeMode="tail"
     >
       {label}
     </Text>
