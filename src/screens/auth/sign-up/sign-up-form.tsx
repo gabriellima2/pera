@@ -10,6 +10,8 @@ import {
 import { Form } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/contexts/auth-context'
+import { supabaseClient } from '@/lib/supabase/client'
+import { isEmailVerified } from '@/lib/supabase/email-verified'
 import { useForm } from '@tanstack/react-form'
 import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'expo-router'
@@ -22,7 +24,21 @@ export function SignUpForm() {
 
   const { mutateAsync: signUpMutation } = useMutation({
     mutationFn: signUp,
-    onSuccess: (_, { email }) => {
+    onSuccess: async (_, { email }) => {
+      const {
+        data: { session },
+      } = await supabaseClient.auth.getSession()
+
+      if (session && isEmailVerified(session)) {
+        router.replace('/(private)/(tabs)/(daily-entries)')
+        return
+      }
+
+      if (session) {
+        router.replace('/verify-email')
+        return
+      }
+
       router.replace({
         pathname: '/(auth)/check-email',
         params: { email },

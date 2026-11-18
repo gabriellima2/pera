@@ -8,8 +8,8 @@ import type { Database } from './database-types'
 
 const env = z
   .object({
-    SUPABASE_URL: z.string(),
-    SUPABASE_PUBLISHABLE_KEY: z.string(),
+    SUPABASE_URL: z.url(),
+    SUPABASE_PUBLISHABLE_KEY: z.string().check(z.minLength(1)),
   })
   .parse({
     SUPABASE_URL: process.env.EXPO_PUBLIC_SUPABASE_URL,

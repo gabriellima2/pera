@@ -280,14 +280,14 @@ function DailyEntryPreviewItem({ item }: DailyEntryPreviewItemProps) {
 
   const router = useRouter()
 
-  const handleEditMomentEntry = useCallback(() => {
+  const handleEditDailyEntry = useCallback(() => {
     router.push({
       pathname: '/edit-daily-entry/[id]',
       params: { id: item.id },
     })
   }, [router, item.id])
 
-  const handleDeleteMomentEntry = useCallback(() => {
+  const handleDeleteDailyEntry = useCallback(() => {
     setSelectedDeleteId(item.id)
   }, [item.id])
 
@@ -295,12 +295,12 @@ function DailyEntryPreviewItem({ item }: DailyEntryPreviewItemProps) {
     (direction: 'left' | 'right') => {
       swipeableRef.current?.close()
       if (direction === 'right') {
-        handleEditMomentEntry()
+        handleEditDailyEntry()
       } else if (direction === 'left') {
-        handleDeleteMomentEntry()
+        handleDeleteDailyEntry()
       }
     },
-    [handleEditMomentEntry, handleDeleteMomentEntry],
+    [handleEditDailyEntry, handleDeleteDailyEntry],
   )
 
   const renderLeftActions = useCallback(() => {
