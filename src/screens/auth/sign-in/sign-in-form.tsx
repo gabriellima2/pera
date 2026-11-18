@@ -24,7 +24,7 @@ export function SignInForm() {
   const { mutateAsync: signInMutation } = useMutation({
     mutationFn: signIn,
     onSuccess: () => {
-      router.replace('/(private)/(tabs)/(breathing-exercises)')
+      router.replace('/(private)/(tabs)/(daily-entries)')
     },
     onError: (error) => {
       toast.error(error.message)
