@@ -1,4 +1,5 @@
 import { DeleteMomentEntryBottomSheet } from '@/components/bottom-sheets/delete-moment-entry-bottom-sheet'
+import { MomentEntryDetailBottomSheet } from '@/components/bottom-sheets/moment-entry-detail-bottom-sheet'
 import { Box } from '@/components/ui/box'
 import { Button } from '@/components/ui/button'
 import { EmotionListSkeleton } from '@/components/ui/skeleton'
@@ -10,9 +11,9 @@ import { supabaseClient } from '@/lib/supabase/client'
 import { theme } from '@/theme'
 import { useQuery } from '@tanstack/react-query'
 import { Link, useRouter } from 'expo-router'
-import { ChevronRight, Pencil, PlusIcon, Trash2 } from 'lucide-react-native'
+import { Pencil, PlusIcon, Trash2 } from 'lucide-react-native'
 import { useCallback, useRef, useState } from 'react'
-import { FlatList } from 'react-native'
+import { FlatList, Pressable } from 'react-native'
 import ReanimatedSwipeable, {
   type SwipeableMethods,
 } from 'react-native-gesture-handler/ReanimatedSwipeable'
@@ -21,6 +22,7 @@ type MomentEntry = {
   id: string
   emotion: string
   notes: string | null
+  date: string | null
   situation_description: string | null
   situations: { id: string; label: string; code: string } | null
 }
@@ -31,7 +33,7 @@ export function MomentEntriesList() {
       const momentEntries = await supabaseClient
         .from('moment_entries')
         .select(
-          'id, situation_description, emotion, notes, situations ( id, label, code )',
+          'id, date, situation_description, emotion, notes, situations ( id, label, code )',
         )
         .is('deleted_at', null)
         .order('created_at', { ascending: false })
@@ -108,6 +110,8 @@ type MomentEntriesListItemProps = {
 
 function MomentEntriesListItem({ item }: MomentEntriesListItemProps) {
   const [selectedDeleteId, setSelectedDeleteId] = useState<string | null>(null)
+  const [selectedDetailEntry, setSelectedDetailEntry] =
+    useState<MomentEntry | null>(null)
   const swipeableRef = useRef<SwipeableMethods>(null)
 
   const router = useRouter()
@@ -176,46 +180,54 @@ function MomentEntriesListItem({ item }: MomentEntriesListItemProps) {
         renderRightActions={renderRightActions}
         containerStyle={{ marginBottom: theme.spacing.sm }}
       >
-        <Box
-          backgroundColor="surface"
-          p="md"
-          borderRadius="lg"
-          flexDirection="row"
-          alignItems="center"
-          gap="md"
-        >
+        <Pressable onPress={() => setSelectedDetailEntry(item)}>
           <Box
-            backgroundColor={EMOTION_COLORS[item.emotion]}
-            width={40}
-            height={40}
+            backgroundColor="surface"
+            p="md"
+            borderRadius="lg"
+            flexDirection="row"
             alignItems="center"
-            justifyContent="center"
-            borderRadius="full"
+            gap="md"
           >
-            <Text fontSize={20} lineHeight={24}>
-              {EMOTION_ICONS[item.emotion]}
-            </Text>
-          </Box>
+            <Box
+              backgroundColor={EMOTION_COLORS[item.emotion]}
+              width={40}
+              height={40}
+              alignItems="center"
+              justifyContent="center"
+              borderRadius="full"
+            >
+              <Text fontSize={20} lineHeight={24}>
+                {EMOTION_ICONS[item.emotion]}
+              </Text>
+            </Box>
 
-          <Box flex={1} gap="xs">
-            {item.situations?.label ? (
-              <Text>{item.situations?.label}</Text>
-            ) : item.situation_description ? (
-              <Text numberOfLines={1}>{item.situation_description}</Text>
-            ) : null}
-            {item.notes ? (
-              <Text variant="caption" numberOfLines={1}>
-                {item.notes}
-              </Text>
-            ) : (
-              <Text variant="caption" fontStyle="italic">
-                Registro sem anotações
-              </Text>
-            )}
+            <Box flex={1} gap="xs">
+              {item.situations?.label ? (
+                <Text>{item.situations?.label}</Text>
+              ) : item.situation_description ? (
+                <Text numberOfLines={1}>{item.situation_description}</Text>
+              ) : null}
+              {item.notes ? (
+                <Text variant="caption" numberOfLines={1}>
+                  {item.notes}
+                </Text>
+              ) : (
+                <Text variant="caption" fontStyle="italic">
+                  Registro sem anotações
+                </Text>
+              )}
+            </Box>
           </Box>
-          <ChevronRight size={16} color={theme.colors.foregroundSecondary} />
-        </Box>
+        </Pressable>
       </ReanimatedSwipeable>
+      {selectedDetailEntry && (
+        <MomentEntryDetailBottomSheet
+          isVisible={selectedDetailEntry !== null}
+          momentEntry={selectedDetailEntry}
+          onClose={() => setSelectedDetailEntry(null)}
+        />
+      )}
       {selectedDeleteId && (
         <DeleteMomentEntryBottomSheet
           isVisible={selectedDeleteId !== null}
