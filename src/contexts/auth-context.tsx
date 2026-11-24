@@ -36,7 +36,7 @@ type AuthContextValue = {
   requestPasswordReset: (email: string) => Promise<void>
   updatePassword: (password: string) => Promise<void>
   changePassword: (input: ChangePasswordInput) => Promise<void>
-  requestPasswordChangeReauthentication: () => Promise<void>
+  requestReauthentication: () => Promise<void>
   resendSignupConfirmation: () => Promise<void>
   refreshSession: () => Promise<{ verified: boolean }>
 }
@@ -144,7 +144,7 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
     }
   }, [])
 
-  const requestPasswordChangeReauthentication = useCallback(async () => {
+  const requestReauthentication = useCallback(async () => {
     const { error } = await supabaseClient.auth.reauthenticate()
 
     if (error) {
@@ -191,7 +191,7 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
       requestPasswordReset,
       updatePassword,
       changePassword,
-      requestPasswordChangeReauthentication,
+      requestReauthentication,
       resendSignupConfirmation,
       refreshSession,
     }),
@@ -204,7 +204,7 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
       requestPasswordReset,
       updatePassword,
       changePassword,
-      requestPasswordChangeReauthentication,
+      requestReauthentication,
       resendSignupConfirmation,
       refreshSession,
     ],

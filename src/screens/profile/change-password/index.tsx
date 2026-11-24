@@ -37,7 +37,7 @@ type ChangePasswordMutationInput = ChangePasswordFormValues & {
 }
 
 export function ChangePasswordScreen() {
-  const { changePassword, requestPasswordChangeReauthentication } = useAuth()
+  const { changePassword, requestReauthentication } = useAuth()
   const router = useRouter()
   const [needsReauthentication, setNeedsReauthentication] = useState(false)
 
@@ -66,7 +66,7 @@ export function ChangePasswordScreen() {
         })
       } catch (error) {
         if (!requiresNonce && isReauthenticationNeeded(error)) {
-          await requestPasswordChangeReauthentication()
+          await requestReauthentication()
           throw new ReauthenticationRequiredError()
         }
 
@@ -89,7 +89,7 @@ export function ChangePasswordScreen() {
 
   const { mutateAsync: resendReauthCode, isPending: isResendingCode } =
     useMutation({
-      mutationFn: requestPasswordChangeReauthentication,
+      mutationFn: requestReauthentication,
       onSuccess: () => {
         toast.success('Código de confirmação reenviado para seu e-mail')
       },
