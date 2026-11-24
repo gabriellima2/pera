@@ -14,18 +14,30 @@ export function ProfileScreen() {
     <Box flex={1} px="md" pt="xl" gap="xl">
       <Text variant="title">Perfil</Text>
 
-      <Box gap="md">
-        <Box gap="xs">
-          <Text color="foregroundSecondary" variant="caption">
+      <Box gap="sm">
+        <Box
+          backgroundColor="surface"
+          py="md"
+          pl="md"
+          borderRadius="lg"
+          gap="sm"
+        >
+          <Text variant="caption" color="foregroundSecondary">
             Nome
           </Text>
-          <Text>{name}</Text>
+          <Text variant="bodyMuted">{name}</Text>
         </Box>
-        <Box gap="xs">
-          <Text color="foregroundSecondary" variant="caption">
+        <Box
+          backgroundColor="surface"
+          py="md"
+          pl="md"
+          borderRadius="lg"
+          gap="sm"
+        >
+          <Text variant="caption" color="foregroundSecondary">
             E-mail
           </Text>
-          <Text>{email}</Text>
+          <Text variant="bodyMuted">{email}</Text>
         </Box>
       </Box>
 
