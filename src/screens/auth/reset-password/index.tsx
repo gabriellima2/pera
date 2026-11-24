@@ -10,20 +10,11 @@ import { Form } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Text } from '@/components/ui/text'
 import { useAuth } from '@/contexts/auth-context'
+import { getAuthErrorMessage } from '@/lib/supabase/auth-errors'
+import { newPasswordWithConfirmationSchema } from '@/lib/auth/password-schemas'
 import { useForm } from '@tanstack/react-form'
 import { useRouter } from 'expo-router'
 import { toast } from 'sonner-native'
-import { z } from 'zod'
-
-const resetPasswordSchema = z
-  .object({
-    password: z.string().min(6, 'Mínimo de 6 caracteres'),
-    confirmPassword: z.string().min(1, 'Obrigatório'),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'As senhas não coincidem',
-    path: ['confirmPassword'],
-  })
 
 export function ResetPasswordScreen() {
   const { updatePassword } = useAuth()
@@ -35,12 +26,12 @@ export function ResetPasswordScreen() {
       confirmPassword: '',
     },
     validators: {
-      onSubmit: resetPasswordSchema,
+      onSubmit: newPasswordWithConfirmationSchema,
     },
     onSubmit: async ({ value }) => {
       const { error } = await updatePassword(value.password)
       if (error) {
-        toast.error(error.message)
+        toast.error(getAuthErrorMessage(error))
         return
       }
       toast.success('Senha atualizada')

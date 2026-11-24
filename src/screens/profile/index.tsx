@@ -2,9 +2,11 @@ import { Box } from '@/components/ui/box'
 import { Button } from '@/components/ui/button'
 import { Text } from '@/components/ui/text'
 import { useAuth } from '@/contexts/auth-context'
+import { useRouter } from 'expo-router'
 
 export function ProfileScreen() {
   const { session, signOut } = useAuth()
+  const router = useRouter()
 
   const email = session?.user.email ?? ''
   const name =
@@ -41,7 +43,16 @@ export function ProfileScreen() {
         </Box>
       </Box>
 
-      <Button label="Sair" variant="danger" onPress={() => signOut()} />
+      <Box gap="md">
+        <Button
+          label="Alterar senha"
+          variant="secondary"
+          onPress={() =>
+            router.push('/(private)/(tabs)/(profile)/change-password')
+          }
+        />
+        <Button label="Sair" variant="danger" onPress={() => signOut()} />
+      </Box>
     </Box>
   )
 }

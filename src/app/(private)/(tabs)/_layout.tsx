@@ -17,6 +17,7 @@ const hideTabBarPaths = [
   '/create-moment-entry',
   '/edit-moment-entry',
   '/do-breathing-exercise',
+  '/change-password',
 ]
 
 export default function Layout() {
@@ -107,7 +108,7 @@ export default function Layout() {
         }}
       />
       <Tabs.Screen
-        name="(profile)/index"
+        name="(profile)"
         options={{
           headerShown: false,
           tabBarLabel: ({ focused }) => (

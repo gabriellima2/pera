@@ -5,6 +5,7 @@ import {
   bindSupabaseAuthRefreshToAppState,
   supabaseClient,
 } from '@/lib/supabase/client'
+import { getAuthErrorMessage } from '@/lib/supabase/auth-errors'
 import { isEmailVerified } from '@/lib/supabase/email-verified'
 import { handleSupabaseAuthRedirect } from '@/lib/supabase/handle-auth-redirect'
 import type { AuthError, Session } from '@supabase/supabase-js'
@@ -20,6 +21,12 @@ import {
 
 import type { SignInInput, SignUpInput } from '@/@types/auth'
 
+export type ChangePasswordInput = {
+  currentPassword: string
+  newPassword: string
+  nonce?: string
+}
+
 type AuthContextValue = {
   session: Session | null
   isLoading: boolean
@@ -28,6 +35,12 @@ type AuthContextValue = {
   signOut: () => Promise<void>
   requestPasswordReset: (email: string) => Promise<{ error: AuthError | null }>
   updatePassword: (password: string) => Promise<{ error: AuthError | null }>
+  changePassword: (
+    input: ChangePasswordInput,
+  ) => Promise<{ error: AuthError | null }>
+  requestPasswordChangeReauthentication: () => Promise<{
+    error: AuthError | null
+  }>
   resendSignupConfirmation: () => Promise<{ error: AuthError | null }>
   refreshSession: () => Promise<{
     error: AuthError | null
@@ -85,7 +98,7 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
     })
 
     if (error) {
-      throw new Error(error.message)
+      throw new Error(getAuthErrorMessage(error))
     }
   }, [])
 
@@ -99,7 +112,7 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
     })
 
     if (error) {
-      throw new Error(error.message)
+      throw new Error(getAuthErrorMessage(error))
     }
   }, [])
 
@@ -117,6 +130,20 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
 
   const updatePassword = useCallback(async (password: string) => {
     const { error } = await supabaseClient.auth.updateUser({ password })
+    return { error }
+  }, [])
+
+  const changePassword = useCallback(async (input: ChangePasswordInput) => {
+    const { error } = await supabaseClient.auth.updateUser({
+      password: input.newPassword,
+      current_password: input.currentPassword,
+      ...(input.nonce ? { nonce: input.nonce } : {}),
+    })
+    return { error }
+  }, [])
+
+  const requestPasswordChangeReauthentication = useCallback(async () => {
+    const { error } = await supabaseClient.auth.reauthenticate()
     return { error }
   }, [])
 
@@ -151,6 +178,8 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
       signOut,
       requestPasswordReset,
       updatePassword,
+      changePassword,
+      requestPasswordChangeReauthentication,
       resendSignupConfirmation,
       refreshSession,
     }),
@@ -162,6 +191,8 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
       signOut,
       requestPasswordReset,
       updatePassword,
+      changePassword,
+      requestPasswordChangeReauthentication,
       resendSignupConfirmation,
       refreshSession,
     ],
