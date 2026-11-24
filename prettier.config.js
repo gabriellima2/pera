@@ -1,4 +1,4 @@
-//  @ts-check
+// @ts-check
 
 /** @type {import('prettier').Config} */
 const config = {
@@ -10,4 +10,4 @@ const config = {
   endOfLine: 'lf',
 }
 
-export default config
+module.exports = config
