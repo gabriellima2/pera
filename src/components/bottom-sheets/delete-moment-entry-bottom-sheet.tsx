@@ -65,8 +65,7 @@ export function DeleteMomentEntryBottomSheet({
             variant="danger"
             label="Confirmar"
             loading={isDeletingMomentEntry}
-            disabled={isDeletingMomentEntry}
-            onPress={() => deleteMomentEntry()}
+            onPress={deleteMomentEntry}
           />
           <Button
             variant="secondary"

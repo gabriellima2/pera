@@ -74,7 +74,6 @@ export function DeleteDailyEntryBottomSheet({
             variant="danger"
             label="Confirmar"
             loading={isDeletingDailyEntry}
-            disabled={isDeletingDailyEntry}
             onPress={deleteDailyEntry}
           />
           <Button

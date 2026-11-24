@@ -40,7 +40,6 @@ export function SignOutConfirmationBottomSheet({
             variant="danger"
             label="Sair"
             loading={isSigningOut}
-            disabled={isSigningOut}
             onPress={confirmSignOut}
           />
           <Button
