@@ -1,4 +1,4 @@
-import type { AuthError } from '@supabase/supabase-js'
+import type { AuthError as SupabaseAuthError } from '@supabase/supabase-js'
 
 const AUTH_ERROR_MESSAGES: Record<string, string> = {
   // Do not map (generic fallback only — user enumeration or unnecessary detail):
@@ -54,15 +54,32 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
     'Ocorreu um erro inesperado. Tente novamente em instantes.',
 }
 
-export function isReauthenticationNeeded(error: AuthError): boolean {
-  return error.code === 'reauthentication_needed'
-}
-
 const GENERIC_AUTH_ERROR_MESSAGE = 'Não foi possível concluir a operação.'
 
-export function getAuthErrorMessage(error: AuthError): string {
+export function getAuthErrorMessage(error: SupabaseAuthError): string {
   if (error.code && AUTH_ERROR_MESSAGES[error.code]) {
     return AUTH_ERROR_MESSAGES[error.code]
   }
   return GENERIC_AUTH_ERROR_MESSAGE
+}
+
+class AuthError extends Error {
+  readonly code: string | undefined
+
+  constructor(supabaseError: SupabaseAuthError) {
+    super(getAuthErrorMessage(supabaseError))
+    this.name = 'AuthError'
+    this.code = supabaseError.code
+  }
+}
+
+export function throwAuthError(error: SupabaseAuthError): never {
+  throw new AuthError(error)
+}
+
+export function isReauthenticationNeeded(error: unknown): boolean {
+  if (error instanceof AuthError) {
+    return error.code === 'reauthentication_needed'
+  }
+  return false
 }

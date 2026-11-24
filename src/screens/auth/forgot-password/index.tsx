@@ -10,8 +10,8 @@ import { Form } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Text } from '@/components/ui/text'
 import { useAuth } from '@/contexts/auth-context'
-import { getAuthErrorMessage } from '@/lib/supabase/auth-errors'
 import { useForm } from '@tanstack/react-form'
+import { useMutation } from '@tanstack/react-query'
 import { Link } from 'expo-router'
 import { toast } from 'sonner-native'
 import { z } from 'zod'
@@ -23,19 +23,22 @@ const forgotPasswordSchema = z.object({
 export function ForgotPasswordScreen() {
   const { requestPasswordReset } = useAuth()
 
+  const { mutateAsync: requestPasswordResetMutation } = useMutation({
+    mutationFn: requestPasswordReset,
+    onSuccess: () => {
+      toast.success('Enviamos instruções para redefinir sua senha')
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+  })
+
   const form = useForm({
     defaultValues: { email: '' },
     validators: {
       onSubmit: forgotPasswordSchema,
     },
-    onSubmit: async ({ value }) => {
-      const { error } = await requestPasswordReset(value.email)
-      if (error) {
-        toast.error(getAuthErrorMessage(error))
-        return
-      }
-      toast.success('Enviamos instruções para redefinir sua senha')
-    },
+    onSubmit: ({ value }) => requestPasswordResetMutation(value.email),
   })
 
   return (

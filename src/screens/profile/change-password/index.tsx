@@ -17,10 +17,7 @@ import {
   changePasswordSchema,
   reauthenticationNonceValueSchema,
 } from '@/lib/auth/password-schemas'
-import {
-  getAuthErrorMessage,
-  isReauthenticationNeeded,
-} from '@/lib/supabase/auth-errors'
+import { isReauthenticationNeeded } from '@/lib/supabase/auth-errors'
 import { useForm } from '@tanstack/react-form'
 import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'expo-router'
@@ -61,28 +58,20 @@ export function ChangePasswordScreen() {
         }
       }
 
-      const { error } = await changePassword({
-        currentPassword,
-        newPassword: password,
-        ...(requiresNonce ? { nonce: nonce.trim() } : {}),
-      })
-
-      if (!error) {
-        return
-      }
-
-      if (!requiresNonce && isReauthenticationNeeded(error)) {
-        const { error: reauthError } =
+      try {
+        await changePassword({
+          currentPassword,
+          newPassword: password,
+          ...(requiresNonce ? { nonce: nonce.trim() } : {}),
+        })
+      } catch (error) {
+        if (!requiresNonce && isReauthenticationNeeded(error)) {
           await requestPasswordChangeReauthentication()
-
-        if (reauthError) {
-          throw new Error(getAuthErrorMessage(reauthError))
+          throw new ReauthenticationRequiredError()
         }
 
-        throw new ReauthenticationRequiredError()
+        throw error
       }
-
-      throw new Error(getAuthErrorMessage(error))
     },
     onSuccess: () => {
       toast.success('Senha atualizada')
@@ -100,12 +89,7 @@ export function ChangePasswordScreen() {
 
   const { mutateAsync: resendReauthCode, isPending: isResendingCode } =
     useMutation({
-      mutationFn: async () => {
-        const { error } = await requestPasswordChangeReauthentication()
-        if (error) {
-          throw new Error(getAuthErrorMessage(error))
-        }
-      },
+      mutationFn: requestPasswordChangeReauthentication,
       onSuccess: () => {
         toast.success('Código de confirmação reenviado para seu e-mail')
       },

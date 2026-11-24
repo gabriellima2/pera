@@ -10,15 +10,26 @@ import { Form } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Text } from '@/components/ui/text'
 import { useAuth } from '@/contexts/auth-context'
-import { getAuthErrorMessage } from '@/lib/supabase/auth-errors'
 import { newPasswordWithConfirmationSchema } from '@/lib/auth/password-schemas'
 import { useForm } from '@tanstack/react-form'
+import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'expo-router'
 import { toast } from 'sonner-native'
 
 export function ResetPasswordScreen() {
   const { updatePassword } = useAuth()
   const router = useRouter()
+
+  const { mutateAsync: updatePasswordMutation } = useMutation({
+    mutationFn: updatePassword,
+    onSuccess: () => {
+      toast.success('Senha atualizada')
+      router.replace('/(private)/(tabs)/(daily-entries)')
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+  })
 
   const form = useForm({
     defaultValues: {
@@ -28,15 +39,7 @@ export function ResetPasswordScreen() {
     validators: {
       onSubmit: newPasswordWithConfirmationSchema,
     },
-    onSubmit: async ({ value }) => {
-      const { error } = await updatePassword(value.password)
-      if (error) {
-        toast.error(getAuthErrorMessage(error))
-        return
-      }
-      toast.success('Senha atualizada')
-      router.replace('/(private)/(tabs)/(daily-entries)')
-    },
+    onSubmit: ({ value }) => updatePasswordMutation(value.password),
   })
 
   return (

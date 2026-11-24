@@ -2,21 +2,45 @@ import { Box } from '@/components/ui/box'
 import { Button } from '@/components/ui/button'
 import { Text } from '@/components/ui/text'
 import { useAuth } from '@/contexts/auth-context'
-import { getAuthErrorMessage } from '@/lib/supabase/auth-errors'
-import { useEffect, useState } from 'react'
+import { useMutation } from '@tanstack/react-query'
+import { useEffect } from 'react'
 import { AppState } from 'react-native'
 import { toast } from 'sonner-native'
 
 export function VerifyEmailScreen() {
   const { session, resendSignupConfirmation, refreshSession, signOut } =
     useAuth()
-  const [isResending, setIsResending] = useState(false)
-  const [isRefreshing, setIsRefreshing] = useState(false)
+
+  const { mutateAsync: resendConfirmation, isPending: isResending } =
+    useMutation({
+      mutationFn: resendSignupConfirmation,
+      onSuccess: () => {
+        toast.success('E-mail de confirmação reenviado')
+      },
+      onError: (error) => {
+        toast.error(error.message)
+      },
+    })
+
+  const { mutateAsync: refreshSessionMutation, isPending: isRefreshing } =
+    useMutation({
+      mutationFn: refreshSession,
+      onSuccess: ({ verified }) => {
+        if (!verified) {
+          toast.info(
+            'Ainda não detectamos a confirmação. Tente novamente em instantes.',
+          )
+        }
+      },
+      onError: (error) => {
+        toast.error(error.message)
+      },
+    })
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (state) => {
       if (state === 'active') {
-        void refreshSession()
+        void refreshSession().catch(() => {})
       }
     })
 
@@ -24,36 +48,6 @@ export function VerifyEmailScreen() {
   }, [refreshSession])
 
   const email = session?.user.email ?? ''
-
-  async function handleResend() {
-    setIsResending(true)
-    const { error } = await resendSignupConfirmation()
-    setIsResending(false)
-
-    if (error) {
-      toast.error(getAuthErrorMessage(error))
-      return
-    }
-
-    toast.success('E-mail de confirmação reenviado')
-  }
-
-  async function handleAlreadyConfirmed() {
-    setIsRefreshing(true)
-    const { error, verified } = await refreshSession()
-    setIsRefreshing(false)
-
-    if (error) {
-      toast.error(getAuthErrorMessage(error))
-      return
-    }
-
-    if (!verified) {
-      toast.info(
-        'Ainda não detectamos a confirmação. Tente novamente em instantes.',
-      )
-    }
-  }
 
   async function handleSignOut() {
     await signOut()
@@ -75,12 +69,12 @@ export function VerifyEmailScreen() {
           label="Reenviar e-mail"
           variant="secondary"
           loading={isResending}
-          onPress={handleResend}
+          onPress={() => void resendConfirmation()}
         />
         <Button
           label="Já confirmei"
           loading={isRefreshing}
-          onPress={handleAlreadyConfirmed}
+          onPress={() => void refreshSessionMutation()}
         />
         <Button label="Sair" variant="ghost" onPress={handleSignOut} />
       </Box>

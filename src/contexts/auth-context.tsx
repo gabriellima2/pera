@@ -1,14 +1,14 @@
 import { LoadingScreen } from '@/components/ui/loading'
 import { queryClient } from '@/lib/react-query/client'
 import { AUTH_REDIRECT_URL } from '@/lib/supabase/auth-config'
+import { throwAuthError } from '@/lib/supabase/auth-errors'
 import {
   bindSupabaseAuthRefreshToAppState,
   supabaseClient,
 } from '@/lib/supabase/client'
-import { getAuthErrorMessage } from '@/lib/supabase/auth-errors'
 import { isEmailVerified } from '@/lib/supabase/email-verified'
 import { handleSupabaseAuthRedirect } from '@/lib/supabase/handle-auth-redirect'
-import type { AuthError, Session } from '@supabase/supabase-js'
+import type { Session } from '@supabase/supabase-js'
 import * as Linking from 'expo-linking'
 import {
   createContext,
@@ -33,19 +33,12 @@ type AuthContextValue = {
   signIn: (input: SignInInput) => Promise<void>
   signUp: (input: SignUpInput) => Promise<void>
   signOut: () => Promise<void>
-  requestPasswordReset: (email: string) => Promise<{ error: AuthError | null }>
-  updatePassword: (password: string) => Promise<{ error: AuthError | null }>
-  changePassword: (
-    input: ChangePasswordInput,
-  ) => Promise<{ error: AuthError | null }>
-  requestPasswordChangeReauthentication: () => Promise<{
-    error: AuthError | null
-  }>
-  resendSignupConfirmation: () => Promise<{ error: AuthError | null }>
-  refreshSession: () => Promise<{
-    error: AuthError | null
-    verified: boolean
-  }>
+  requestPasswordReset: (email: string) => Promise<void>
+  updatePassword: (password: string) => Promise<void>
+  changePassword: (input: ChangePasswordInput) => Promise<void>
+  requestPasswordChangeReauthentication: () => Promise<void>
+  resendSignupConfirmation: () => Promise<void>
+  refreshSession: () => Promise<{ verified: boolean }>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -98,7 +91,7 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
     })
 
     if (error) {
-      throw new Error(getAuthErrorMessage(error))
+      throwAuthError(error)
     }
   }, [])
 
@@ -112,7 +105,7 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
     })
 
     if (error) {
-      throw new Error(getAuthErrorMessage(error))
+      throwAuthError(error)
     }
   }, [])
 
@@ -125,12 +118,18 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
     const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
       redirectTo: AUTH_REDIRECT_URL,
     })
-    return { error }
+
+    if (error) {
+      throwAuthError(error)
+    }
   }, [])
 
   const updatePassword = useCallback(async (password: string) => {
     const { error } = await supabaseClient.auth.updateUser({ password })
-    return { error }
+
+    if (error) {
+      throwAuthError(error)
+    }
   }, [])
 
   const changePassword = useCallback(async (input: ChangePasswordInput) => {
@@ -139,31 +138,44 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
       current_password: input.currentPassword,
       ...(input.nonce ? { nonce: input.nonce } : {}),
     })
-    return { error }
+
+    if (error) {
+      throwAuthError(error)
+    }
   }, [])
 
   const requestPasswordChangeReauthentication = useCallback(async () => {
     const { error } = await supabaseClient.auth.reauthenticate()
-    return { error }
+
+    if (error) {
+      throwAuthError(error)
+    }
   }, [])
 
   const resendSignupConfirmation = useCallback(async () => {
     const email = session?.user.email
     if (!email) {
-      return { error: null }
+      throw new Error('Não foi possível identificar o e-mail da sessão.')
     }
 
     const { error } = await supabaseClient.auth.resend({
       type: 'signup',
       email,
     })
-    return { error }
+
+    if (error) {
+      throwAuthError(error)
+    }
   }, [session?.user.email])
 
   const refreshSession = useCallback(async () => {
     const { data, error } = await supabaseClient.auth.refreshSession()
+
+    if (error) {
+      throwAuthError(error)
+    }
+
     return {
-      error,
       verified: isEmailVerified(data.session),
     }
   }, [])
