@@ -110,7 +110,12 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
   }, [])
 
   const signOut = useCallback(async () => {
-    await supabaseClient.auth.signOut({ scope: 'local' })
+    const { error } = await supabaseClient.auth.signOut({ scope: 'local' })
+
+    if (error) {
+      throwAuthError(error)
+    }
+
     queryClient.clear()
   }, [])
 

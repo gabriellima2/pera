@@ -1,11 +1,13 @@
+import { SignOutConfirmationBottomSheet } from '@/components/bottom-sheets/sign-out-confirmation-bottom-sheet'
 import { Box } from '@/components/ui/box'
 import { Button } from '@/components/ui/button'
 import { Text } from '@/components/ui/text'
 import { useAuth } from '@/contexts/auth-context'
 import { useRouter } from 'expo-router'
+import { useState } from 'react'
 
 export function ProfileScreen() {
-  const { session, signOut } = useAuth()
+  const { session } = useAuth()
   const router = useRouter()
 
   const email = session?.user.email ?? ''
@@ -51,8 +53,28 @@ export function ProfileScreen() {
             router.push('/(private)/(tabs)/(profile)/change-password')
           }
         />
-        <Button label="Sair" variant="danger" onPress={() => signOut()} />
+        <SignOutButton />
       </Box>
     </Box>
+  )
+}
+
+function SignOutButton() {
+  const [isSignOutSheetVisible, setIsSignOutSheetVisible] = useState(false)
+
+  return (
+    <>
+      <Button
+        label="Sair"
+        variant="danger"
+        onPress={() => setIsSignOutSheetVisible(true)}
+      />
+      {isSignOutSheetVisible && (
+        <SignOutConfirmationBottomSheet
+          isVisible={isSignOutSheetVisible}
+          onClose={() => setIsSignOutSheetVisible(false)}
+        />
+      )}
+    </>
   )
 }

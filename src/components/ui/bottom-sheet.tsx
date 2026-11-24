@@ -105,7 +105,7 @@ export function BottomSheet({
             ]}
           >
             <GestureDetector gesture={panGesture}>
-              <View style={styles.handleArea}>
+              <View style={[styles.handleArea]}>
                 <View style={styles.handle} />
               </View>
             </GestureDetector>
@@ -135,12 +135,11 @@ const styles = StyleSheet.create({
     borderTopRightRadius: theme.borderRadii.lg,
     paddingHorizontal: theme.spacing.md,
     paddingTop: theme.spacing.md,
-    minHeight: SHEET_HEIGHT,
   },
   handleArea: {
     alignItems: 'center',
     paddingVertical: theme.spacing.sm,
-    marginBottom: theme.spacing.lg,
+    marginBottom: theme.spacing.md,
   },
   handle: {
     width: 40,
