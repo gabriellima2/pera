@@ -89,7 +89,7 @@ export function Button({
           justifyContent="center"
           flexDirection="row"
           gap="sm"
-          opacity={pressed ? 0.7 : 1}
+          opacity={pressed ? 0.8 : 1}
           {...props}
         >
           {loading ? (

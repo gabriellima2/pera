@@ -7,7 +7,7 @@ import { PADDING_BOTTOM_FORM_FOOTER_HEIGHT } from '@/constants/styles'
 import { theme } from '@/theme'
 import { Link } from 'expo-router'
 import { ChevronRightIcon } from 'lucide-react-native'
-import { ScrollView } from 'react-native'
+import { Pressable, ScrollView } from 'react-native'
 
 export function SelectBreathingMode() {
   return (
@@ -30,26 +30,32 @@ export function SelectBreathingMode() {
                 pathname: '/do-breathing-exercise',
                 params: { mode: option.mode },
               }}
+              asChild
             >
-              <Box
-                backgroundColor="surface"
-                px="md"
-                py="lg"
-                borderRadius="lg"
-                flexDirection="row"
-                alignItems="center"
-                gap="md"
-              >
-                <Box flex={1} gap="xs">
-                  <Text variant="subtitle">{option.label}</Text>
-                  <Text>{option.description}</Text>
-                  <Text variant="caption">{option.detail}</Text>
-                </Box>
-                <ChevronRightIcon
-                  size={16}
-                  color={theme.colors.foregroundSecondary}
-                />
-              </Box>
+              <Pressable>
+                {({ pressed }) => (
+                  <Box
+                    backgroundColor="surface"
+                    px="md"
+                    py="lg"
+                    borderRadius="lg"
+                    flexDirection="row"
+                    alignItems="center"
+                    gap="md"
+                    opacity={pressed ? 0.8 : 1}
+                  >
+                    <Box flex={1} gap="xs">
+                      <Text variant="subtitle">{option.label}</Text>
+                      <Text>{option.description}</Text>
+                      <Text variant="caption">{option.detail}</Text>
+                    </Box>
+                    <ChevronRightIcon
+                      size={16}
+                      color={theme.colors.foregroundSecondary}
+                    />
+                  </Box>
+                )}
+              </Pressable>
             </Link>
           ))}
         </Box>

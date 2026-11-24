@@ -14,6 +14,7 @@ import { useAuth } from '@/contexts/auth-context'
 import { useForm } from '@tanstack/react-form'
 import { useMutation } from '@tanstack/react-query'
 import { Link, useRouter } from 'expo-router'
+import { Pressable } from 'react-native'
 import { toast } from 'sonner-native'
 import { z } from 'zod'
 
@@ -81,10 +82,17 @@ export function SignInForm() {
                     onBlur={field.handleBlur}
                   />
                   <Box alignSelf="flex-end">
-                    <Link href="/(auth)/forgot-password">
-                      <Text color="foregroundSecondary">
-                        Esqueceu sua senha?
-                      </Text>
+                    <Link href="/(auth)/forgot-password" asChild>
+                      <Pressable>
+                        {({ pressed }) => (
+                          <Text
+                            color="foregroundSecondary"
+                            opacity={pressed ? 0.8 : 1}
+                          >
+                            Esqueceu sua senha?
+                          </Text>
+                        )}
+                      </Pressable>
                     </Link>
                   </Box>
                 </Box>

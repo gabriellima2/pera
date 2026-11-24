@@ -2,6 +2,7 @@ import { BackButton } from '@/components/buttons/back-button'
 import { Box } from '@/components/ui/box'
 import { Text } from '@/components/ui/text'
 import { Link } from 'expo-router'
+import { Pressable } from 'react-native'
 import { SignUpForm } from './sign-up-form'
 
 export function SignUpScreen() {
@@ -20,12 +21,26 @@ export function SignUpScreen() {
       <Box flex={1} gap="md">
         <SignUpForm />
 
-        <Text color="foregroundSecondary" alignSelf="center">
-          Já tem uma conta?{' '}
-          <Link href="/(auth)/sign-in">
-            <Text textDecorationLine="underline">Entrar</Text>
+        <Box
+          flexDirection="row"
+          flexWrap="wrap"
+          justifyContent="center"
+          alignSelf="center"
+        >
+          <Text color="foregroundSecondary">Já tem uma conta? </Text>
+          <Link href="/(auth)/sign-in" asChild>
+            <Pressable>
+              {({ pressed }) => (
+                <Text
+                  textDecorationLine="underline"
+                  opacity={pressed ? 0.8 : 1}
+                >
+                  Entrar
+                </Text>
+              )}
+            </Pressable>
           </Link>
-        </Text>
+        </Box>
       </Box>
     </Box>
   )

@@ -37,19 +37,22 @@ function Chip({
 }: ChipProps) {
   return (
     <Pressable onPress={onPress}>
-      <BaseChip
-        flexDirection="row"
-        alignItems="center"
-        gap="sm"
-        borderRadius="lg"
-        py="xs"
-        px="regular"
-        {...props}
-      >
-        {LeftIcon && <LeftIcon size={16} />}
-        <Text>{label}</Text>
-        {RightIcon && <RightIcon size={16} />}
-      </BaseChip>
+      {({ pressed }) => (
+        <BaseChip
+          flexDirection="row"
+          alignItems="center"
+          gap="sm"
+          borderRadius="lg"
+          py="xs"
+          px="regular"
+          opacity={pressed ? 0.8 : 1}
+          {...props}
+        >
+          {LeftIcon && <LeftIcon size={16} />}
+          <Text>{label}</Text>
+          {RightIcon && <RightIcon size={16} />}
+        </BaseChip>
+      )}
     </Pressable>
   )
 }

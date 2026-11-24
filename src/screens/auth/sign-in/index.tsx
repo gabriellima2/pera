@@ -1,6 +1,7 @@
 import { Box } from '@/components/ui/box'
 import { Text } from '@/components/ui/text'
 import { Link } from 'expo-router'
+import { Pressable } from 'react-native'
 import { SignInForm } from './sign-in-form'
 
 export function SignInScreen() {
@@ -16,12 +17,26 @@ export function SignInScreen() {
       <Box flex={1} gap="md">
         <SignInForm />
 
-        <Text color="foregroundSecondary" alignSelf="center">
-          Não tem uma conta?{' '}
-          <Link href="/(auth)/sign-up">
-            <Text textDecorationLine="underline">Criar conta</Text>
+        <Box
+          flexDirection="row"
+          flexWrap="wrap"
+          justifyContent="center"
+          alignSelf="center"
+        >
+          <Text color="foregroundSecondary">Não tem uma conta? </Text>
+          <Link href="/(auth)/sign-up" asChild>
+            <Pressable>
+              {({ pressed }) => (
+                <Text
+                  textDecorationLine="underline"
+                  opacity={pressed ? 0.8 : 1}
+                >
+                  Criar conta
+                </Text>
+              )}
+            </Pressable>
           </Link>
-        </Text>
+        </Box>
       </Box>
     </Box>
   )

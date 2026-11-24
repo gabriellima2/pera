@@ -9,7 +9,7 @@ import { getProfileInitials } from '@/utils/auth'
 import { Link } from 'expo-router'
 import { ChevronRightIcon } from 'lucide-react-native'
 import { useState } from 'react'
-import { ScrollView } from 'react-native'
+import { Pressable, ScrollView } from 'react-native'
 
 export function ProfileScreen() {
   const { session } = useAuth()
@@ -62,27 +62,32 @@ export function ProfileScreen() {
 
         <Box px="md" gap="md" backgroundColor="background">
           <Text variant="subtitle">Segurança</Text>
-          <Link href="/(private)/(tabs)/(profile)/change-password">
-            <Box
-              backgroundColor="surface"
-              px="md"
-              py="lg"
-              borderRadius="lg"
-              flexDirection="row"
-              alignItems="center"
-              gap="md"
-            >
-              <Box flex={1} gap="xs">
-                <Text variant="subtitle">Alterar senha</Text>
-                <Text variant="bodyMuted">
-                  Atualize a senha de acesso da sua conta
-                </Text>
-              </Box>
-              <ChevronRightIcon
-                size={16}
-                color={theme.colors.foregroundSecondary}
-              />
-            </Box>
+          <Link href="/(private)/(tabs)/(profile)/change-password" asChild>
+            <Pressable>
+              {({ pressed }) => (
+                <Box
+                  backgroundColor="surface"
+                  px="md"
+                  py="lg"
+                  borderRadius="lg"
+                  flexDirection="row"
+                  alignItems="center"
+                  gap="md"
+                  opacity={pressed ? 0.8 : 1}
+                >
+                  <Box flex={1} gap="xs">
+                    <Text variant="subtitle">Alterar senha</Text>
+                    <Text variant="bodyMuted">
+                      Atualize a senha de acesso da sua conta
+                    </Text>
+                  </Box>
+                  <ChevronRightIcon
+                    size={16}
+                    color={theme.colors.foregroundSecondary}
+                  />
+                </Box>
+              )}
+            </Pressable>
           </Link>
         </Box>
 

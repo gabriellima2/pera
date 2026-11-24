@@ -181,44 +181,47 @@ function MomentEntriesListItem({ item }: MomentEntriesListItemProps) {
         containerStyle={{ marginBottom: theme.spacing.sm }}
       >
         <Pressable onPress={() => setSelectedDetailEntry(item)}>
-          <Box
-            backgroundColor="surface"
-            p="md"
-            borderRadius="lg"
-            flexDirection="row"
-            alignItems="center"
-            gap="md"
-          >
+          {({ pressed }) => (
             <Box
-              backgroundColor={EMOTION_COLORS[item.emotion]}
-              width={40}
-              height={40}
+              backgroundColor="surface"
+              p="md"
+              borderRadius="lg"
+              flexDirection="row"
               alignItems="center"
-              justifyContent="center"
-              borderRadius="full"
+              gap="md"
+              opacity={pressed ? 0.8 : 1}
             >
-              <Text fontSize={20} lineHeight={24}>
-                {EMOTION_ICONS[item.emotion]}
-              </Text>
-            </Box>
+              <Box
+                backgroundColor={EMOTION_COLORS[item.emotion]}
+                width={40}
+                height={40}
+                alignItems="center"
+                justifyContent="center"
+                borderRadius="full"
+              >
+                <Text fontSize={20} lineHeight={24}>
+                  {EMOTION_ICONS[item.emotion]}
+                </Text>
+              </Box>
 
-            <Box flex={1} gap="xs">
-              {item.situations?.label ? (
-                <Text>{item.situations?.label}</Text>
-              ) : item.situation_description ? (
-                <Text numberOfLines={1}>{item.situation_description}</Text>
-              ) : null}
-              {item.notes ? (
-                <Text variant="caption" numberOfLines={1}>
-                  {item.notes}
-                </Text>
-              ) : (
-                <Text variant="caption" fontStyle="italic">
-                  Registro sem anotações
-                </Text>
-              )}
+              <Box flex={1} gap="xs">
+                {item.situations?.label ? (
+                  <Text>{item.situations?.label}</Text>
+                ) : item.situation_description ? (
+                  <Text numberOfLines={1}>{item.situation_description}</Text>
+                ) : null}
+                {item.notes ? (
+                  <Text variant="caption" numberOfLines={1}>
+                    {item.notes}
+                  </Text>
+                ) : (
+                  <Text variant="caption" fontStyle="italic">
+                    Registro sem anotações
+                  </Text>
+                )}
+              </Box>
             </Box>
-          </Box>
+          )}
         </Pressable>
       </ReanimatedSwipeable>
       {selectedDetailEntry && (

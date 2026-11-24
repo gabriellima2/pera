@@ -205,21 +205,23 @@ export function DailyEntriesPreview() {
                 key={emotion}
                 onPress={() => handleSelectEmotion(emotion)}
               >
-                <Box alignItems="center" gap="sm">
-                  <Box
-                    backgroundColor={EMOTION_COLORS[emotion]}
-                    borderRadius="full"
-                    width={60}
-                    height={60}
-                    alignItems="center"
-                    justifyContent="center"
-                  >
-                    <Text fontSize={28} lineHeight={32}>
-                      {EMOTION_ICONS[emotion]}
-                    </Text>
+                {({ pressed }) => (
+                  <Box alignItems="center" gap="sm" opacity={pressed ? 0.8 : 1}>
+                    <Box
+                      backgroundColor={EMOTION_COLORS[emotion]}
+                      borderRadius="full"
+                      width={60}
+                      height={60}
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      <Text fontSize={28} lineHeight={32}>
+                        {EMOTION_ICONS[emotion]}
+                      </Text>
+                    </Box>
+                    <Text variant="caption">{EMOTION_LABELS[emotion]}</Text>
                   </Box>
-                  <Text variant="caption">{EMOTION_LABELS[emotion]}</Text>
-                </Box>
+                )}
               </Pressable>
             ))}
           </ScrollView>
@@ -237,10 +239,21 @@ export function DailyEntriesPreview() {
           </Text>
           {lastDailyEntries &&
             lastDailyEntries.length > LAST_DAILY_ENTRIES_PREVIEW_COUNT && (
-              <Link href="/(private)/(tabs)/(daily-entries)/daily-entries-list">
-                <Text color="accent" variant="caption">
-                  Ver todos
-                </Text>
+              <Link
+                href="/(private)/(tabs)/(daily-entries)/daily-entries-list"
+                asChild
+              >
+                <Pressable>
+                  {({ pressed }) => (
+                    <Text
+                      color="accent"
+                      variant="caption"
+                      opacity={pressed ? 0.8 : 1}
+                    >
+                      Ver todos
+                    </Text>
+                  )}
+                </Pressable>
               </Link>
             )}
         </Box>
@@ -350,42 +363,45 @@ function DailyEntryPreviewItem({ item }: DailyEntryPreviewItemProps) {
         containerStyle={{ marginBottom: theme.spacing.sm }}
       >
         <Pressable onPress={() => setSelectedDetailEntry(item)}>
-          <Box
-            backgroundColor="surface"
-            p="md"
-            borderRadius="lg"
-            flexDirection="row"
-            alignItems="center"
-            gap="md"
-          >
+          {({ pressed }) => (
             <Box
-              backgroundColor={EMOTION_COLORS[item.emotion]}
-              width={40}
-              height={40}
+              backgroundColor="surface"
+              p="md"
+              borderRadius="lg"
+              flexDirection="row"
               alignItems="center"
-              justifyContent="center"
-              borderRadius="full"
+              gap="md"
+              opacity={pressed ? 0.8 : 1}
             >
-              <Text fontSize={20} lineHeight={24}>
-                {EMOTION_ICONS[item.emotion]}
-              </Text>
-            </Box>
+              <Box
+                backgroundColor={EMOTION_COLORS[item.emotion]}
+                width={40}
+                height={40}
+                alignItems="center"
+                justifyContent="center"
+                borderRadius="full"
+              >
+                <Text fontSize={20} lineHeight={24}>
+                  {EMOTION_ICONS[item.emotion]}
+                </Text>
+              </Box>
 
-            <Box flex={1} gap="xs">
-              <Text variant="bodyMuted">
-                {formatDate(item.date, 'dd/MM/yyyy')}
-              </Text>
-              {item.notes ? (
-                <Text variant="caption" numberOfLines={1}>
-                  {item.notes}
+              <Box flex={1} gap="xs">
+                <Text variant="bodyMuted">
+                  {formatDate(item.date, 'dd/MM/yyyy')}
                 </Text>
-              ) : (
-                <Text variant="caption" fontStyle="italic">
-                  Registro sem anotações
-                </Text>
-              )}
+                {item.notes ? (
+                  <Text variant="caption" numberOfLines={1}>
+                    {item.notes}
+                  </Text>
+                ) : (
+                  <Text variant="caption" fontStyle="italic">
+                    Registro sem anotações
+                  </Text>
+                )}
+              </Box>
             </Box>
-          </Box>
+          )}
         </Pressable>
       </ReanimatedSwipeable>
       {selectedDetailEntry && (
