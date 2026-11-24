@@ -10,6 +10,7 @@ import { Form } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Text } from '@/components/ui/text'
 import { useAuth } from '@/contexts/auth-context'
+import { getAuthErrorMessage } from '@/lib/supabase/auth-errors'
 import { useForm } from '@tanstack/react-form'
 import { Link } from 'expo-router'
 import { toast } from 'sonner-native'
@@ -30,7 +31,7 @@ export function ForgotPasswordScreen() {
     onSubmit: async ({ value }) => {
       const { error } = await requestPasswordReset(value.email)
       if (error) {
-        toast.error(error.message)
+        toast.error(getAuthErrorMessage(error))
         return
       }
       toast.success('Enviamos instruções para redefinir sua senha')

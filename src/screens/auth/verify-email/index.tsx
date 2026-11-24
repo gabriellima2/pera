@@ -2,6 +2,7 @@ import { Box } from '@/components/ui/box'
 import { Button } from '@/components/ui/button'
 import { Text } from '@/components/ui/text'
 import { useAuth } from '@/contexts/auth-context'
+import { getAuthErrorMessage } from '@/lib/supabase/auth-errors'
 import { useEffect, useState } from 'react'
 import { AppState } from 'react-native'
 import { toast } from 'sonner-native'
@@ -30,7 +31,7 @@ export function VerifyEmailScreen() {
     setIsResending(false)
 
     if (error) {
-      toast.error(error.message)
+      toast.error(getAuthErrorMessage(error))
       return
     }
 
@@ -43,7 +44,7 @@ export function VerifyEmailScreen() {
     setIsRefreshing(false)
 
     if (error) {
-      toast.error(error.message)
+      toast.error(getAuthErrorMessage(error))
       return
     }
 
