@@ -1,3 +1,4 @@
+import { DailyEntryDetailBottomSheet } from '@/components/bottom-sheets/daily-entry-detail-bottom-sheet'
 import { DeleteDailyEntryBottomSheet } from '@/components/bottom-sheets/delete-daily-entry-bottom-sheet'
 import { BackButton } from '@/components/buttons/back-button'
 import { Box } from '@/components/ui/box'
@@ -10,9 +11,9 @@ import { theme } from '@/theme'
 import { useQuery } from '@tanstack/react-query'
 import { formatDate } from 'date-fns'
 import { useRouter } from 'expo-router'
-import { ChevronRight, Pencil, Trash2 } from 'lucide-react-native'
+import { Pencil, Trash2 } from 'lucide-react-native'
 import { useCallback, useRef, useState } from 'react'
-import { FlatList } from 'react-native'
+import { FlatList, Pressable } from 'react-native'
 import ReanimatedSwipeable, {
   type SwipeableMethods,
 } from 'react-native-gesture-handler/ReanimatedSwipeable'
@@ -91,6 +92,8 @@ type DailyEntriesListItemProps = {
 
 function DailyEntriesListItem({ item }: DailyEntriesListItemProps) {
   const [selectedDeleteId, setSelectedDeleteId] = useState<string | null>(null)
+  const [selectedDetailEntry, setSelectedDetailEntry] =
+    useState<DailyEntry | null>(null)
   const swipeableRef = useRef<SwipeableMethods>(null)
 
   const router = useRouter()
@@ -159,45 +162,52 @@ function DailyEntriesListItem({ item }: DailyEntriesListItemProps) {
         renderRightActions={renderRightActions}
         containerStyle={{ marginBottom: theme.spacing.sm }}
       >
-        <Box
-          backgroundColor="surface"
-          p="md"
-          borderRadius="lg"
-          flexDirection="row"
-          alignItems="center"
-          gap="md"
-        >
+        <Pressable onPress={() => setSelectedDetailEntry(item)}>
           <Box
-            backgroundColor={EMOTION_COLORS[item.emotion]}
-            width={40}
-            height={40}
+            backgroundColor="surface"
+            p="md"
+            borderRadius="lg"
+            flexDirection="row"
             alignItems="center"
-            justifyContent="center"
-            borderRadius="full"
+            gap="md"
           >
-            <Text fontSize={20} lineHeight={24}>
-              {EMOTION_ICONS[item.emotion]}
-            </Text>
-          </Box>
-
-          <Box flex={1} gap="xs">
-            <Text variant="bodyMuted">
-              {formatDate(item.date, 'dd/MM/yyyy')}
-            </Text>
-            {item.notes ? (
-              <Text variant="caption" numberOfLines={1}>
-                {item.notes}
+            <Box
+              backgroundColor={EMOTION_COLORS[item.emotion]}
+              width={40}
+              height={40}
+              alignItems="center"
+              justifyContent="center"
+              borderRadius="full"
+            >
+              <Text fontSize={20} lineHeight={24}>
+                {EMOTION_ICONS[item.emotion]}
               </Text>
-            ) : (
-              <Text variant="caption" fontStyle="italic">
-                Registro sem anotações
-              </Text>
-            )}
-          </Box>
+            </Box>
 
-          <ChevronRight size={16} color={theme.colors.foregroundSecondary} />
-        </Box>
+            <Box flex={1} gap="xs">
+              <Text variant="bodyMuted">
+                {formatDate(item.date, 'dd/MM/yyyy')}
+              </Text>
+              {item.notes ? (
+                <Text variant="caption" numberOfLines={1}>
+                  {item.notes}
+                </Text>
+              ) : (
+                <Text variant="caption" fontStyle="italic">
+                  Registro sem anotações
+                </Text>
+              )}
+            </Box>
+          </Box>
+        </Pressable>
       </ReanimatedSwipeable>
+      {selectedDetailEntry && (
+        <DailyEntryDetailBottomSheet
+          isVisible={selectedDetailEntry !== null}
+          dailyEntry={selectedDetailEntry}
+          onClose={() => setSelectedDetailEntry(null)}
+        />
+      )}
       {selectedDeleteId && (
         <DeleteDailyEntryBottomSheet
           isVisible={selectedDeleteId !== null}

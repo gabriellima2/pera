@@ -1,4 +1,5 @@
 import type { EmotionType } from '@/@types/emotions'
+import { DailyEntryDetailBottomSheet } from '@/components/bottom-sheets/daily-entry-detail-bottom-sheet'
 import { DeleteDailyEntryBottomSheet } from '@/components/bottom-sheets/delete-daily-entry-bottom-sheet'
 import { Box } from '@/components/ui/box'
 import { EmotionListSkeleton, Skeleton } from '@/components/ui/skeleton'
@@ -17,7 +18,7 @@ import { getCurrentDateString } from '@/utils/date'
 import { useQuery } from '@tanstack/react-query'
 import { formatDate } from 'date-fns'
 import { Link, useRouter } from 'expo-router'
-import { ChevronRight, Pencil, Trash2 } from 'lucide-react-native'
+import { Pencil, Trash2 } from 'lucide-react-native'
 import { useCallback, useRef, useState } from 'react'
 import { Pressable, ScrollView } from 'react-native'
 import ReanimatedSwipeable, {
@@ -231,7 +232,9 @@ export function DailyEntriesPreview() {
           justifyContent="space-between"
           alignItems="center"
         >
-          <Text variant="subtitle">Últimos 7 registros</Text>
+          <Text variant="subtitle">
+            Últimos {LAST_DAILY_ENTRIES_PREVIEW_COUNT} registros
+          </Text>
           {lastDailyEntries &&
             lastDailyEntries.length > LAST_DAILY_ENTRIES_PREVIEW_COUNT && (
               <Link href="/(private)/(tabs)/(daily-entries)/daily-entries-list">
@@ -276,6 +279,8 @@ type DailyEntryPreviewItemProps = {
 
 function DailyEntryPreviewItem({ item }: DailyEntryPreviewItemProps) {
   const [selectedDeleteId, setSelectedDeleteId] = useState<string | null>(null)
+  const [selectedDetailEntry, setSelectedDetailEntry] =
+    useState<DailyEntryItem | null>(null)
   const swipeableRef = useRef<SwipeableMethods>(null)
 
   const router = useRouter()
@@ -344,45 +349,52 @@ function DailyEntryPreviewItem({ item }: DailyEntryPreviewItemProps) {
         renderRightActions={renderRightActions}
         containerStyle={{ marginBottom: theme.spacing.sm }}
       >
-        <Box
-          backgroundColor="surface"
-          p="md"
-          borderRadius="lg"
-          flexDirection="row"
-          alignItems="center"
-          gap="md"
-        >
+        <Pressable onPress={() => setSelectedDetailEntry(item)}>
           <Box
-            backgroundColor={EMOTION_COLORS[item.emotion]}
-            width={40}
-            height={40}
+            backgroundColor="surface"
+            p="md"
+            borderRadius="lg"
+            flexDirection="row"
             alignItems="center"
-            justifyContent="center"
-            borderRadius="full"
+            gap="md"
           >
-            <Text fontSize={20} lineHeight={24}>
-              {EMOTION_ICONS[item.emotion]}
-            </Text>
-          </Box>
-
-          <Box flex={1} gap="xs">
-            <Text variant="bodyMuted">
-              {formatDate(item.date, 'dd/MM/yyyy')}
-            </Text>
-            {item.notes ? (
-              <Text variant="caption" numberOfLines={1}>
-                {item.notes}
+            <Box
+              backgroundColor={EMOTION_COLORS[item.emotion]}
+              width={40}
+              height={40}
+              alignItems="center"
+              justifyContent="center"
+              borderRadius="full"
+            >
+              <Text fontSize={20} lineHeight={24}>
+                {EMOTION_ICONS[item.emotion]}
               </Text>
-            ) : (
-              <Text variant="caption" fontStyle="italic">
-                Registro sem anotações
-              </Text>
-            )}
-          </Box>
+            </Box>
 
-          <ChevronRight size={16} color={theme.colors.foregroundSecondary} />
-        </Box>
+            <Box flex={1} gap="xs">
+              <Text variant="bodyMuted">
+                {formatDate(item.date, 'dd/MM/yyyy')}
+              </Text>
+              {item.notes ? (
+                <Text variant="caption" numberOfLines={1}>
+                  {item.notes}
+                </Text>
+              ) : (
+                <Text variant="caption" fontStyle="italic">
+                  Registro sem anotações
+                </Text>
+              )}
+            </Box>
+          </Box>
+        </Pressable>
       </ReanimatedSwipeable>
+      {selectedDetailEntry && (
+        <DailyEntryDetailBottomSheet
+          isVisible={selectedDetailEntry !== null}
+          dailyEntry={selectedDetailEntry}
+          onClose={() => setSelectedDetailEntry(null)}
+        />
+      )}
       {selectedDeleteId && (
         <DeleteDailyEntryBottomSheet
           isVisible={selectedDeleteId !== null}

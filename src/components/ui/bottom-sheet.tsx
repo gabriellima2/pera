@@ -97,18 +97,20 @@ export function BottomSheet({
             />
           </Animated.View>
 
-          <GestureDetector gesture={panGesture}>
-            <Animated.View
-              style={[
-                styles.sheet,
-                sheetStyle,
-                { paddingBottom: insets.bottom + theme.spacing.lg },
-              ]}
-            >
-              <View style={styles.handle} />
-              {children}
-            </Animated.View>
-          </GestureDetector>
+          <Animated.View
+            style={[
+              styles.sheet,
+              sheetStyle,
+              { paddingBottom: insets.bottom + theme.spacing.lg },
+            ]}
+          >
+            <GestureDetector gesture={panGesture}>
+              <View style={styles.handleArea}>
+                <View style={styles.handle} />
+              </View>
+            </GestureDetector>
+            {children}
+          </Animated.View>
         </View>
       </GestureHandlerRootView>
     </Modal>
@@ -135,12 +137,15 @@ const styles = StyleSheet.create({
     paddingTop: theme.spacing.md,
     minHeight: SHEET_HEIGHT,
   },
+  handleArea: {
+    alignItems: 'center',
+    paddingVertical: theme.spacing.sm,
+    marginBottom: theme.spacing.lg,
+  },
   handle: {
     width: 40,
     height: 4,
     borderRadius: 2,
     backgroundColor: theme.colors.border,
-    alignSelf: 'center',
-    marginBottom: theme.spacing.lg,
   },
 })
