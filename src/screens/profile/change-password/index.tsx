@@ -13,17 +13,19 @@ import { Form } from '@/components/ui/form'
 import { Text } from '@/components/ui/text'
 import { useAuth } from '@/contexts/auth-context'
 import { ReauthenticationRequiredError } from '@/errors/reauthenticated-required-error'
-import {
-  changePasswordSchema,
-  reauthenticationNonceValueSchema,
-} from '@/lib/auth/password-schemas'
 import { isReauthenticationNeeded } from '@/lib/supabase/auth-errors'
+import {
+  currentPasswordSchema,
+  emailOtpCodeSchema,
+  newPasswordWithConfirmationSchema,
+} from '@/schemas/auth.schema'
 import { useForm } from '@tanstack/react-form'
 import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'expo-router'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { ScrollView } from 'react-native'
 import { toast } from 'sonner-native'
+import { z } from 'zod'
 
 type ChangePasswordFormValues = {
   currentPassword: string
@@ -48,21 +50,11 @@ export function ChangePasswordScreen() {
       nonce,
       needsReauthentication: requiresNonce,
     }: ChangePasswordMutationInput) => {
-      if (requiresNonce) {
-        const nonceResult = reauthenticationNonceValueSchema.safeParse(nonce)
-        if (!nonceResult.success) {
-          throw new Error(
-            nonceResult.error.issues[0]?.message ??
-              'Código de confirmação inválido',
-          )
-        }
-      }
-
       try {
         await changePassword({
           currentPassword,
           newPassword: password,
-          ...(requiresNonce ? { nonce: nonce.trim() } : {}),
+          ...(requiresNonce ? { nonce } : {}),
         })
       } catch (error) {
         if (!requiresNonce && isReauthenticationNeeded(error)) {
@@ -97,6 +89,15 @@ export function ChangePasswordScreen() {
         toast.error(error.message)
       },
     })
+
+  const changePasswordSchema = useMemo(
+    () =>
+      newPasswordWithConfirmationSchema.extend({
+        currentPassword: currentPasswordSchema,
+        nonce: needsReauthentication ? emailOtpCodeSchema : z.string(),
+      }),
+    [needsReauthentication],
+  )
 
   const form = useForm({
     defaultValues: {
@@ -200,19 +201,26 @@ export function ChangePasswordScreen() {
               {needsReauthentication && (
                 <form.Field
                   name="nonce"
-                  children={(field) => (
-                    <Field>
-                      <FieldLabel htmlFor={field.name}>
-                        Código de confirmação
-                      </FieldLabel>
-                      <OtpInput
-                        id={field.name}
-                        value={field.state.value}
-                        onChangeText={field.handleChange}
-                        onBlur={field.handleBlur}
-                      />
-                    </Field>
-                  )}
+                  children={(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid
+                    return (
+                      <Field data-invalid={isInvalid}>
+                        <FieldLabel htmlFor={field.name}>
+                          Código de confirmação
+                        </FieldLabel>
+                        <OtpInput
+                          id={field.name}
+                          value={field.state.value}
+                          onChangeText={field.handleChange}
+                          onBlur={field.handleBlur}
+                        />
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
+                      </Field>
+                    )
+                  }}
                 />
               )}
             </FieldGroup>

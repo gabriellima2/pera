@@ -10,8 +10,14 @@ import {
 import { Form } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/contexts/auth-context'
+import { AUTH_PASSWORD_MIN_LENGTH } from '@/lib/supabase/auth-config'
 import { supabaseClient } from '@/lib/supabase/client'
 import { isEmailVerified } from '@/lib/supabase/email-verified'
+import {
+  emailSchema,
+  newPasswordSchema,
+  userNameSchema,
+} from '@/schemas/auth.schema'
 import { useForm } from '@tanstack/react-form'
 import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'expo-router'
@@ -83,7 +89,7 @@ export function SignUpForm() {
                   onChangeText={field.handleChange}
                   onBlur={field.handleBlur}
                   autoComplete="name"
-                  placeholder="Ex.: João da Silva"
+                  placeholder="Ex.: João"
                 />
                 {isInvalid && <FieldError errors={field.state.meta.errors} />}
               </Field>
@@ -123,7 +129,7 @@ export function SignUpForm() {
                   onChangeText={field.handleChange}
                   onBlur={field.handleBlur}
                   newPassword
-                  placeholder="Mínimo 6 caracteres"
+                  placeholder={`Mínimo de ${AUTH_PASSWORD_MIN_LENGTH} caracteres`}
                 />
                 {isInvalid && <FieldError errors={field.state.meta.errors} />}
               </Field>
@@ -147,19 +153,7 @@ export function SignUpForm() {
 }
 
 const signUpSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .nonempty('Obrigatório')
-    .max(255, 'Máximo de 255 caracteres'),
-  email: z
-    .string()
-    .trim()
-    .nonempty('Obrigatório')
-    .check(z.email('E-mail inválido')),
-  password: z
-    .string()
-    .trim()
-    .nonempty('Obrigatório')
-    .min(6, 'Mínimo de 6 caracteres'),
+  name: userNameSchema,
+  email: emailSchema,
+  password: newPasswordSchema,
 })
