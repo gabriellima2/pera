@@ -2,8 +2,6 @@ import { TextLink } from '@/components/links/text-link'
 import {
   Screen,
   ScreenBody,
-  ScreenDescription,
-  ScreenHeading,
   ScreenSupplement,
   ScreenTitle,
 } from '@/components/screens/public-screen'
@@ -12,10 +10,7 @@ import { SignInForm } from './sign-in-form'
 export function SignInScreen() {
   return (
     <Screen>
-      <ScreenHeading>
-        <ScreenTitle>Entrar</ScreenTitle>
-        <ScreenDescription>Acesse sua conta para continuar.</ScreenDescription>
-      </ScreenHeading>
+      <ScreenTitle>Entrar</ScreenTitle>
 
       <ScreenBody>
         <SignInForm />

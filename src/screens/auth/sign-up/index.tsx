@@ -3,9 +3,7 @@ import { TextLink } from '@/components/links/text-link'
 import {
   Screen,
   ScreenBody,
-  ScreenDescription,
   ScreenHeader,
-  ScreenHeading,
   ScreenSupplement,
   ScreenTitle,
 } from '@/components/screens/public-screen'
@@ -16,12 +14,7 @@ export function SignUpScreen() {
     <Screen>
       <ScreenHeader>
         <BackButton fallbackHref="/(auth)/sign-in" />
-        <ScreenHeading>
-          <ScreenTitle>Criar conta</ScreenTitle>
-          <ScreenDescription>
-            Preencha seus dados para criar uma conta.
-          </ScreenDescription>
-        </ScreenHeading>
+        <ScreenTitle>Criar conta</ScreenTitle>
       </ScreenHeader>
 
       <ScreenBody>
