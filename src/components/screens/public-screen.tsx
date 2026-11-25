@@ -15,7 +15,14 @@ export function Screen({ children, ...props }: ScreenProps) {
 
 export function ScreenHeader({ children, ...props }: ScreenProps) {
   return (
-    <Box gap="md" flexDirection="row" alignItems="center" {...props}>
+    <Box
+      gap="md"
+      flexDirection="row"
+      alignItems="center"
+      alignSelf="stretch"
+      minWidth={0}
+      {...props}
+    >
       {children}
     </Box>
   )
@@ -23,7 +30,7 @@ export function ScreenHeader({ children, ...props }: ScreenProps) {
 
 export function ScreenHeading({ children, ...props }: ScreenProps) {
   return (
-    <Box gap="sm" {...props}>
+    <Box gap="sm" flexShrink={1} minWidth={0} alignSelf="stretch" {...props}>
       {children}
     </Box>
   )
@@ -31,7 +38,7 @@ export function ScreenHeading({ children, ...props }: ScreenProps) {
 
 export function ScreenTitle({ children, ...props }: ScreenTextProps) {
   return (
-    <Text variant="title" {...props}>
+    <Text variant="title" flexShrink={1} {...props}>
       {children}
     </Text>
   )
@@ -39,7 +46,7 @@ export function ScreenTitle({ children, ...props }: ScreenTextProps) {
 
 export function ScreenDescription({ children, ...props }: ScreenTextProps) {
   return (
-    <Text color="foregroundSecondary" {...props}>
+    <Text color="foregroundSecondary" flexShrink={1} {...props}>
       {children}
     </Text>
   )

@@ -21,6 +21,7 @@ export function BackButton({ fallbackHref, ...props }: BackButtonProps) {
     <Button
       size="sm"
       variant="secondary"
+      flexShrink={0}
       accessibilityLabel="Voltar"
       onPress={() => {
         if (router.canGoBack()) {

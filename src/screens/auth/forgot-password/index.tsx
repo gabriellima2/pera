@@ -1,10 +1,10 @@
-import { TextLink } from '@/components/links/text-link'
+import { BackButton } from '@/components/buttons/back-button'
 import {
   Screen,
   ScreenBody,
   ScreenDescription,
+  ScreenHeader,
   ScreenHeading,
-  ScreenSupplement,
   ScreenTitle,
 } from '@/components/screens/public-screen'
 import { ForgotPasswordForm } from './forgot-password-form'
@@ -12,19 +12,18 @@ import { ForgotPasswordForm } from './forgot-password-form'
 export function ForgotPasswordScreen() {
   return (
     <Screen>
-      <ScreenHeading>
-        <ScreenTitle>Recuperar senha</ScreenTitle>
-        <ScreenDescription>
-          Informe seu e-mail para receber o link de redefinição.
-        </ScreenDescription>
-      </ScreenHeading>
+      <ScreenHeader>
+        <BackButton fallbackHref="/(auth)/sign-in" />
+        <ScreenHeading>
+          <ScreenTitle>Recuperar senha</ScreenTitle>
+          <ScreenDescription>
+            Informe seu e-mail para receber o link de redefinição.
+          </ScreenDescription>
+        </ScreenHeading>
+      </ScreenHeader>
 
       <ScreenBody>
         <ForgotPasswordForm />
-
-        <ScreenSupplement>
-          <TextLink href="/(auth)/sign-in">Voltar ao login</TextLink>
-        </ScreenSupplement>
       </ScreenBody>
     </Screen>
   )
