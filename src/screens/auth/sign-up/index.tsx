@@ -1,47 +1,38 @@
 import { BackButton } from '@/components/buttons/back-button'
-import { Box } from '@/components/ui/box'
-import { Text } from '@/components/ui/text'
-import { Link } from 'expo-router'
-import { Pressable } from 'react-native'
+import { TextLink } from '@/components/links/text-link'
+import {
+  Screen,
+  ScreenBody,
+  ScreenDescription,
+  ScreenHeader,
+  ScreenHeading,
+  ScreenSupplement,
+  ScreenTitle,
+} from '@/components/screens/public-screen'
 import { SignUpForm } from './sign-up-form'
 
 export function SignUpScreen() {
   return (
-    <Box flex={1} px="md" justifyContent="center" gap="xl">
-      <Box gap="md" flexDirection="row" alignItems="center">
+    <Screen>
+      <ScreenHeader>
         <BackButton fallbackHref="/(auth)/sign-in" />
-        <Box gap="sm">
-          <Text variant="title">Criar conta</Text>
-          <Text color="foregroundSecondary">
+        <ScreenHeading>
+          <ScreenTitle>Criar conta</ScreenTitle>
+          <ScreenDescription>
             Preencha seus dados para criar uma conta.
-          </Text>
-        </Box>
-      </Box>
+          </ScreenDescription>
+        </ScreenHeading>
+      </ScreenHeader>
 
-      <Box flex={1} gap="md">
+      <ScreenBody>
         <SignUpForm />
 
-        <Box
-          flexDirection="row"
-          flexWrap="wrap"
-          justifyContent="center"
-          alignSelf="center"
-        >
-          <Text color="foregroundSecondary">Já tem uma conta? </Text>
-          <Link href="/(auth)/sign-in" asChild>
-            <Pressable>
-              {({ pressed }) => (
-                <Text
-                  textDecorationLine="underline"
-                  opacity={pressed ? 0.8 : 1}
-                >
-                  Entrar
-                </Text>
-              )}
-            </Pressable>
-          </Link>
-        </Box>
-      </Box>
-    </Box>
+        <ScreenSupplement>
+          <TextLink href="/(auth)/sign-in" prompt="Já tem uma conta?" underline>
+            Entrar
+          </TextLink>
+        </ScreenSupplement>
+      </ScreenBody>
+    </Screen>
   )
 }

@@ -1,5 +1,6 @@
 import { EmailInput } from '@/components/inputs/email-input'
 import { PasswordInput } from '@/components/inputs/password-input'
+import { TextLink } from '@/components/links/text-link'
 import { Box } from '@/components/ui/box'
 import { Button } from '@/components/ui/button'
 import {
@@ -9,12 +10,11 @@ import {
   FieldLabel,
 } from '@/components/ui/field'
 import { Form } from '@/components/ui/form'
-import { Text } from '@/components/ui/text'
 import { useAuth } from '@/contexts/auth-context'
+import { currentPasswordSchema, emailSchema } from '@/schemas/auth.schema'
 import { useForm } from '@tanstack/react-form'
 import { useMutation } from '@tanstack/react-query'
-import { Link, useRouter } from 'expo-router'
-import { Pressable } from 'react-native'
+import { useRouter } from 'expo-router'
 import { toast } from 'sonner-native'
 import { z } from 'zod'
 
@@ -82,18 +82,9 @@ export function SignInForm() {
                     onBlur={field.handleBlur}
                   />
                   <Box alignSelf="flex-end">
-                    <Link href="/(auth)/forgot-password" asChild>
-                      <Pressable>
-                        {({ pressed }) => (
-                          <Text
-                            color="foregroundSecondary"
-                            opacity={pressed ? 0.8 : 1}
-                          >
-                            Esqueceu sua senha?
-                          </Text>
-                        )}
-                      </Pressable>
-                    </Link>
+                    <TextLink href="/(auth)/forgot-password">
+                      Esqueceu sua senha?
+                    </TextLink>
                   </Box>
                 </Box>
                 {isInvalid && <FieldError errors={field.state.meta.errors} />}
@@ -118,10 +109,6 @@ export function SignInForm() {
 }
 
 const signInSchema = z.object({
-  email: z
-    .string()
-    .trim()
-    .nonempty('Obrigatório')
-    .check(z.email('E-mail inválido')),
-  password: z.string().trim().nonempty('Obrigatório'),
+  email: emailSchema,
+  password: currentPasswordSchema,
 })

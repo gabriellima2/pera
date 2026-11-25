@@ -1,43 +1,35 @@
-import { Box } from '@/components/ui/box'
-import { Text } from '@/components/ui/text'
-import { Link } from 'expo-router'
-import { Pressable } from 'react-native'
+import { TextLink } from '@/components/links/text-link'
+import {
+  Screen,
+  ScreenBody,
+  ScreenDescription,
+  ScreenHeading,
+  ScreenSupplement,
+  ScreenTitle,
+} from '@/components/screens/public-screen'
 import { SignInForm } from './sign-in-form'
 
 export function SignInScreen() {
   return (
-    <Box flex={1} px="md" justifyContent="center" gap="xl">
-      <Box gap="sm">
-        <Text variant="title">Entrar</Text>
-        <Text color="foregroundSecondary">
-          Acesse sua conta para continuar.
-        </Text>
-      </Box>
+    <Screen>
+      <ScreenHeading>
+        <ScreenTitle>Entrar</ScreenTitle>
+        <ScreenDescription>Acesse sua conta para continuar.</ScreenDescription>
+      </ScreenHeading>
 
-      <Box flex={1} gap="md">
+      <ScreenBody>
         <SignInForm />
 
-        <Box
-          flexDirection="row"
-          flexWrap="wrap"
-          justifyContent="center"
-          alignSelf="center"
-        >
-          <Text color="foregroundSecondary">Não tem uma conta? </Text>
-          <Link href="/(auth)/sign-up" asChild>
-            <Pressable>
-              {({ pressed }) => (
-                <Text
-                  textDecorationLine="underline"
-                  opacity={pressed ? 0.8 : 1}
-                >
-                  Criar conta
-                </Text>
-              )}
-            </Pressable>
-          </Link>
-        </Box>
-      </Box>
-    </Box>
+        <ScreenSupplement>
+          <TextLink
+            href="/(auth)/sign-up"
+            prompt="Não tem uma conta?"
+            underline
+          >
+            Criar conta
+          </TextLink>
+        </ScreenSupplement>
+      </ScreenBody>
+    </Screen>
   )
 }

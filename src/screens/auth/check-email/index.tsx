@@ -1,6 +1,11 @@
-import { Box } from '@/components/ui/box'
+import {
+  Screen,
+  ScreenActions,
+  ScreenDescription,
+  ScreenHeading,
+  ScreenTitle,
+} from '@/components/screens/public-screen'
 import { Button } from '@/components/ui/button'
-import { Text } from '@/components/ui/text'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 
 export function CheckEmailScreen() {
@@ -8,20 +13,22 @@ export function CheckEmailScreen() {
   const router = useRouter()
 
   return (
-    <Box flex={1} px="md" justifyContent="center" gap="xl">
-      <Box gap="sm">
-        <Text variant="title">Confirme seu e-mail</Text>
-        <Text color="foregroundSecondary">
+    <Screen>
+      <ScreenHeading>
+        <ScreenTitle>Confirme seu e-mail</ScreenTitle>
+        <ScreenDescription>
           Enviamos um link de confirmação
           {email ? ` para ${email}` : ''}. Abra o e-mail e confirme sua conta
           antes de entrar.
-        </Text>
-      </Box>
+        </ScreenDescription>
+      </ScreenHeading>
 
-      <Button
-        label="Ir para entrar"
-        onPress={() => router.replace('/(auth)/sign-in')}
-      />
-    </Box>
+      <ScreenActions>
+        <Button
+          label="Ir para entrar"
+          onPress={() => router.replace('/(auth)/sign-in')}
+        />
+      </ScreenActions>
+    </Screen>
   )
 }

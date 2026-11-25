@@ -1,6 +1,11 @@
-import { Box } from '@/components/ui/box'
+import {
+  Screen,
+  ScreenActions,
+  ScreenDescription,
+  ScreenHeading,
+  ScreenTitle,
+} from '@/components/screens/public-screen'
 import { Button } from '@/components/ui/button'
-import { Text } from '@/components/ui/text'
 import { useAuth } from '@/contexts/auth-context'
 import { useMutation } from '@tanstack/react-query'
 import { useEffect } from 'react'
@@ -49,22 +54,18 @@ export function VerifyEmailScreen() {
 
   const email = session?.user.email ?? ''
 
-  async function handleSignOut() {
-    await signOut()
-  }
-
   return (
-    <Box flex={1} px="md" justifyContent="center" gap="xl">
-      <Box gap="sm">
-        <Text variant="title">Confirme seu e-mail</Text>
-        <Text color="foregroundSecondary">
-          Para usar o app, confirme o endereço
-          {email ? ` ${email}` : ''} pelo link que enviamos. Depois toque em
-          &quot;Já confirmei&quot;.
-        </Text>
-      </Box>
+    <Screen>
+      <ScreenHeading>
+        <ScreenTitle>Confirme seu e-mail</ScreenTitle>
+        <ScreenDescription>
+          Para usar o app, confirme o seu e-mail
+          {email ? ` ${email}` : ''} seguindo o link que enviamos. Depois toque
+          em &quot;Já confirmei&quot;.
+        </ScreenDescription>
+      </ScreenHeading>
 
-      <Box gap="md">
+      <ScreenActions>
         <Button
           label="Reenviar e-mail"
           variant="secondary"
@@ -76,8 +77,8 @@ export function VerifyEmailScreen() {
           loading={isRefreshing}
           onPress={() => void refreshSessionMutation()}
         />
-        <Button label="Sair" variant="ghost" onPress={handleSignOut} />
-      </Box>
-    </Box>
+        <Button label="Sair" variant="ghost" onPress={() => void signOut()} />
+      </ScreenActions>
+    </Screen>
   )
 }
