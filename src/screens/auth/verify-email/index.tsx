@@ -54,14 +54,16 @@ export function VerifyEmailScreen() {
 
   const email = session?.user.email ?? ''
 
+  const confirmationLink = email
+    ? `enviado para ${email}`
+    : 'no link que enviamos'
+
   return (
     <Screen>
       <ScreenHeading>
         <ScreenTitle>Confirme seu e-mail</ScreenTitle>
         <ScreenDescription>
-          Para usar o app, confirme o seu e-mail
-          {email ? ` ${email}` : ''} seguindo o link que enviamos. Depois toque
-          em &quot;Já confirmei&quot;.
+          {`Para usar o Pera, abra o link de confirmação ${confirmationLink}. Depois, toque em "Já confirmei". Não encontrou? Confira a pasta de spam do seu e-mail, ou aguarde alguns minutos.`}
         </ScreenDescription>
       </ScreenHeading>
 

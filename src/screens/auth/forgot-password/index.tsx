@@ -15,9 +15,9 @@ export function ForgotPasswordScreen() {
       <ScreenHeader>
         <BackButton fallbackHref="/(auth)/sign-in" />
         <ScreenHeading>
-          <ScreenTitle>Recuperar senha</ScreenTitle>
+          <ScreenTitle>Redefinir senha</ScreenTitle>
           <ScreenDescription>
-            Informe seu e-mail para receber o link de redefinição.
+            Informe seu e-mail. Enviaremos um link para redefinir sua senha.
           </ScreenDescription>
         </ScreenHeading>
       </ScreenHeader>

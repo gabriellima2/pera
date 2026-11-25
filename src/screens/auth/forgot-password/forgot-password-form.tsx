@@ -20,7 +20,9 @@ export function ForgotPasswordForm() {
   const { mutateAsync: requestPasswordResetMutation } = useMutation({
     mutationFn: requestPasswordReset,
     onSuccess: () => {
-      toast.success('Enviamos instruções para redefinir sua senha')
+      toast.success(
+        'Enviamos um link para redefinir sua senha. Confira sua caixa de entrada.',
+      )
     },
     onError: (error) => {
       toast.error(error.message)
