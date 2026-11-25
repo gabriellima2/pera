@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/field'
 import { Form } from '@/components/ui/form'
 import { useAuth } from '@/contexts/auth-context'
+import { AUTH_PASSWORD_MIN_LENGTH } from '@/lib/supabase/auth-config'
 import { newPasswordWithConfirmationSchema } from '@/schemas/auth.schema'
 import { useForm } from '@tanstack/react-form'
 import { useMutation } from '@tanstack/react-query'
@@ -57,6 +58,7 @@ export function ResetPasswordForm() {
                   value={field.state.value}
                   onChangeText={field.handleChange}
                   onBlur={field.handleBlur}
+                  placeholder={`Mínimo de ${AUTH_PASSWORD_MIN_LENGTH} caracteres`}
                 />
                 {isInvalid && <FieldError errors={field.state.meta.errors} />}
               </Field>
