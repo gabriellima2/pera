@@ -25,14 +25,14 @@ export function TextLink({
   return (
     <>
       {prompt != null ? (
-        <Text color="foregroundSecondary">{prompt}</Text>
+        <Text color="foregroundSecondary">{prompt} </Text>
       ) : null}
       <Link href={href} asChild>
         <PressableFeedback
           hitSlop={TEXT_LINK_HIT_SLOP}
           accessibilityRole="link"
         >
-          <Box py="xs" px="sm">
+          <Box>
             <Text
               color={color}
               textDecorationLine={underline ? 'underline' : undefined}

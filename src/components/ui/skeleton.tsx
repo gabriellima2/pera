@@ -1,10 +1,23 @@
-import { Box } from './box'
+import { theme, type Theme } from '@/theme'
+import { Fragment, ReactNode, type ComponentProps } from 'react'
+import { Box, BoxProps } from './box'
 
-export function Skeleton(props: React.ComponentProps<typeof Box>) {
+export function Skeleton(props: BoxProps) {
   return <Box backgroundColor="surface" borderRadius="lg" {...props} />
 }
 
-export function EmotionSkeleton(props: React.ComponentProps<typeof Skeleton>) {
+export type SkeletonProps = ComponentProps<typeof Skeleton>
+
+export function TextSkeleton({
+  variant,
+  ...props
+}: SkeletonProps & {
+  variant: Exclude<keyof Theme['textVariants'], 'defaults'>
+}) {
+  return <Skeleton height={theme.textVariants[variant].lineHeight} {...props} />
+}
+
+export function EmotionSkeleton(props: SkeletonProps) {
   return <Skeleton height={72} {...props} />
 }
 
@@ -16,4 +29,24 @@ export function EmotionListSkeleton({ count = 7 }: { count?: number }) {
       ))}
     </>
   )
+}
+
+export function ListSkeleton({
+  count = 7,
+  item,
+}: {
+  count?: number
+  item: ReactNode
+}) {
+  return (
+    <>
+      {[...new Array(count)].map((_, index) => (
+        <Fragment key={index}>{item}</Fragment>
+      ))}
+    </>
+  )
+}
+
+export function ListItemSkeleton(props: SkeletonProps) {
+  return <Skeleton height={72} mb="sm" {...props} />
 }
