@@ -1,6 +1,6 @@
 import { LoadingIndicator } from '@/components/ui/loading'
 import { AuthProvider, useAuth } from '@/contexts/auth-context'
-import { queryClient } from '@/lib/react-query/client'
+import { createQueryClient } from '@/lib/react-query/client'
 import { isEmailVerified } from '@/lib/supabase/email-verified'
 import {
   Inter_400Regular,
@@ -19,7 +19,7 @@ import {
   InfoIcon,
   XCircleIcon,
 } from 'lucide-react-native'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Text, View } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import 'react-native-reanimated'
@@ -43,6 +43,7 @@ export const unstable_settings = {
 SplashScreen.preventAutoHideAsync()
 
 export default function RootLayout() {
+  const [queryClient] = useState(() => createQueryClient())
   const [loaded, error] = useFonts({
     Inter_400Regular,
     Inter_500Medium,

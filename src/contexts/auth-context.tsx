@@ -1,5 +1,4 @@
 import { LoadingScreen } from '@/components/ui/loading'
-import { queryClient } from '@/lib/react-query/client'
 import { AUTH_REDIRECT_URL } from '@/lib/supabase/auth-config'
 import { throwAuthError } from '@/lib/supabase/auth-errors'
 import {
@@ -20,6 +19,7 @@ import {
 } from 'react'
 
 import type { SignInInput, SignUpInput } from '@/@types/auth'
+import { useQueryClient } from '@tanstack/react-query'
 
 export type ChangePasswordInput = {
   currentPassword: string
@@ -54,6 +54,7 @@ export function useAuth() {
 export function AuthProvider({ children }: React.PropsWithChildren) {
   const [session, setSession] = useState<Session | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const queryClient = useQueryClient()
 
   useEffect(() => {
     const unsubscribeAppState = bindSupabaseAuthRefreshToAppState()
@@ -117,7 +118,7 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
     }
 
     queryClient.clear()
-  }, [])
+  }, [queryClient])
 
   const requestPasswordReset = useCallback(async (email: string) => {
     const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
