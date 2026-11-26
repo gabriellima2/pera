@@ -1,11 +1,7 @@
+import { dailyEntriesQueryKeys } from '@/lib/react-query/queries/daily-entries'
+
 export const QUERY_KEYS = {
-  DAILY_ENTRIES: {
-    ALL: ['daily-entries'],
-    TODAY: ['today-daily-entry'],
-    HAS_TODAY: ['has-today-daily-entry'],
-    PREVIEW: ['daily-entries-preview'],
-    GET_TO_EDIT: ['daily-entry-to-edit'],
-  },
+  DAILY_ENTRIES: dailyEntriesQueryKeys,
   MOMENT_ENTRIES: {
     ALL: ['moment-entries'],
     GET_TO_EDIT: ['moment-entry-to-edit'],
