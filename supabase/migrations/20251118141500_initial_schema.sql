@@ -1,7 +1,7 @@
 -- Baseline schema (public). Synced from linked Supabase project.
 
 CREATE OR REPLACE FUNCTION "public"."create_daily_entry"("p_emotion" "text", "p_date" "date", "p_notes" "text") RETURNS "uuid"
-    LANGUAGE "plpgsql"
+    LANGUAGE "plpgsql" SECURITY INVOKER
     SET "search_path" TO 'public'
     AS $$
 declare
@@ -43,7 +43,7 @@ end;
 $$;
 
 CREATE OR REPLACE FUNCTION "public"."create_moment_entry"("p_emotion" "text", "p_situation_id" "uuid", "p_situation_description" "text", "p_date" "date", "p_notes" "text") RETURNS "uuid"
-    LANGUAGE "plpgsql"
+    LANGUAGE "plpgsql" SECURITY INVOKER
     SET "search_path" TO 'public'
     AS $$
 declare
@@ -91,7 +91,7 @@ end;
 $$;
 
 CREATE OR REPLACE FUNCTION "public"."edit_moment_entry"("p_moment_entry_id" "uuid", "p_emotion" "text", "p_situation_id" "uuid", "p_situation_description" "text", "p_date" "date", "p_notes" "text") RETURNS "uuid"
-    LANGUAGE "plpgsql"
+    LANGUAGE "plpgsql" SECURITY INVOKER
     SET "search_path" TO 'public'
     AS $$
 declare
