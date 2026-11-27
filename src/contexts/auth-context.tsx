@@ -1,6 +1,6 @@
 import { LoadingScreen } from '@/components/ui/loading'
 import { AUTH_REDIRECT_URL } from '@/lib/supabase/auth-config'
-import { throwAuthError } from '@/lib/supabase/auth-errors'
+import { isPassableAuthError, throwAuthError } from '@/lib/supabase/auth-errors'
 import {
   bindSupabaseAuthRefreshToAppState,
   supabaseClient,
@@ -37,7 +37,7 @@ type AuthContextValue = {
   updatePassword: (password: string) => Promise<void>
   changePassword: (input: ChangePasswordInput) => Promise<void>
   requestReauthentication: () => Promise<void>
-  resendSignupConfirmation: () => Promise<void>
+  resendSignupConfirmation: (email?: string) => Promise<void>
   refreshSession: () => Promise<{ verified: boolean }>
 }
 
@@ -57,33 +57,87 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
   const queryClient = useQueryClient()
 
   useEffect(() => {
-    const unsubscribeAppState = bindSupabaseAuthRefreshToAppState()
+    // Ignore async completion after AuthProvider unmount; UI updates use applySession / finishBootstrap.
+    let cancelled = false
 
-    const onUrl = ({ url }: { url: string }) => {
-      void handleSupabaseAuthRedirect(url)
+    const applySession = (next: Session | null) => {
+      if (!cancelled) setSession(next)
     }
 
-    void Linking.getInitialURL().then((url) => {
-      if (url) {
-        void handleSupabaseAuthRedirect(url)
-      }
-    })
+    const finishBootstrap = () => {
+      if (!cancelled) setIsLoading(false)
+    }
 
-    const urlSubscription = Linking.addEventListener('url', onUrl)
+    const unsubscribeAppState = bindSupabaseAuthRefreshToAppState()
 
+    // Sync React from GoTrue; must stay enabled during cold start (INITIAL_SESSION, deeplink).
     const {
       data: { subscription },
     } = supabaseClient.auth.onAuthStateChange((_event, nextSession) => {
-      setSession(nextSession)
-      setIsLoading(false)
+      applySession(nextSession)
     })
 
+    const onUrl = ({ url }: { url: string }) => {
+      // Warm deeplinks: handler updates storage; listener owns React state.
+      void (async () => {
+        await handleSupabaseAuthRedirect(url)
+      })()
+    }
+
+    const urlSubscription = Linking.addEventListener('url', onUrl)
+
+    async function bootstrap() {
+      try {
+        // Apply cold-start deeplink tokens before validating storage (avoids URL ∥ initAuth race).
+        const initialUrl = await Linking.getInitialURL()
+        if (initialUrl) {
+          if (cancelled) return
+          await handleSupabaseAuthRedirect(initialUrl)
+        }
+
+        if (cancelled) return
+
+        const {
+          data: { session: persisted },
+        } = await supabaseClient.auth.getSession()
+
+        if (persisted) {
+          const { error } = await supabaseClient.auth.getUser()
+          if (cancelled) return
+
+          if (error) {
+            if (isPassableAuthError(error)) {
+              applySession(persisted)
+            } else {
+              await supabaseClient.auth.signOut({ scope: 'local' })
+              queryClient.clear()
+              applySession(null)
+            }
+          } else {
+            const {
+              data: { session: current },
+            } = await supabaseClient.auth.getSession()
+            // getUser may refresh user claims in storage; React state can still be stale.
+            applySession(current ?? persisted)
+          }
+        } else {
+          applySession(null)
+        }
+      } finally {
+        finishBootstrap()
+      }
+    }
+
+    void bootstrap()
+
     return () => {
+      // Set before unsubscribing so late callbacks skip setState.
+      cancelled = true
       subscription.unsubscribe()
       urlSubscription.remove()
       unsubscribeAppState()
     }
-  }, [])
+  }, [queryClient])
 
   const signIn = useCallback(async (input: SignInInput) => {
     const { error } = await supabaseClient.auth.signInWithPassword({
@@ -158,21 +212,24 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
     }
   }, [])
 
-  const resendSignupConfirmation = useCallback(async () => {
-    const email = session?.user.email
-    if (!email) {
-      throw new Error('Não foi possível identificar o e-mail da sessão.')
-    }
+  const resendSignupConfirmation = useCallback(
+    async (signupEmail?: string) => {
+      const email = signupEmail ?? session?.user.email
+      if (!email) {
+        throw new Error('Não foi possível identificar o e-mail para reenvio.')
+      }
 
-    const { error } = await supabaseClient.auth.resend({
-      type: 'signup',
-      email,
-    })
+      const { error } = await supabaseClient.auth.resend({
+        type: 'signup',
+        email,
+      })
 
-    if (error) {
-      throwAuthError(error)
-    }
-  }, [session?.user.email])
+      if (error) {
+        throwAuthError(error)
+      }
+    },
+    [session?.user.email],
+  )
 
   const refreshSession = useCallback(async () => {
     const { data, error } = await supabaseClient.auth.refreshSession()
