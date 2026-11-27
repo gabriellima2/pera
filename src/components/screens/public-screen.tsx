@@ -60,14 +60,6 @@ export function ScreenBody({ children, ...props }: ScreenProps) {
   )
 }
 
-export function ScreenActions({ children, ...props }: ScreenProps) {
-  return (
-    <Box gap="md" {...props}>
-      {children}
-    </Box>
-  )
-}
-
 export function ScreenSupplement({ children, ...props }: ScreenProps) {
   return (
     <Box

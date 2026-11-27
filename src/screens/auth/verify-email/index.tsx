@@ -1,11 +1,14 @@
 import {
   Screen,
-  ScreenActions,
+  ScreenBody,
   ScreenDescription,
+  ScreenHeader,
   ScreenHeading,
   ScreenTitle,
 } from '@/components/screens/public-screen'
 import { Button } from '@/components/ui/button'
+import { PressableFeedback } from '@/components/ui/pressable-feedback'
+import { Text } from '@/components/ui/text'
 import { useAuth } from '@/contexts/auth-context'
 import { useMutation } from '@tanstack/react-query'
 import { useEffect } from 'react'
@@ -18,7 +21,7 @@ export function VerifyEmailScreen() {
 
   const { mutateAsync: resendConfirmation, isPending: isResending } =
     useMutation({
-      mutationFn: resendSignupConfirmation,
+      mutationFn: () => resendSignupConfirmation(),
       onSuccess: () => {
         toast.success('E-mail de confirmação reenviado')
       },
@@ -52,35 +55,36 @@ export function VerifyEmailScreen() {
     return () => subscription.remove()
   }, [refreshSession])
 
-  const email = session?.user.email ?? ''
-
-  const confirmationLink = email
-    ? `enviado para ${email}`
-    : 'no link que enviamos'
+  const email = session?.user.email
+  const destination = email ? `para ${email}` : 'para o seu e-mail'
 
   return (
     <Screen>
-      <ScreenHeading>
-        <ScreenTitle>Confirme seu e-mail</ScreenTitle>
-        <ScreenDescription>
-          {`Para usar o Pera, abra o link de confirmação ${confirmationLink}. Depois, toque em "Já confirmei". Não encontrou? Confira a pasta de spam do seu e-mail, ou aguarde alguns minutos.`}
-        </ScreenDescription>
-      </ScreenHeading>
+      <ScreenHeader>
+        <PressableFeedback onPress={() => void signOut()}>
+          <Text>Sair da conta</Text>
+        </PressableFeedback>
+      </ScreenHeader>
+      <ScreenBody>
+        <ScreenHeading flex={1} justifyContent="center" alignItems="center">
+          <ScreenTitle textAlign="center">Confirme seu e-mail</ScreenTitle>
+          <ScreenDescription textAlign="center">
+            {`O link de confirmação foi enviado ${destination}. Abra o e-mail e toque no link para abrir o Pera e ativar sua conta. Não achou o e-mail? Confira o spam ou aguarde alguns minutos.`}
+          </ScreenDescription>
+        </ScreenHeading>
 
-      <ScreenActions>
+        <Button
+          label="Já confirmei"
+          loading={isRefreshing}
+          onPress={() => void refreshSessionMutation()}
+        />
         <Button
           label="Reenviar e-mail"
           variant="secondary"
           loading={isResending}
           onPress={() => void resendConfirmation()}
         />
-        <Button
-          label="Já confirmei"
-          loading={isRefreshing}
-          onPress={() => void refreshSessionMutation()}
-        />
-        <Button label="Sair" variant="ghost" onPress={() => void signOut()} />
-      </ScreenActions>
+      </ScreenBody>
     </Screen>
   )
 }
