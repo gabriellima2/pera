@@ -1,10 +1,13 @@
-import type { AuthError as SupabaseAuthError } from '@supabase/supabase-js'
+import {
+  isAuthApiError,
+  type AuthError as SupabaseAuthError,
+} from '@supabase/supabase-js'
 
 const AUTH_ERROR_MESSAGES: Record<string, string> = {
   // Do not map (generic fallback only — user enumeration or unnecessary detail):
   // email_exists, user_already_exists, user_not_found
 
-  // Login e cadastro
+  // Login and sign-up
   invalid_credentials: 'E-mail ou senha incorretos.',
   email_not_confirmed: 'Confirme seu e-mail antes de entrar.',
   signup_disabled: 'Novos cadastros estão indisponíveis no momento.',
@@ -13,13 +16,13 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
   user_banned:
     'Esta conta está suspensa. Entre em contato com o suporte, se necessário.',
 
-  // Senha
+  // Password
   weak_password: 'A senha não atende aos requisitos de segurança.',
   same_password: 'A nova senha deve ser diferente da atual.',
   current_password_required: 'Informe sua senha atual.',
   current_password_mismatch: 'A senha atual está incorreta.',
 
-  // Reautenticação / OTP
+  // Reauthentication / OTP
   reauthentication_needed:
     'Por segurança, informe o código de confirmação enviado ao seu e-mail.',
   reauthentication_not_valid: 'Código de confirmação incorreto.',
@@ -27,7 +30,7 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
   otp_expired: 'Código de confirmação expirado. Solicite um novo.',
   otp_disabled: 'Login por código está indisponível.',
 
-  // E-mail (envio)
+  // Email (outbound)
   email_address_not_authorized:
     'Não foi possível enviar o e-mail. Tente novamente mais tarde.',
   over_email_send_rate_limit:
@@ -35,12 +38,12 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
   over_sms_send_rate_limit:
     'Muitas mensagens foram enviadas. Aguarde um pouco e tente novamente.',
 
-  // Rate limit e rede
+  // Rate limit and network
   over_request_rate_limit:
     'Muitas tentativas. Aguarde alguns minutos e tente novamente.',
   request_timeout: 'A operação demorou demais. Tente novamente.',
 
-  // Sessão
+  // Session
   session_expired: 'Sua sessão expirou. Entre novamente.',
   session_not_found: 'Sessão inválida. Entre novamente.',
   refresh_token_not_found: 'Sessão inválida. Entre novamente.',
@@ -48,10 +51,32 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
   flow_state_expired: 'O link expirou. Solicite um novo.',
   flow_state_not_found: 'O link não é mais válido. Solicite um novo.',
 
-  // Outros
+  // Other
   validation_failed: 'Verifique os dados informados e tente novamente.',
   unexpected_failure:
     'Ocorreu um erro inesperado. Tente novamente em instantes.',
+}
+
+// Local session may still be valid (network, rate limit, unstable server).
+// Any other Auth API code → treat session as invalid. See:
+// https://supabase.com/docs/guides/auth/debugging/error-codes
+const PASSABLE_AUTH_ERROR_CODES = new Set([
+  'conflict',
+  'over_request_rate_limit',
+  'request_timeout',
+  'unexpected_failure',
+])
+
+export function isPassableAuthError(error: SupabaseAuthError): boolean {
+  if (!isAuthApiError(error)) {
+    return true
+  }
+
+  if (!error.code) {
+    return false
+  }
+
+  return PASSABLE_AUTH_ERROR_CODES.has(error.code)
 }
 
 const GENERIC_AUTH_ERROR_MESSAGE = 'Não foi possível concluir a operação.'
